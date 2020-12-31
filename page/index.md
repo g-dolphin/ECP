@@ -31,11 +31,11 @@ In cases where emissions are subject to both a carbon tax and an emissions tradi
 
 \begin{section}{title="The ECP", name="ECP"}
 
-\figure{"/Users/GD/Documents/GitHub/ECP/page/_assets/coverage_ts.png", caption="Carbon pricing coverage, 1990-2016"}
+\figure{path="/assets/coverageTS.png", caption="Carbon pricing coverage, 1990-2016"}
 
-\figure{"/Users/GD/Documents/GitHub/ECP/page/_assets/coverage_hist.png", caption="Coverage distribution, 2016"}
+\figure{path="/assets/coverageHIST.png", caption="Coverage distribution, 2016"}
 
-\figure{"/Users/GD/Documents/GitHub/ECP/page/_assets/ecp_ts.png", caption="Total (emissions-weighted) carbon price, 1990-2018"}
+\figure{path="/assets/ecpTS.png", caption="Total (emissions-weighted) carbon price, 1990-2018"}
 
 
 
