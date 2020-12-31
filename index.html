@@ -127,6 +127,8 @@ padding-right:  10px;
 </ul>
 <p>We refer to the economy-wide average price as the Emissions-weighted Carbon Price &#40;ECP&#41;.</p>
 <p>Note that only mechanisms placing an explicit price on CO2 emissions are taken into account. This includes carbon taxes and emissions trading systems &#40;cap-and-trade&#41;. Hence the information presented and underlying data do not reflect the pricing mechanisms that might apply to other greenhouse gases. A few existing mechanisms apply to non-CO2 greenhouse gases such as the EU ETS, which covers some N2O emissions and the Spanish &#39;carbon&#39; tax, which covers fluorinated greenhouse gases &#40;F-gases&#41;.</p>
+<p>It also &#40;currently&#41; does not include offset mechanisms such as Australia&#39;s ERF Safeguard Mechanism.</p>
+<p>This, together with the fact that our dataset does not yet account for China&#39;s provincial ETSs, implies that the <code>World</code> coverage and average carbon price figures reported here might be lower than those reported elsewhere &#40;e.g. on the <a href="https://carbonpricingdashboard.worldbank.org/">World Bank Carbon Pricing Dashboard</a>&#41;. Note also that the exchange rate &#40;USD/Local Currency Unit&#41; affects the USD values calculated and reported below. The exchange rates currently used are 2019 exchange rates from the World Bank.  </p>
 <p>      </div>
     </div>
   </div>
@@ -138,7 +140,8 @@ padding-right:  10px;
         <h2>Methodology</h2></p>
 <p>These economy wide averages are based on sector&#40;-fuel&#41; level coverage and price data. This data is available and presented <a href="https://gd1989.github.io/WorldCarbonPricingDatabase/">here</a>.</p>
 <p>The methodology and data used to calculate economy-wide averages is described in detail in <a href="https://academic.oup.com/oep/article-abstract/72/2/472/5530742">Dolphin, G., Pollitt, M. and D.M. Newbery &#40;2020&#41;, The Political Economy of Carbon Pricing: a Panel Analysis</a> as well as on the companion GitHub <a href="https://github.com/gd1989/ECP">repository</a> to this page. The principle of it is, however, straightforward: it consists in &#40;i&#41; multiplying sector&#40;-fuel&#41; level CO2 emissions share &#40;in a jurisdiction&#39;s total GHG emissions&#41; by the associated total price tag and &#40;ii&#41; aggregate over all sectors &#40;and fuels&#41;.</p>
-<p>In cases where emissions are subject to both a carbon tax and an emissions trading system, the total carbon price is the sum of the tax rate and &#40;the yearly average of&#41; the allowance price .</p>
+<p>In cases where emissions are subject to both a carbon tax and an emissions trading system, the total carbon price is the sum of the tax rate and &#40;the yearly average of&#41; the allowance price.</p>
+<p>The coverage figures are based on CO2 emissions data from the International Energy Agency and GHG emissions data from Climate Watch &#40;CAIT Climate Data Explorer series&#41;.</p>
 <p>      </div>
     </div>
   </div>
@@ -147,25 +150,20 @@ padding-right:  10px;
   <div class="container">
     <div class="row">
       <div class="col-lg-10 mx-auto">
-        <h2>The ECP</h2></p>
+        <h2>Country-level coverage and average carbon price</h2></p>
+<p>Carbon pricing mechanisms around the world vary in scope. Some have a very narrow scope and target a single sector &#40;e.g. electricity and heat production&#41; or multiple sectors. The figure below presents coverage data for a number of selected jurisdictions over the period 1990-2017; 2017 is the last year for which the CAIT series are currently available.</p>
+<p>The coverage is expressed as a share of each jurisdiction&#39;s total GHG emissions &#40;excluding Land Use and Land Use Change and Forestry&#41; in any given year.</p>
 <figure class="figure">
-  <img src="/ECP/assets/coverageTS.png" alt="Carbon pricing coverage, 1990-2016" class="figure-img img-fluid " width="" >
+  <img src="/ECP/assets/coverage_ts.png" alt="Carbon pricing coverage, 1990-2017" class="figure-img img-fluid " width="70%" style="border-radius:5px">
   <figcaption class="figure-caption ">
-Carbon pricing coverage, 1990-2016
+Carbon pricing coverage, 1990-2017
 </figcaption>
 
 </figure>
 
+<p>The country-level average carbon price, in 2019USD/tCO2, is presented below. While some countries subject a large share of their domestic GHG emissions to a &#40;at times substantial&#41; price, their emissions represent a relatively small proportion of global &#40;world&#41; emissions. As a result, the <code>World</code> average price of carbon remains low.</p>
 <figure class="figure">
-  <img src="/ECP/assets/coverageHIST.png" alt="Coverage distribution, 2016" class="figure-img img-fluid " width="" >
-  <figcaption class="figure-caption ">
-Coverage distribution, 2016
-</figcaption>
-
-</figure>
-
-<figure class="figure">
-  <img src="/ECP/assets/ecpTS.png" alt="Total (emissions-weighted) carbon price, 1990-2018" class="figure-img img-fluid " width="" >
+  <img src="/ECP/assets/ecp_ts.png" alt="Total (emissions-weighted) carbon price, 1990-2018" class="figure-img img-fluid " width="70%" style="border-radius:5px">
   <figcaption class="figure-caption ">
 Total (emissions-weighted) carbon price, 1990-2018
 </figcaption>
