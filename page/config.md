@@ -86,7 +86,7 @@ The latter allows you to plug in values that you would have defined here.
 
 @def add_github_view  = true
 @def add_github_star  = true
-@def github_repo      = "tlienart/PkgPage.jl"
+@def github_repo      = "g-dolphin/ECP"
 
 <!-- SECTION LAYOUT
 NOTE:
