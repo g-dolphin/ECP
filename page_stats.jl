@@ -10,6 +10,11 @@ using CSV
 using PyPlot
 using PyCall
 
+# https://github.com/JuliaPy/PyPlot.jl
+PyPlot.matplotlib.style.use("ggplot")
+#rcParams = PyPlot.PyDict(PyPlot.matplotlib."rcParams")
+#rcParams["font.size"] = 15
+
 #if you want to keep the Python True/False syntax
 #const True = true
 #const False = false
@@ -41,7 +46,7 @@ end
 xlabel("Time", fontsize=14)
 ylabel("Coverage (% GHG)", fontsize=14)
 yticks(fontsize=12)
-xlim(1990, 2016)
+xlim(1990, 2017)
 ylim(0)
 legend(loc="upper center", bbox_to_anchor=(0.5, -0.05), fancybox=true, shadow=true, ncol=4, fontsize=14)
 plt.tight_layout()
@@ -78,16 +83,16 @@ plt.close()
 # ## Distribution
 # ### Distribution of coverage in 2016
 
-cov_2016 = coverage[coverage[:Year] .== 2016, :]
-dropmissing!(cov_2016)
+cov_dist = coverage[coverage[:, :Year] .== 2017, :]
+dropmissing!(cov_dist)
 
 
 fig, (ax, ax2) = plt.subplots(2,1, sharex=true) # make the axes
 
-ax.hist(cov_2016.cov_tax_ets_share_jurGHG, color="blue", edgecolor="white",
+ax.hist(cov_dist.cov_tax_ets_share_jurGHG, color="blue", edgecolor="white",
         bins=20,
         density=false, alpha=0.5)
-ax2.hist(cov_2016.cov_tax_ets_share_jurGHG, color="blue", edgecolor="white",
+ax2.hist(cov_dist.cov_tax_ets_share_jurGHG, color="blue", edgecolor="white",
          bins=20,
          density=false, alpha=0.5)
 
