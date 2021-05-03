@@ -13,4 +13,4 @@ Information about 1. and 2. have been collected as part of a project developed w
 
 Note: The ECP currently does not account for coverage (exemptions) *within* sectors. For instance, it currently does not account for sector-specific exemptions in the tax base or the exclusion of some emissions plants below rated power threshold levels in ETSs. As a result, the ECP is, in some cases, a slight overestimate of the average carbon price in a sector or an economy.
   - The best approach I could think of so far (but not yet implemented) is to collect information on these 'within-sector’ tax base exemptions, estimate the percentage of sector-level emissions that they affect, and use it to introduce an adjustment in the calculation of the sector-level prices.
-  -
+  - [tesssssst]
