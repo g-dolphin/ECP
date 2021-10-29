@@ -19,6 +19,16 @@ The coverage is expressed as a share of each jurisdiction's total GHG emissions 
 
 Next to the jurisdiction-level average price, I also calculate sector-level averages for IPCC Energy sectors using IEA CO2 emissions data.
 
+# Citation
+
+If you use the dataset in scientific publication, we would appreciate a reference to the following paper:
+
+Dolphin, G., Pollitt, M. and Newbery, D. 2020. The political economy of carbon pricing: a panel analysis. Oxford Economic Papers 72(2): 472-500.
+
+# License
+
+This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 # Note
 
 The ECP currently does not account for coverage (exemptions) *within* sectors. For instance, it currently does not account for sector-specific exemptions in the tax base or the exclusion of some emitting (stationary) sources based on thermal power or emissions threshold levels. As a result, the ECP is, in some cases, a slight overestimate of the average carbon price in a sector or an economy.
