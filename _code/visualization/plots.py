@@ -47,8 +47,9 @@ cntries_list = ['Argentina', 'Austria', 'Belgium', 'Bulgaria', 'Chile', 'Colombi
        'Romania', 'Slovak Republic', 'Slovenia', 'Spain', 'Sweden',
        'Switzerland', 'Ukraine', 'United Kingdom']
 
-df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverageII.csv")
-#df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/world_sectoral_coverage.csv")
+#df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage.csv")
+df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/world_sectoral_coverage.csv")
+df_cov_2010Scope = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage_2010scope.csv")
 
 df_prices_econ = pd.read_csv(user_root_path+git_repo_path+"/price/ecp_economy/ecp_vw/ecp_tvII.csv")
 df_prices_sect = pd.read_csv(user_root_path+git_repo_path+"/price/ecp_sectors/ecp_vw/ecp_sector.csv")
@@ -73,18 +74,18 @@ df_cov["cov_all_CO2_jurCO2"] = df_cov["cov_all_CO2_jurCO2"]*100
 
 df_cov_hm = df_cov.pivot(index='Jurisdiction', columns='Year', values='cov_all_CO2_jurCO2')
 
-plt.subplots(figsize=(20,15))
+plt.subplots(figsize=(30,24))
 #ax=subplot(111)
 
 cmap = sns.cm.rocket_r
 #sns.set(font_scale=1)
-ax = sns.heatmap(df_cov_hm, vmin=0, vmax=100,cmap=cmap,annot_kws={"size": 46},
+ax = sns.heatmap(df_cov_hm, vmin=0, vmax=100, cmap=cmap,annot_kws={"size": 46},
                  cbar_kws={'label': '%'})
 
 ax.figure.axes[-1].yaxis.label.set_size(20)
 
-plt.title("Share of jurisdiction CO$_2$ emissions covered by carbon pricing mechanisms, by jurisdiction",
-          fontsize=26)
+#plt.title("Share of jurisdiction CO$_2$ emissions covered by carbon pricing mechanisms, by jurisdiction",
+#          fontsize=26)
 
 plt.xlabel("")
 plt.xticks(rotation=45, size=17)
@@ -116,8 +117,8 @@ ax.set_yticklabels(["Power generation", "Petroleum refining", "Iron and Steel",
                     "Road transport", "Commercial/Institutional", "Residential"],
                     rotation=0, size=18)
 
-plt.title("Share of world CO$_2$ emissions covered by carbon pricing mechanism, by sector",
-          fontsize=26)
+#plt.title("Share of world CO$_2$ emissions covered by carbon pricing mechanism, by sector",
+#          fontsize=26)
 plt.ylabel("IPCC source categories", fontsize=22)
 plt.xlabel("")
 plt.xticks(rotation=45, size=17)
@@ -125,6 +126,72 @@ plt.tight_layout()
 
 plt.savefig(output_dir+"/cov_sect_hm.pdf")
 plt.close()
+
+
+
+## World coverage of schemes implemented as of 2010
+
+jur_list_2010 = df_cov_2010Scope.loc[df_cov_2010Scope['cov_all_CO2_wldCO2']>0, "Jurisdiction"].unique() 
+
+eu_ets_jur = ['Austria', 'Belgium', 'Bulgaria', 'Cyprus',
+               'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France',
+               'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy',
+               'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Netherlands',
+               'New Zealand', 'Norway', 'Poland', 'Portugal', 'Romania',
+               'Slovak Republic', 'Slovenia', 'Spain', 'Sweden',
+               'United Kingdom']
+
+rggi_jur = ['Connecticut', 'Delaware', 'Maine', 'Maryland', 'Massachusetts', 
+            'New Hampshire', 'New Jersey', 'New York', 'Rhode Island', 
+            'Vermont']
+
+df_cov_2010Scope = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction.isin(jur_list_2010), :]
+
+df_cov_2010Scope_euets = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction.isin(eu_ets_jur), :].groupby(["Year"]).sum()
+df_cov_2010Scope_euets.reset_index(inplace=True)
+df_cov_2010Scope_euets["Jurisdiction"] = "EU ETS"
+ 
+df_cov_2010Scope_rggi = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction.isin(rggi_jur), :].groupby(["Year"]).sum()
+df_cov_2010Scope_rggi.reset_index(inplace=True)
+df_cov_2010Scope_rggi["Jurisdiction"] = "RGGI"
+
+df_cov_2010Scope = df_cov_2010Scope.loc[(~df_cov_2010Scope.Jurisdiction.isin(eu_ets_jur)) & (~df_cov_2010Scope.Jurisdiction.isin(rggi_jur)), :]
+df_cov_2010Scope = pd.concat([df_cov_2010Scope, df_cov_2010Scope_euets, df_cov_2010Scope_rggi])
+
+markers = [".", ",", "o", "H", "X", "*", "p", "s", "+"]
+
+
+
+j = 0
+
+for jur_group in [["EU ETS"], ["Alberta", "Switzerland", "RGGI"]]:
+    i = 0
+    
+    fig = plt.figure(figsize=(18,12))
+    
+    for jur in jur_group:
+        temp = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction==jur, :]
+        plt.plot(temp.Year, temp.cov_all_CO2_wldCO2*100, 
+                 label=jur,
+                 linewidth=2, ms=10, marker=markers[i])
+        i+=1
+    
+    plt.ylabel("% of world CO$_2$", fontsize=30)
+    plt.yticks(size=28)
+    plt.xticks(size=28)
+    
+    plt.xlim([2010, 2020])
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, 
+               shadow=False, ncol=5, fontsize=30)
+    
+    plt.tight_layout()
+    
+    plt.savefig("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/working_paper/figures/wld_cov_2010scope_"+str(j)+".pdf")
+    
+    plt.close()
+    
+    j+=1
+
 
 # PRICES
 

@@ -74,3 +74,9 @@ for jur_list in [oecd, middle_income]:
     
     average = average.groupby(["Year"]).price_oecd_weight.sum()
 
+
+# Share of emissions covered by mechanisms implemented by year [yyyy]
+
+
+
+
