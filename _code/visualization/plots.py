@@ -47,12 +47,20 @@ cntries_list = ['Argentina', 'Austria', 'Belgium', 'Bulgaria', 'Chile', 'Colombi
        'Romania', 'Slovak Republic', 'Slovenia', 'Spain', 'Sweden',
        'Switzerland', 'Ukraine', 'United Kingdom']
 
-#df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage.csv")
+cntries_list_II = ['Argentina',
+                   'Denmark',
+                   'Finland', 'Germany', 
+                   'Mexico', 'Norway',
+                   'Romania', 'Sweden',
+                   'Switzerland', 'United Kingdom']
+
+
+df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage.csv")
 df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/world_sectoral_coverage.csv")
 df_cov_2010Scope = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage_2010scope.csv")
 
-df_prices_econ = pd.read_csv(user_root_path+git_repo_path+"/price/ecp_economy/ecp_vw/ecp_tvII.csv")
-df_prices_sect = pd.read_csv(user_root_path+git_repo_path+"/price/ecp_sectors/ecp_vw/ecp_sector.csv")
+df_prices_econ = pd.read_csv(user_root_path+git_repo_path+"/_dataset/price/ecp_economy/ecp.csv")
+df_prices_sect = pd.read_csv(user_root_path+git_repo_path+"/_dataset/price/ecp_sectors/ecp_sector.csv")
 df_prices_sect_wld = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_sectors_wld/world_sectoral_ecp.csv")
 
 
@@ -74,22 +82,25 @@ df_cov["cov_all_CO2_jurCO2"] = df_cov["cov_all_CO2_jurCO2"]*100
 
 df_cov_hm = df_cov.pivot(index='Jurisdiction', columns='Year', values='cov_all_CO2_jurCO2')
 
-plt.subplots(figsize=(30,24))
+plt.subplots(figsize=(30,34))
 #ax=subplot(111)
 
 cmap = sns.cm.rocket_r
 #sns.set(font_scale=1)
-ax = sns.heatmap(df_cov_hm, vmin=0, vmax=100, cmap=cmap,annot_kws={"size": 46},
+ax = sns.heatmap(df_cov_hm, vmin=0, vmax=100, cmap=cmap, annot_kws={"size": 560},
                  cbar_kws={'label': '%'})
 
-ax.figure.axes[-1].yaxis.label.set_size(20)
+cax = plt.gcf().axes[-1]
+cax.tick_params(labelsize=25)
+ax.figure.axes[-1].yaxis.label.set_size(40)
 
 #plt.title("Share of jurisdiction CO$_2$ emissions covered by carbon pricing mechanisms, by jurisdiction",
 #          fontsize=26)
 
 plt.xlabel("")
-plt.xticks(rotation=45, size=17)
-plt.ylabel("Jurisdiction", fontsize=22)
+plt.xticks(rotation=45, size=26)
+plt.yticks(size=26)
+plt.ylabel("Jurisdiction", fontsize=32)
 
 plt.tight_layout()
 plt.savefig(output_dir+"/cov_hm.pdf")
@@ -196,10 +207,10 @@ for jur_group in [["EU ETS"], ["Alberta", "Switzerland", "RGGI"]]:
 # PRICES
 
 df_prices_econ = df_prices_econ.loc[df_prices_econ['Year']>=1990]
-df_prices_econ = df_prices_econ.loc[df_prices_econ['Year']<=2018]
+df_prices_econ = df_prices_econ.loc[df_prices_econ['Year']<=2020]
 
 df_prices_sect = df_prices_sect.loc[df_prices_sect['Year']>=1990]
-df_prices_sect = df_prices_sect.loc[df_prices_sect['Year']<=2018]
+df_prices_sect = df_prices_sect.loc[df_prices_sect['Year']<=2020]
 
 
 ## Jurisdiction
@@ -219,7 +230,7 @@ plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), fancybox=True,
 
 plt.tight_layout()
 
-plt.savefig("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/working_paper/figures/coverage.pdf")
+plt.savefig("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/working_paper/figures/price.pdf")
 
 plt.close()
 
@@ -261,28 +272,87 @@ plt.xticks([r + barWidth for r in range(len(bars1))], cntries_list, rotation=90)
 plt.legend()
 plt.show()
 
-# Multi-sector heatmap
+# Multi-sector time-series
 
-sector003 = df_prices_sect.loc[(df_prices_sect.Jurisdiction.isin(cntries_list)) & (df_prices_sect.Flow=="ABFLOW003")]
-sector012 = df_prices_sect.loc[(df_prices_sect.Jurisdiction.isin(cntries_list)) & (df_prices_sect.Flow=="ABFLOW012")]
-sector028 = df_prices_sect.loc[(df_prices_sect.Jurisdiction.isin(cntries_list)) & (df_prices_sect.Flow=="ABFLOW028")]
 
-vmin = min(sector003.Total_ew_price_sector_2019USD.min(), sector012.Total_ew_price_sector_2019USD.min())
-vmax = max(sector003.Total_ew_price_sector_2019USD.max(), sector012.Total_ew_price_sector_2019USD.max())
+sector_labels = {"ABFLOW003":"Power generation", 
+                 "ABFLOW013":"Manufacturing", 
+                 "ABFLOW028":"Road transport", 
+                 "ABFLOW034":"Residential heating"}
 
-fig, axs = plt.subplots(ncols=3, gridspec_kw=dict(width_ratios=[4,1,0.2]))
+iea_ipcc_map = {"ABFLOW003":"1A1A1", 
+                 "ABFLOW013":"1A2I",
+                 "ABFLOW028":"1A3B", 
+                 "ABFLOW034":"1A4B"}
 
-sector003_hm = sector003.pivot(index='Jurisdiction', columns='Year', values='Total_ew_price_sector_2019USD')
-sector012_hm = sector012.pivot(index='Jurisdiction', columns='Year', values='Total_ew_price_sector_2019USD')
+linestyle = ["solid", "dashed", "dotted", "dashdot", (0, (1,10)),
+             (0, (5,10)), (0, (5,1)), (0, (3,5,1,5)), (0, (3,1,1,1)),
+             (0, (3,1,1,1,1,1))]
 
-sns.heatmap(sector003_hm, annot=True, cbar=False, ax=axs[0], vmin=vmin)
-sns.heatmap(sector012_hm, annot=True, yticklabels=False, cbar=False, ax=axs[1], vmax=vmax)
 
-fig.colorbar(axs[1].collections[0], cax=axs[2])
+fig, axs = plt.subplots(2,2, figsize=(30,24), sharey=True)
 
-plt.subplots(figsize=(20,15))
-sns.heatmap(sector003_hm, vmin=sector003.Total_ew_price_sector_2019USD.min(), 
-            vmax=sector003.Total_ew_price_sector_2019USD.max(),cmap=cmap,annot_kws={"size": 36})
+i = 0
+j = 0
+
+for sector in ["ABFLOW003", "ABFLOW013", "ABFLOW028", "ABFLOW034"]:
+    print(i,j)
+    temp = df_prices_sect.loc[(df_prices_sect.Jurisdiction.isin(cntries_list_II)) & (df_prices_sect.iea_code==sector)]
+    temp = temp.loc[(temp.Year>=1990) & (temp.Year<=2020), :]
+    temp_wld_sect = df_prices_sect_wld.loc[(df_prices_sect_wld.IPCC_cat_code==iea_ipcc_map[sector])]
+    temp_wld_sect = temp_wld_sect.loc[(temp_wld_sect.Year>=1990) & (temp_wld_sect.Year<=2020), :]
+    
+    k=0
+    for ctry in cntries_list_II:
+        temp_ctry = temp.loc[temp.Jurisdiction==ctry]
+        axs[i,j].plot(temp_ctry.Year, temp_ctry.total_ew_price_sector_2019USD, 
+                 linewidth=2, label=ctry, color="royalblue", 
+                 linestyle=linestyle[k])
+        k+=1
+    
+   
+    axwld = axs[i,j].twinx()
+    axwld.plot(temp_wld_sect.Year, temp_wld_sect.ecp_all_sectCO2_2019USD, 
+                  linestyle='-', color="indianred", 
+                  linewidth=2.5)
+    axwld.tick_params(colors='indianred', axis='y', labelsize=24)
+    axwld.grid(False)
+    axwld.set_ylim(0,6)
+#    axwld.legend()
+#    axwld.get_legend().remove()
+    
+#    plt.xlabel("")
+    axs[i,j].set_xlim(1990,2020)
+    axs[i,j].set_ylim(0,140)
+    axs[i,j].set_title(sector_labels[sector], fontsize=42)
+    axs[i,j].set_yticklabels(range(0,140,20), size=24, color="royalblue")
+    axs[i,j].set_xticklabels(range(1990,2021,5), rotation=45, size=22)
+    axs[i,j].set_ylabel("2019USD/tCO$_2$", size=28)
+    
+#    p = [axs[i,j], axwld]
+
+    if i==0 and j==0:
+        i=0
+        j=1
+    elif i==0 and j==1:
+        i=1
+        j=0
+    elif i==1 and j==0:
+        i=1
+        j=1
+
+
+#lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
+#lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
+
+#plt.legend(labels, fancybox=True,  bbox_to_anchor=(0.9, -0.15),
+#           shadow=False, ncol=6, fontsize=24)
+
+plt.tight_layout()
+
+plt.savefig(output_dir+"/ecp_sector.pdf")
+plt.close()
+
 
 # Sector-level density plots, 2020
 
