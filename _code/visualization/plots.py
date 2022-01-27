@@ -314,22 +314,18 @@ for sector in ["ABFLOW003", "ABFLOW013", "ABFLOW028", "ABFLOW034"]:
     axwld = axs[i,j].twinx()
     axwld.plot(temp_wld_sect.Year, temp_wld_sect.ecp_all_sectCO2_2019USD, 
                   linestyle='-', color="indianred", 
-                  linewidth=2.5)
+                  linewidth=2.5, label = "International")
     axwld.tick_params(colors='indianred', axis='y', labelsize=24)
     axwld.grid(False)
     axwld.set_ylim(0,6)
-#    axwld.legend()
-#    axwld.get_legend().remove()
-    
-#    plt.xlabel("")
+
     axs[i,j].set_xlim(1990,2020)
     axs[i,j].set_ylim(0,140)
     axs[i,j].set_title(sector_labels[sector], fontsize=42)
     axs[i,j].set_yticklabels(range(0,140,20), size=24, color="royalblue")
     axs[i,j].set_xticklabels(range(1990,2021,5), rotation=45, size=22)
     axs[i,j].set_ylabel("2019USD/tCO$_2$", size=28)
-    
-#    p = [axs[i,j], axwld]
+
 
     if i==0 and j==0:
         i=0
@@ -341,16 +337,16 @@ for sector in ["ABFLOW003", "ABFLOW013", "ABFLOW028", "ABFLOW034"]:
         i=1
         j=1
 
+lines, labels = axs[0,0].get_legend_handles_labels()
+lines2, labels2 = axwld.get_legend_handles_labels()
 
-#lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
-#lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
+axs[0,0].legend(lines + lines2, labels + labels2, fancybox=True,  
+           loc='upper center', #bbox_to_anchor=(0.5, -0.02),
+           shadow=False, ncol=3, fontsize=26)
 
-#plt.legend(labels, fancybox=True,  bbox_to_anchor=(0.9, -0.15),
-#           shadow=False, ncol=6, fontsize=24)
+fig.tight_layout()
 
-plt.tight_layout()
-
-plt.savefig(output_dir+"/ecp_sector.pdf")
+fig.savefig(output_dir+"/ecp_sector.pdf")
 plt.close()
 
 
