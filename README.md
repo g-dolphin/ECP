@@ -2,7 +2,7 @@
  
 ## Jurisdiction average
 
-The Emissions-weighted Carbon Price (ECP) is an economy-wide average price on CO2 emissions. It is calculated from sector-fuel level data, which is aggregated back to the economy level using the share of each sector-fuel CO2 emissions in total GHG emissions as weights. The full methodology is described in [Dolphin, G., Pollitt, M. and D.M. Newbery (2020), The Political Economy of Carbon Pricing: a Panel Analysis](https://academic.oup.com/oep/article-abstract/72/2/472/5530742).
+The Emissions-weighted Carbon Price (ECP) is an economy-wide average price on CO2 emissions. It is calculated from sector-fuel level data, which is aggregated back to the economy level using the share of each sector-fuel CO2 emissions in total GHG emissions as weights. The full methodology is described in [Emissions-weighted carbon price: Sources and Methods](https://www.rff.org/publications/working-papers/emissions-weighted-carbon-price-sources-and-methods/).
 
 It is currently calculated for [123] national jurisdictions and 63 (North American) sub-national jurisdictions over the period 1990-2020.
 
