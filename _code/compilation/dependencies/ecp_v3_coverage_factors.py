@@ -9,7 +9,7 @@ Created on Wed Mar 23 10:05:24 2022
 import pandas as pd
 from importlib.machinery import SourceFileLoader
 
-ecp_general = SourceFileLoader('general', '/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/scripts/ecp/dependencies/ecp_v3_gen_func.py').load_module()
+ecp_general = SourceFileLoader('general', '/Users/gd/GitHub/ECP/_code/compilation/dependencies/ecp_v3_gen_func.py').load_module()
 
 def coverage_factors(inst_df):
     

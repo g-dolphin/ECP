@@ -11,7 +11,7 @@ import re
 
 from importlib.machinery import SourceFileLoader
 
-ecp_general = SourceFileLoader('general', '/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/scripts/ecp/dependencies/ecp_v3_gen_func.py').load_module()
+ecp_general = SourceFileLoader('general', '/Users/gd/GitHub/ECP/_code/compilation/dependencies/ecp_v3_gen_func.py').load_module()
 
 path_git_data = '/Users/gd/GitHub/ECP/_raw'
 

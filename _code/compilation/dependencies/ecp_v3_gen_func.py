@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 
-path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/raw/ghg_emissions'
+path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
 
 def concatenate(indir):
     os.chdir(indir) #sets the current directory to 'indir'
