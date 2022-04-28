@@ -89,7 +89,7 @@ def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):
     
     # Merge x_rate with cur_code
     x_rate = x_rate.merge(cur_code, on="jurisdiction", how="left")
-    x_rate.dropna(subset=["official_x_rate"], inplace=True)
+    x_rate.dropna(inplace=True)
     x_rate.drop_duplicates(["currency_code"], inplace=True)
     
     x_rate.drop("jurisdiction", axis=1, inplace=True)
