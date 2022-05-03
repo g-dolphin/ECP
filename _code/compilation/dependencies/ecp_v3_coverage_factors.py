@@ -19,7 +19,7 @@ def coverage_factors(inst_df):
     coverage_factor.drop(["source", "comment"], axis=1, inplace=True)
     
     ## CREATE ONE COVERAGE FACTOR, "cf", COLUMN IN `wcpd_all` DATAFRAME FOR EACH PRICING MECHANISM COLUMN
-    ### i.e., tax_cf, tax_II_cf,..., ets_cf, ets_II_cf; NOTE: the WCPD dataset currently has one tax column and one ets column 
+    ### i.e., tax_cf, tax_2_cf,..., ets_cf, ets_2_cf; NOTE: the WCPD dataset currently has one tax column and one ets column 
     ### but eventually would have more of each instrument type
     
     # merge on [scheme_id, jurisdiction, year, ipcc_code]
