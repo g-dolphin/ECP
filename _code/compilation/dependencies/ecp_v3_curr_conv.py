@@ -154,7 +154,10 @@ def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):
     
     
     # Add exchange rate to cp dataframe
-    cp_USD = wcpd_all
+    wcpd_usd = wcpd_all
+    
+    wcpd_usd.rename(columns={"ets_price":"ets_price_clcu",
+                             "ets_2_price":"ets_2_price_clcu"}, inplace=True)
     
     dic_keys = [x for x in wcpd_all.columns if "curr_code" in x]
     dic_values = [x[:-4]+"x_rate" for x in wcpd_all.columns if "curr_code" in x]
@@ -162,15 +165,15 @@ def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):
     curr_code_map = dict(zip(dic_keys, dic_values))
     
     for name in curr_code_map.keys():
-        cp_USD = pd.merge(cp_USD, x_rate, how='left', left_on=[name], right_on=['currency_code'])
-        cp_USD.rename(columns={"official_x_rate":curr_code_map[name]}, inplace=True)
-        cp_USD.drop("currency_code", axis=1, inplace=True)
+        wcpd_usd = pd.merge(wcpd_usd, x_rate, how='left', left_on=[name], right_on=['currency_code'])
+        wcpd_usd.rename(columns={"official_x_rate":curr_code_map[name]}, inplace=True)
+        wcpd_usd.drop("currency_code", axis=1, inplace=True)
     
-    cp_USD = cp_USD.merge(cum_inf[["jurisdiction", "year", "cum_inf"]], on=["jurisdiction", "year"], how="left")
+    wcpd_usd = wcpd_usd.merge(cum_inf[["jurisdiction", "year", "cum_inf"]], on=["jurisdiction", "year"], how="left")
     
-    price_columns = [x for x in cp_USD.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
-    price_columns_usd = [x+"_USD" for x in cp_USD.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
-    price_columns_const_usd = [x+"_2019USD" for x in cp_USD.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
+    price_columns = [x for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
+    price_columns_usd = [x[:-5]+"_usd" for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
+    price_columns_const_usd = [x[:-5]+"_kusd" for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
     
     price_cols_dic = dict(zip(price_columns, price_columns_usd))
     price_const_cols_dic = dict(zip(price_columns, price_columns_const_usd))
@@ -178,19 +181,19 @@ def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):
     
     # Calculate USD and 2019USD values for all schemes
     for key in price_cols_dic.keys():
-        cp_USD.loc[:, price_cols_dic[key]] = cp_USD.loc[:, key]*(1/cp_USD.loc[:, x_rate_dic[key]])
-        cp_USD.loc[:, price_const_cols_dic[key]] = cp_USD.loc[:, price_cols_dic[key]]*cp_USD.loc[:, "cum_inf"]
+        wcpd_usd.loc[:, price_cols_dic[key]] = wcpd_usd.loc[:, key]*(1/wcpd_usd.loc[:, x_rate_dic[key]])
+        wcpd_usd.loc[:, price_const_cols_dic[key]] = wcpd_usd.loc[:, price_cols_dic[key]]*wcpd_usd.loc[:, "cum_inf"]
         
         
     col_sel = ['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product']+list(price_cols_dic.keys())+list(curr_code_map.keys())+list(price_cols_dic.values())+list(price_const_cols_dic.values())+list(x_rate_dic.values())
     
-    std_jur_names = [x.replace(".", "").replace(",", "").replace(" ", "_") for x in cp_USD.jurisdiction.unique()]
-    jur_dic = dict(zip(cp_USD.jurisdiction.unique(), std_jur_names))
+    std_jur_names = [x.replace(".", "").replace(",", "").replace(" ", "_") for x in wcpd_usd.jurisdiction.unique()]
+    jur_dic = dict(zip(wcpd_usd.jurisdiction.unique(), std_jur_names))
     
-    for jur in cp_USD.jurisdiction.unique():
-        cp_USD.loc[cp_USD.jurisdiction==jur][col_sel].to_csv(path_git_data+'/wcpd_usd/prices_usd_'+jur_dic[jur]+'.csv', index=None)
+    for jur in wcpd_usd.jurisdiction.unique():
+        wcpd_usd.loc[wcpd_usd.jurisdiction==jur][col_sel].to_csv(path_git_data+'/wcpd_usd/prices_usd_'+jur_dic[jur]+'.csv', index=None)
         
            
-    return cp_USD
+    return wcpd_usd
     
     
