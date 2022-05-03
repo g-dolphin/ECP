@@ -65,7 +65,7 @@ def emissions_share_sectors(emissions, sectors_wld_total, jur_level=None):
     if jur_level == "national":
         inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", "CO2_emissions"]]
     if jur_level == "subnational":
-        inventory_temp = emissions[["jurisdiction", "year", "ipcc_cat_code", "iea_code", "CO2_emissions"]]
+        inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "CO2_emissions"]]
         
     emissions_sect_share = pd.merge(inventory_temp, sectors_wld_total, how='left', on=['ipcc_code', 'year'])
 
