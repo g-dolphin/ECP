@@ -8,6 +8,18 @@ Created on Wed Mar 23 10:30:44 2022
 
 import pandas as pd
 import copy
+import itertools
+
+def unique_combinations(elements: list[str]) -> list[tuple[str, str]]:
+    """
+    Precondition: `elements` does not contain duplicates.
+    Postcondition: Returns unique combinations of length 2 from `elements`.
+
+    >>> unique_combinations(["apple", "orange", "banana"])
+    [("apple", "orange"), ("apple", "banana"), ("orange", "banana")]
+    """
+    return list(itertools.combinations(elements, 2))
+
 
 def overlap(inst_df):
     
@@ -18,20 +30,25 @@ def overlap(inst_df):
     # Encode overlap as binary variable at jurisdiction-year-sector-product level using wcpd_all and overlapping mechanisms file
     # create as many columns as there are possible overlapping pairs 
     
-    inst_df_ids = inst_df[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", "tax_id", "ets_id"]]
+    id_cols = [x for x in inst_df.columns if x.endswith("_id")]
     
-    tax_columns = {"tax":"tax_id"}
-    ets_columns = {"ets":"ets_id"} #"ets_II":"ets_II_id"
+    inst_df_ids = inst_df[["jurisdiction", "year", "iea_code", "ipcc_code", "Product"]+id_cols]
+    
+    scheme_columns = {"tax":"tax_id", "ets":"ets_id", "ets_2":"ets_2_id"}
+
+    scheme_list = [[a, b] for a in scheme_columns 
+                   for b in scheme_columns if a != b]
     
     # Overlap identification columnns
     ovp_columns = {}
     
-    for i in tax_columns.keys():
-        for j in ets_columns.keys():
-            inst_df_ids.loc[:, "overlap_"+i+"_"+j] = 0
-            inst_df_ids.loc[:, "overlap_"+i+"_"+j+"_ids"] = inst_df_ids.loc[:, tax_columns[i]] + inst_df_ids.loc[:, ets_columns[j]]
+    a = list(itertools.combinations(list(scheme_columns.keys()), 2))
     
-            ovp_columns["overlap_"+i+"_"+j] = "overlap_"+i+"_"+j+"_ids"
+    for i in a:
+        inst_df_ids.loc[:, "overlap_"+i[0]+"_"+i[1]] = 0
+        inst_df_ids.loc[:, "overlap_"+i[0]+"_"+i[1]]+"_ids"] = inst_df_ids.loc[:, scheme_columns[i]] + inst_df_ids.loc[:, scheme_columns[j]]
+
+        ovp_columns["overlap_"+i+"_"+j] = "overlap_"+i[0]+"_"+i[1]+"_ids"
     
     # Creating a new dataframe containing unique [inst_1, inst_2, ipcc_code entries]
     overlap_unique = overlap.drop_duplicates(["inst_1", "inst_2", "ipcc_code"]) 
@@ -49,7 +66,7 @@ def overlap(inst_df):
         inst_df_ids.drop(ovp_columns[ovp_col], axis=1, inplace=True)
     
     # merge overlap df into cp df
-    inst_df = inst_df.merge(inst_df_ids, on=['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', 'tax_id', 'ets_id'])
+    inst_df = inst_df.merge(inst_df_ids, on=['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product']+id_cols)
 
     
     return inst_df
