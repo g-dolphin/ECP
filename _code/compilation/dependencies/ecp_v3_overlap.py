@@ -55,7 +55,7 @@ def overlap(inst_df):
         # Creating a new dataframe containing unique [inst_1, inst_2, ipcc_code] entries
         overlap_unique = overlap.drop_duplicates(["inst_1", "inst_2", "ipcc_code"]) 
 
-        for ovp_col in ['overlap_tax_ets']:#ovp_columns.keys():
+        for ovp_col in ovp_columns.keys():
             for index, row in overlap_unique.iterrows():
                 overlap = copy.deepcopy(overlap)
 
