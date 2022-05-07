@@ -53,7 +53,7 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df,
 
     if int_sectors == True: 
         emissions_cols = ["co2_wld_sect_wldCO2"]
-    elif (int_sectors == False) and (jur_level=="national"):
+    elif jur_level=="national":
         emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2']
     else:        
         emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2', 'CO2_supraGHG', 'CO2_supraCO2']
