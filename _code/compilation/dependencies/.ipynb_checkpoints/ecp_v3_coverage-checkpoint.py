@@ -23,109 +23,106 @@ import pandas as pd
 #3. Carry over these new dataframes in the subsequent steps of the script
 
 #Function pairing `_share` dataframes with coverage dummies
-def coverage(df_em_share, last_inv_year, last_cp_year, wcpd_all, overlap,
-             sectors=bool, jur_level=None, scope_year=None):
+def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df,
+             int_sectors=bool, jur_level=None, scope_year=None):
 
-    cp_temp = pd.DataFrame()
-    
-    # Select institutional data frame
+    wcpd_temp = pd.DataFrame()
+
+    # Select subset of institutional design dataframe 
     if scope_year != None:
-        cp_temp = wcpd_all.loc[wcpd_all.year==scope_year, :]
+        wcpd_temp = wcpd_df.loc[wcpd_df.year==scope_year, :].copy()
     else:
-        cp_temp = wcpd_all.copy()
-    
-    # Assign last inventory year emissions shares to years beyond last year of inventory
-    em_share_temp = df_em_share.copy()
-    em_share_temp = em_share_temp.loc[em_share_temp.year<=last_inv_year, :]
-    
-    for yr in range(last_inv_year+1, last_cp_year+1):
-        temp = em_share_temp.loc[em_share_temp.year==last_inv_year, :].copy()
-        temp["year"].replace(to_replace={last_inv_year:yr}, inplace=True)
-        
-        em_share_temp = pd.concat([em_share_temp, temp])
+        wcpd_temp = wcpd_df.copy()
 
-    # scheme_id and cf columns
-    scheme_id_cols = [x for x in wcpd_all.columns if x.endswith("_id")==True]
-    scheme_cf_cols = [x for x in wcpd_all.columns if x.endswith("cf")==True]
-    
+    # Assign emissions from the last inventory year to subsequent years
+    inventory_temp = inventory.loc[inventory.year<=inv_end_year, :].copy()
+
+    for yr in range(inv_end_year+1, wcpd_end_year+1):
+        temp = inventory.loc[inventory.year==inv_end_year, :].copy()
+        temp["year"].replace(to_replace={inv_end_year:yr}, inplace=True)
+        inventory_temp = pd.concat([inventory_temp, temp])
+
+    # scheme_id and coverage factor columns - sorting lists is needed to ensure dic keys are matched with correct entries
+    scheme_id_cols = [x for x in wcpd_df.columns if x.endswith("_id")==True]
+    scheme_id_cols.sort()
+    scheme_cf_cols = [x for x in wcpd_df.columns if x.endswith("cf")==True]
+    scheme_cf_cols.sort()
+    overlap_cols = [x for x in wcpd_temp.columns if x.startswith("overlap_") ==True]
+
     coverage_factor = dict(zip(scheme_id_cols, scheme_cf_cols))
-    
-    # scheme dummies
-    dummy = {}
-    for col in scheme_id_cols:
-        if "tax" in col: 
-            dummy[col] = "tax"
-        if "ets" in col:
-            dummy[col] = "ets"
-    
+
+    if int_sectors == True: 
+        emissions_cols = ["co2_wld_sect_wldCO2"]
+    elif jur_level=="national":
+        emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2']
+    else:        
+        emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2', 'CO2_supraGHG', 'CO2_supraCO2']
+
     # national jurisdictions
     if jur_level=="national": 
-        cp_keys = sorted(["jurisdiction", "year", 'ipcc_code', "iea_code", "Product"])
-        cp_cols = cp_keys+["tax", "ets", "overlap_tax_ets"]+scheme_id_cols+scheme_cf_cols
-        cp_temp = cp_temp[cp_cols] 
+        wcpd_keys = sorted(["jurisdiction", "year", 'ipcc_code', "iea_code", "Product"])
+        wcpd_cols = wcpd_keys+["ets", "tax"]+overlap_cols+scheme_id_cols+scheme_cf_cols
+        wcpd_temp = wcpd_temp[wcpd_cols]
 
-        if sectors == False:
-            emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2']
-        if sectors == True: 
-            emissions_cols = ["co2_wld_sect_wldCO2"]
-            
-        df_keys = sorted(list(set(em_share_temp.columns)-set(emissions_cols+["CO2_emissions"]))) #The order of the elements in these lists matters! There must be a one to one correspondence between their respective elements
-        
+        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["CO2_emissions"]))) 
+        #NB: The order of the elements in these lists matters! There must be a one to one correspondence between their respective elements
+
     # subnational jurisdictions
     # Select which fuel-level coverage dummy to use from institutional file
     if jur_level=="subnational": 
 
-        cp_temp = cp_temp[cp_temp.Product=="Natural gas"]
-        cp_temp.drop(["Product"], axis=1, inplace=True)
-        
-        cp_keys = sorted(["jurisdiction", "year", 'ipcc_code', "iea_code"])
-        cp_cols = cp_keys+["tax", "ets", "overlap_tax_ets"]+scheme_id_cols+scheme_cf_cols
+        wcpd_temp = wcpd_temp[wcpd_temp.Product=="Natural gas"]
+        wcpd_temp.drop(["Product"], axis=1, inplace=True)
 
-        cp_temp = cp_temp[cp_cols]
-        
-        if sectors == False:        
-            emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2', 'CO2_supraGHG', 'CO2_supraCO2']
-        if sectors == True: 
-            emissions_cols = ["co2_wld_sect_wldCO2"]
-        
-        df_keys = sorted(list(set(em_share_temp.columns)-set(emissions_cols+["supra_jur", "CO2_emissions"]))) 
+        wcpd_keys = sorted(["jurisdiction", "year", 'ipcc_code', "iea_code"])
+        wcpd_cols = wcpd_keys+["ets", "tax"]+overlap_cols+scheme_id_cols+scheme_cf_cols
+
+        wcpd_temp = wcpd_temp[wcpd_cols]
+
+        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["supra_jur", "CO2_emissions"]))) 
 
     # Adjust list of merge keys in case we want to calculate fixed scope coverage
     if scope_year != None:
         df_keys.remove('year')
-        cp_keys.remove('year')
-        
-        cp_temp.drop(["year"], axis=1, inplace=True)
+        wcpd_keys.remove('year')
 
-    temp = em_share_temp.merge(cp_temp, 
+        wcpd_temp.drop(["year"], axis=1, inplace=True)
+
+    temp = inventory_temp.merge(wcpd_temp, 
                                how='left', 
                                left_on=df_keys,
-                               right_on=cp_keys)           
-    
+                               right_on=wcpd_keys)           
+
     #because two IPCC sectors might have the same IEA_CODE, the above merge command leads to a duplication of these entries. 
     #We need keep only one of these
     if scope_year != None:
         temp.drop_duplicates(subset=df_keys+["year"], inplace=True)
     else:
         temp.drop_duplicates(subset=df_keys, inplace=True)
-        
-    # create column with largest coverage_factor - to calculate overlap
-    temp["cf_min"] = temp[["tax_cf", "ets_cf"]].min(axis=1)
-        
+
+    # create column with smallest coverage_factor (to calculate overlap); currently between tax and ets; ultimately should cover all schemes
+    temp["cf_min"] = temp[["tax", "ets"]].min(axis=1)
+
+    binary = {}
+    for i in scheme_id_cols:
+        if i.startswith("tax")==True:
+            binary[i] = "tax"
+        if i.startswith("ets")==True:
+            binary[i] = "ets"
+    
     # calculation of overlap
     for var in emissions_cols:
         for scheme in scheme_id_cols: # schemes_cols contains id's of all schemes
-            temp["cov"+"_"+scheme[:-3]+"_"+var] = temp[dummy[scheme]]*temp[coverage_factor[scheme]]*temp[var]
-            # scheme[:-10] removes "_id" from name of coverage columns
-            
-            temp["cov"+"_overlap_"+var] = temp["cf_min"]*temp["overlap_tax_ets"]*temp[var]
-    
-    coverage_cols = [x for x in temp.columns if "cov" in x]
-    
-    if scope_year != None:
-        temp = temp[cp_keys+["year"]+scheme_id_cols+coverage_cols]
-    else:
-        temp = temp[cp_keys+scheme_id_cols+coverage_cols]
+            temp["cov"+"_"+scheme[:-3]+"_"+var] = temp[binary[scheme]]*temp[coverage_factor[scheme]]*temp[var]
 
-        
+            temp["cov"+"_overlap_"+var] = temp["cf_min"]*temp["overlap_tax_ets"]*temp[var]
+
+        coverage_cols = [x for x in temp.columns if "cov" in x]
+
+    if scope_year != None:
+        temp = temp[wcpd_keys+["year"]+scheme_id_cols+coverage_cols]
+    else:
+        temp = temp[wcpd_keys+scheme_id_cols+coverage_cols]
+
+
     return temp
