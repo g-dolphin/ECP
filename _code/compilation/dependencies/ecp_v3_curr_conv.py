@@ -5,16 +5,14 @@ Created on Wed Feb 23 17:00:28 2022
 
 @author: gd
 """
-import pandas as pd
-import numpy as np
-import re
-import os
 
+import os
 from importlib.machinery import SourceFileLoader
 
-ecp_general = SourceFileLoader('general', '/Users/gd/GitHub/ECP/_code/compilation/dependencies/ecp_v3_gen_func.py').load_module()
+path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
+ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
-path_git_data = '/Users/gd/GitHub/ECP/_raw'
+path_git_data = "/Users/gd/GitHub/ECP/_raw/wb_rates"
 
 ## Emissions prices and rates conversion
 # All prices converted to [2019] USD

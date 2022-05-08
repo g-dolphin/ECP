@@ -7,12 +7,12 @@ Created on Thu Feb 17 16:52:03 2022
 """
 
 import os
-import glob
 import pandas as pd
-import numpy as np
-
+import glob
 
 path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
+
+#---------------------FUNCTIONS-------------------------------------
 
 def concatenate(indir):
     os.chdir(indir) #sets the current directory to 'indir'
@@ -33,11 +33,9 @@ def concatenate(indir):
 
 #Change file path in function to choose which raw data to use (pre-/post-2015 files/nomenclature)
 
-IEApre2015 = "/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_annual/2015Nom"
-IEApost2015 = "/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_annual/Post2015Nom"
 
-def concat_iea(indir=path_ghg+IEApost2015,
-               outfile=path_ghg+"/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv"):
+def concat_iea(indir = path_ghg+"/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_annual/Post2015Nom", 
+               outfile = path_ghg+"/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv"):
     os.chdir(indir) #sets the current directory to 'indir'
     fileList=glob.glob("*.csv") #this command generates a list of csv files
     # to concatenate, we will stack the files into a single Python list
