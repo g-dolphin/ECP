@@ -7,8 +7,8 @@ Created on Wed Mar 23 10:30:44 2022
 """
 
 import pandas as pd
-import copy
 import itertools
+import copy
 
 def unique_combinations(elements: list[str]) -> list[tuple[str, str]]:
     """
