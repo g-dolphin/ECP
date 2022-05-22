@@ -29,67 +29,9 @@ exec(read_file)
 # Inventory structure
 inventory_subnat = wcpd_all.loc[wcpd_all.jurisdiction.isin(subnat_names), ["jurisdiction", "year", "ipcc_code", "iea_code"]]
 
-
-
-# UNITED STATES
-
-us = pd.DataFrame()
-
-os.chdir(path_ghg+'/subnational/United_States/Rhodium/')
-file_list = glob.glob('*.csv')
-
-for file in file_list:
-    temp = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/'+file, decimal=',')
-    #extract US state name from file name
-    state_name = file[len("DetailedGHGinventory_"):-4]
-    #add state name as key column
-    temp.loc[:, "jurisdiction"] = state_name
-    #concat
-    us = pd.concat([us, temp])
-
-# excluding LULUCF emissions - excluded from emissions total calculations to be consistent with chosen total
-us = us.loc[~us.Subsector.str.match("LULUCF"), :]
-us = us.drop(["Ranking"], axis=1)
-us.loc[:, "jurisdiction"] = us.loc[:, "jurisdiction"].apply(lambda x: x.replace('_', ' ').title())
-
-us_tot_ghg = us.groupby(["jurisdiction", "Year"]).sum()
-us_tot_ghg = us_tot_ghg.reset_index()
-us_tot_ghg.columns = ["jurisdiction", "Year", "Total_GHG_Emissions_Excluding_LUCF_MtCO2e"]
-
-us = us.loc[us.Gas.isin(['CO2 (combustion)', 'CO2 (non-combustion)'])]
-us_tot_co2 = us.groupby(["jurisdiction", "Year"]).sum()
-us_tot_co2 = us_tot_co2.reset_index()
-us_tot_co2.columns = ["jurisdiction", "Year", "Total_CO2_Emissions_Excluding_LUCF_MtCO2e"]
-
-us_tot = us_tot_ghg.merge(us_tot_co2, on=["jurisdiction", "Year"])
-us_tot.rename(columns={"Year":"year"}, inplace=True)
-
-#add ipcc_code
-us.loc[:, "ipcc_code"] = us.loc[:, "Subsector"]
-us.loc[:, "ipcc_code"] = us.loc[:, "ipcc_code"].replace(to_replace=sector_names_ipcc_map_usa)
-
-excl_sectors = ['Transport - Natural gas pipeline', 'Carbon Dioxide Consumption', 'Abandoned Oil and Gas Wells', 'Phosphoric Acid Production',
-                'Natural Gas Systems', 'Petroleum Systems', 'Urea Consumption for Non-Agricultural Purposes']
-
-us = us.loc[~us.ipcc_code.isin(excl_sectors), :]
-
-us = us.drop(["Gas", "Subsector", "Sector"], axis=1)
-us = us.rename(columns={"Emission (mmt CO2e)":"CO2_emissions", "Year":"year"})
-us = us[["jurisdiction", "year", "ipcc_code", "CO2_emissions"]]
-
-us = us.loc[us.year<=2020, :]
-us = us.sort_values(by=["jurisdiction", "year", "ipcc_code"])
-
-#needed to aggregate over IPCC sectors as I have attributed same ipcc_code to multiple Rhodium categories
-us = us.groupby(by=["jurisdiction", "year", "ipcc_code"]).sum()
-us = us.reset_index()
-
-# replace name of Georgia State to avoid clash with Georgia country
-us["jurisdiction"].replace(to_replace={"Georgia":"Georgia_US"}, inplace=True)
-
-# add supra jurisdiction column
-us["supra_jur"] = "United States"
-
+# we don't have fuel level GHG data for subnational jurisdictions so we drop the Product column and delete duplicate/redundant rows 
+inventory_subnat.drop_duplicates(subset=["jurisdiction", "year", "ipcc_code", "iea_code"], inplace=True)
+inventory_subnat[["iea_code"]] = inventory_subnat[["iea_code"]].fillna("NA")
 
 
 # CANADA
@@ -193,12 +135,68 @@ china_tot = china_tot.reset_index()
 china_tot["Total_GHG_Emissions_Excluding_LUCF_MtCO2e"] = np.nan
 china_tot.rename(columns={"CO2_emissions":"Total_CO2_Emissions_Excluding_LUCF_MtCO2e"}, inplace=True)
 
+# UNITED STATES
 
-# -------------------------------
+us = pd.DataFrame()
 
-# we don't have fuel level information for subnational jurisdictions so we drop the Product column and delete duplicate/redundant rows 
-inventory_subnat.drop_duplicates(subset=["jurisdiction", "year", "ipcc_code", "iea_code"], inplace=True)
-inventory_subnat[["iea_code"]] = inventory_subnat[["iea_code"]].fillna("NA")
+os.chdir(path_ghg+'/subnational/United_States/Rhodium/')
+file_list = glob.glob('*.csv')
+
+for file in file_list:
+    temp = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/'+file, decimal=',')
+    #extract US state name from file name
+    state_name = file[len("DetailedGHGinventory_"):-4]
+    #add state name as key column
+    temp.loc[:, "jurisdiction"] = state_name
+    #concat
+    us = pd.concat([us, temp])
+
+# excluding LULUCF emissions - excluded from emissions total calculations to be consistent with chosen total
+us = us.loc[~us.Subsector.str.match("LULUCF"), :]
+us = us.drop(["Ranking"], axis=1)
+us.loc[:, "jurisdiction"] = us.loc[:, "jurisdiction"].apply(lambda x: x.replace('_', ' ').title())
+
+us_tot_ghg = us.groupby(["jurisdiction", "Year"]).sum()
+us_tot_ghg = us_tot_ghg.reset_index()
+us_tot_ghg.columns = ["jurisdiction", "Year", "Total_GHG_Emissions_Excluding_LUCF_MtCO2e"]
+
+us = us.loc[us.Gas.isin(['CO2 (combustion)', 'CO2 (non-combustion)'])]
+us_tot_co2 = us.groupby(["jurisdiction", "Year"]).sum()
+us_tot_co2 = us_tot_co2.reset_index()
+us_tot_co2.columns = ["jurisdiction", "Year", "Total_CO2_Emissions_Excluding_LUCF_MtCO2e"]
+
+us_tot = us_tot_ghg.merge(us_tot_co2, on=["jurisdiction", "Year"])
+us_tot.rename(columns={"Year":"year"}, inplace=True)
+
+#add ipcc_code
+us.loc[:, "ipcc_code"] = us.loc[:, "Subsector"]
+us.loc[:, "ipcc_code"] = us.loc[:, "ipcc_code"].replace(to_replace=sector_names_ipcc_map_usa)
+
+excl_sectors = ['Transport - Natural gas pipeline', 'Carbon Dioxide Consumption', 'Abandoned Oil and Gas Wells', 'Phosphoric Acid Production',
+                'Natural Gas Systems', 'Petroleum Systems', 'Urea Consumption for Non-Agricultural Purposes']
+
+us = us.loc[~us.ipcc_code.isin(excl_sectors), :]
+
+us = us.drop(["Gas", "Subsector", "Sector"], axis=1)
+us = us.rename(columns={"Emission (mmt CO2e)":"CO2_emissions", "Year":"year"})
+us = us[["jurisdiction", "year", "ipcc_code", "CO2_emissions"]]
+
+us = us.loc[us.year<=2020, :]
+us = us.sort_values(by=["jurisdiction", "year", "ipcc_code"])
+
+#needed to aggregate over IPCC sectors as I have attributed same ipcc_code to multiple Rhodium categories
+us = us.groupby(by=["jurisdiction", "year", "ipcc_code"]).sum()
+us = us.reset_index()
+
+# replace name of Georgia State to avoid clash with Georgia country
+us["jurisdiction"].replace(to_replace={"Georgia":"Georgia_US"}, inplace=True)
+
+# add supra jurisdiction column
+us["supra_jur"] = "United States"
+
+
+# -------------------------------Combined inventory df------------------------------
+
 
 
 # COMBINED data
