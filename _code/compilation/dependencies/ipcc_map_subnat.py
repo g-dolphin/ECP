@@ -2,7 +2,7 @@
 
 # Canada
 
-can_map = pd.read_csv('/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/subnational/Canada/harmonized_data/ECCC/ipcc_code_name_map.csv')
+can_map = pd.read_csv('/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/ipcc_code_name_map.csv')
 
 sector_names_ipcc_map_can = dict(zip(list(can_map['category'].values), list(can_map['IPCC_CODE'].values)))
 
