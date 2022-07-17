@@ -11,7 +11,7 @@ ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_fu
 
 # CO2
 
-def inventory_co2(wcpd_df, ipcc_iea_map, jur_names):
+def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
     # concatenate IEA yearly emissions files
     ecp_general.concat_iea() 
@@ -122,21 +122,9 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names):
     edgar["CO2"] = edgar["CO2"]/1000
 
     # select sectors
-    ippu_fug_nat = edgar.loc[edgar.ipcc_code.str.match("2"|"1B"), :]
+    ippu_fug_nat = edgar.loc[edgar.ipcc_code.str.match("1B|2"), :]
 
-    # change names of countries to match names in inventory dataframe
-
-    map_edgar_wb = {'Bahamas':'Bahamas, The', 'Cape Verde':'Cabo Verde', 'Congo_the Democratic Republic of the':'Congo, Dem. Rep.',
-                    'Congo':'Congo, Rep.', "Egypt":'Egypt, Arab Rep.', 'Micronesia, Federated States of':'Federated States of Micronesia',
-                    'Gambia':'Gambia, The', 'Hong Kong':'Hong Kong SAR, China', 'Iran, Islamic Republic of':'Iran, Islamic Rep.',
-                    "Korea, Democratic People's Republic of":'Korea, Dem. Rep.', 'Korea, Republic of':'Korea, Rep.', 'Kyrgyzstan':'Kyrgyz Republic',
-                    "Lao People's Democratic Republic":'Lao PDR', 'Libyan Arab Jamahiriya':'Libya', 'Macao':'Macao SAR, China', 
-                    'Moldova, Republic of':'Moldova', 'Macedonia, the former Yugoslav Republic of':'North Macedonia', 'Slovakia':'Slovak Republic', 
-                    'Saint Kitts and Nevis':'St. Kitts and Nevis', 'Saint Lucia':'St. Lucia', 
-                    'Saint Vincent and the Grenadines':'St. Vincent and the Grenadines', 'Taiwan_Province of China':'Taiwan, China',
-                    'Tanzania_United Republic of':'Tanzania', 'Venezuela':'Venezuela, RB', 'Viet Nam':'Vietnam', 'Yemen':'Yemen, Rep.'} #'Serbia and Montenegro':'Serbia'
-
-    ippu_fug_nat["jurisdiction"] = ippu_fug_nat["jurisdiction"].replace(to_replace=map_edgar_wb)
+    ippu_fug_nat["jurisdiction"] = ippu_fug_nat["jurisdiction"].replace(to_replace=edgar_wb_map)
 
     # dataframe standardization
     ippu_fug_nat = ippu_fug_nat[["jurisdiction", "year", "ipcc_code", "CO2"]]
@@ -156,34 +144,77 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names):
     
     return inventory_nat
 
+
 # OTHER GHGs
 
-def inventory_non_co2(wcpd_df, jur_names, gas):
+def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map):
 
     gas_file_name = {"CH4":"v60_CH4_1970_2018.xls", "N2O":"v60_N2O_1970_2018.xls"}
 
-    edgar = pd.read_excel(path_ghg+"/national/EDGAR/"+gas_file_name[gas],
-                              sheet_name="v6.0_EM_CO2_fossil_IPCC2006", skiprows=9)
+    if gas == "F-GASES":
+        # list of file names containing F-gases data
+        file_names_fgases = os.listdir("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/national/EDGAR/v60_GHG_fgases_1990_2018")
 
-    edgar.drop(['IPCC_annex', 'C_group_IM24_sh', 'Country_code_A3', 'ipcc_code_2006_for_standard_report_name', 'fossil_bio'], axis=1, inplace=True)
+        fgases_tot = pd.DataFrame()
 
-    edgar = edgar.loc[~edgar.Name.isin(["Int. Shipping", "Int. Aviation"]), :]
-    edgar = edgar.melt(id_vars=["Name", "ipcc_code_2006_for_standard_report"])
+        # Aggregate files for f-gases
+        for i in range(0,len(file_names_fgases)):
+            edgar_fgas = pd.read_excel(path_ghg+"/national/EDGAR/v60_GHG_fgases_1990_2018/"+file_names_fgases[i], skiprows=9,
+                                sheet_name="v6.0_EM_"+file_names_fgases[i][:-15]+"_IPCC2006")
+            edgar_fgas = edgar_fgas.loc[edgar_fgas.fossil_bio=="fossil"] # keep only fossil emissions
 
-    edgar.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code", "variable":"year", "value":"CO2"}, 
-                     inplace=True)
-    # format ipcc_code and year columns
-    edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
-    edgar["year"] = edgar["year"].apply(lambda x: x.replace('Y_', '').upper())
-    edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
-    edgar["year"] = edgar["year"].astype(int)
+            edgar_fgas.drop(["IPCC_annex", "C_group_IM24_sh", "Country_code_A3", "ipcc_code_2006_for_standard_report_name",
+                             "fossil_bio"], axis=1, inplace=True)
+            edgar_fgas.rename(columns={"Name":"ctry_name"}, inplace=True)
 
-    edgar["CO2"] = edgar["CO2"]/1000
+            edgar_fgas = edgar_fgas.melt(id_vars=["ctry_name", "ipcc_code_2006_for_standard_report"])
+
+            edgar_fgas.rename(columns={"ctry_name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code", 
+                                       "variable":"year", "value":file_names_fgases[i][:-15]}, inplace=True)
+
+            # format ipcc_code and year columns
+            edgar_fgas["ipcc_code"] = edgar_fgas["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
+            edgar_fgas["year"] = edgar_fgas["year"].apply(lambda x: x.replace('Y_', '').upper())
+            edgar_fgas["ipcc_code"] = edgar_fgas["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
+            edgar_fgas["year"] = edgar_fgas["year"].astype(int)
+
+            edgar_fgas['jurisdiction'].replace(to_replace=edgar_wb_map, inplace=True)
+
+            if fgases_tot.empty == True:
+                fgases_tot = edgar_fgas
+            else:
+                fgases_tot = fgases_tot.merge(edgar_fgas, on=["jurisdiction", "year", "ipcc_code"], how="outer")
+
+        # Sum of all f-gases
+        fgases_tot.fillna(0, inplace=True)
+        fgases_tot["F-GASES"] = fgases_tot.drop(["jurisdiction", "year", "ipcc_code"], axis=1).sum(axis=1)
+        edgar = fgases_tot[["jurisdiction", "year", "ipcc_code", "F-GASES"]] # keep only aggregate F-GASES value and merge keys
+
+    else:
+
+        edgar = pd.read_excel(path_ghg+"/national/EDGAR/"+gas_file_name[gas],
+                                sheet_name="v6.0_EM_"+gas+"_IPCC2006", skiprows=9)
+
+        edgar.drop(['IPCC_annex', 'C_group_IM24_sh', 'Country_code_A3', 'ipcc_code_2006_for_standard_report_name', 'fossil_bio'], axis=1, inplace=True)
+
+        edgar = edgar.loc[~edgar.Name.isin(["Int. Shipping", "Int. Aviation"]), :]
+        edgar = edgar.melt(id_vars=["Name", "ipcc_code_2006_for_standard_report"])
+
+        edgar.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code", "variable":"year", "value":gas}, 
+                        inplace=True)
+        # format ipcc_code and year columns
+        edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
+        edgar["year"] = edgar["year"].apply(lambda x: x.replace('Y_', '').upper())
+        edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
+        edgar["year"] = edgar["year"].astype(int)
+
+        edgar[gas] = edgar[gas]/1000
 
     # COMBINED INVENTORY
 
     inventory_nat = wcpd_df.loc[wcpd_df.jurisdiction.isin(jur_names), ["jurisdiction", "year", "ipcc_code"]]
-
     inventory_nat = inventory_nat.merge(edgar, on=["jurisdiction", "year", "ipcc_code"], how="left")
 
     return inventory_nat
+
+
