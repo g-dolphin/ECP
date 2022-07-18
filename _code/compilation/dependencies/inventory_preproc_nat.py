@@ -98,8 +98,6 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
     combustion_nat.drop("Sector", axis=1, inplace=True)
 
     combustion_nat = combustion_nat.merge(ipcc_iea_map, on=["iea_code"], how="left")
-    combustion_nat["CO2"] = combustion_nat["CO2"]/1000 # convert from kt to Mt
-
 
     # Data from EDGAR database
 
@@ -118,8 +116,6 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
     edgar["year"] = edgar["year"].apply(lambda x: x.replace('Y_', '').upper())
     edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
     edgar["year"] = edgar["year"].astype(int)
-
-    edgar["CO2"] = edgar["CO2"]/1000 # convert from kt to Mt
 
     # select sectors
     ippu_fug_nat = edgar.loc[edgar.ipcc_code.str.match("1B|2"), :]
@@ -147,7 +143,7 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
 # OTHER GHGs
 
-def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map):
+def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
     gas_file_name = {"CH4":"v60_CH4_1970_2018.xls", "N2O":"v60_N2O_1970_2018.xls"}
 
@@ -180,6 +176,9 @@ def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map):
 
             edgar_fgas['jurisdiction'].replace(to_replace=edgar_wb_map, inplace=True)
 
+            # convert to CO2 equivalent
+            edgar_fgas[file_names_fgases[i][:-15]] =  edgar_fgas[file_names_fgases[i][:-15]]*ipcc_gwp_list[file_names_fgases[i][:-15]]
+
             if fgases_tot.empty == True:
                 fgases_tot = edgar_fgas
             else:
@@ -208,7 +207,8 @@ def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map):
         edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
         edgar["year"] = edgar["year"].astype(int)
 
-        edgar[gas] = edgar[gas]/1000
+        # convert to CO2 equivalent
+        edgar[gas] =  edgar[gas]*ipcc_gwp_list[gas]
 
     # COMBINED INVENTORY
 
