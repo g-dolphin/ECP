@@ -20,7 +20,8 @@ path_aux_data = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_da
 
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 ecp_cov_fac = SourceFileLoader('coverage_factors', path_dependencies+'/ecp_v3_coverage_factors.py').load_module()
-ecp_inv_nat = SourceFileLoader('inventory_nat', path_dependencies+'/nat_inventory_preproc.py').load_module()
+ecp_inv_nat = SourceFileLoader('inventory_nat', path_dependencies+'/inventory_preproc_nat.py').load_module()
+ecp_inv_subnat = SourceFileLoader('inventory_nat', path_dependencies+'/inventory_preproc_subnat.py').load_module()
 ecp_inv_share = SourceFileLoader('inventory_share_func', path_dependencies+'/ecp_v3_inventory_share_func.py').load_module()
 ecp_coverage = SourceFileLoader('coverage', path_dependencies+'/ecp_v3_coverage.py').load_module()
 ecp_cur_conv = SourceFileLoader('currency_conversion', path_dependencies+'/ecp_v3_curr_conv.py').load_module()
