@@ -115,13 +115,6 @@ def inventory_sub(wcpd_df, ipcc_iea_map, gas):
 
     china["supra_jur"] = "China"
 
-    # retrieve total province emissions
-
-    china_tot = china.groupby(["jurisdiction", "year"]).sum()
-    china_tot = china_tot.reset_index()
-
-    china_tot["Total_GHG_Emissions_Excluding_LUCF_MtCO2e"] = np.nan
-    china_tot.rename(columns={"CO2_emissions":"Total_CO2_Emissions_Excluding_LUCF_MtCO2e"}, inplace=True)
 
     # UNITED STATES
 
@@ -138,23 +131,6 @@ def inventory_sub(wcpd_df, ipcc_iea_map, gas):
         temp.loc[:, "jurisdiction"] = state_name
         #concat
         us = pd.concat([us, temp])
-
-    # excluding LULUCF emissions - excluded from emissions total calculations to be consistent with chosen total
-    us = us.loc[~us.Subsector.str.match("LULUCF"), :]
-    us = us.drop(["Ranking"], axis=1)
-    us.loc[:, "jurisdiction"] = us.loc[:, "jurisdiction"].apply(lambda x: x.replace('_', ' ').title())
-
-    us_tot_ghg = us.groupby(["jurisdiction", "Year"]).sum()
-    us_tot_ghg = us_tot_ghg.reset_index()
-    us_tot_ghg.columns = ["jurisdiction", "Year", "Total_GHG_Emissions_Excluding_LUCF_MtCO2e"]
-
-    us = us.loc[us.Gas.isin(['CO2 (combustion)', 'CO2 (non-combustion)'])]
-    us_tot_co2 = us.groupby(["jurisdiction", "Year"]).sum()
-    us_tot_co2 = us_tot_co2.reset_index()
-    us_tot_co2.columns = ["jurisdiction", "Year", "Total_CO2_Emissions_Excluding_LUCF_MtCO2e"]
-
-    us_tot = us_tot_ghg.merge(us_tot_co2, on=["jurisdiction", "Year"])
-    us_tot.rename(columns={"Year":"year"}, inplace=True)
 
     #add ipcc_code
     us.loc[:, "ipcc_code"] = us.loc[:, "Subsector"]
