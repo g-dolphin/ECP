@@ -119,7 +119,7 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
     edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
     edgar["year"] = edgar["year"].astype(int)
 
-    edgar["CO2"] = edgar["CO2"]/1000
+    edgar["CO2"] = edgar["CO2"]/1000 # convert from kt to Mt
 
     # select sectors
     ippu_fug_nat = edgar.loc[edgar.ipcc_code.str.match("1B|2"), :]
