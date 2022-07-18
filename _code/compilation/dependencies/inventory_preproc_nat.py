@@ -213,7 +213,10 @@ def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map):
     # COMBINED INVENTORY
 
     inventory_nat = wcpd_df.loc[wcpd_df.jurisdiction.isin(jur_names), ["jurisdiction", "year", "ipcc_code"]]
+    inventory_nat.drop_duplicates(subset=["jurisdiction", "year", "ipcc_code"], inplace=True)
+
     inventory_nat = inventory_nat.merge(edgar, on=["jurisdiction", "year", "ipcc_code"], how="left")
+
 
     return inventory_nat
 
