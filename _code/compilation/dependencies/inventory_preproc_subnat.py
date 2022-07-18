@@ -25,7 +25,7 @@ read_file = stream.read()
 exec(read_file)
 
 
-def inventory_sub(wcpd_df, ipcc_iea_map):
+def inventory_sub(wcpd_df, ipcc_iea_map, gas):
 
     # Inventory structure
     inventory_subnat = wcpd_df.loc[wcpd_df.jurisdiction.isin(subnat_names), ["jurisdiction", "year", "ipcc_code", "iea_code"]]
@@ -41,28 +41,15 @@ def inventory_sub(wcpd_df, ipcc_iea_map):
                       low_memory=False)
 
     can = can.loc[can.Region != "Canada", :]
-    can = can[["Region", "Year", "Category", "CO2", "CO2eq"]]
-    can.rename(columns={"Region":"jurisdiction", "Category":"ipcc_code", "CO2eq":"tot_ghg"}, inplace=True)
+    can = can[["Region", "Year", "Category", gas]]
+    can.rename(columns={"Region":"jurisdiction", "Category":"ipcc_code"}, inplace=True)
 
-    for col in ["CO2", "tot_ghg"]:
-        can[col].replace(to_replace={"x":None}, inplace=True)
-        can[col] = can[col].astype(float)
-        can[col] = can[col].divide(1000, fill_value=None)
-
-    can_tot = can.loc[can.ipcc_code.isin(["TOTAL"]), ["jurisdiction", "Year", "CO2", "tot_ghg"]]
-    can_lulucf = can.loc[can.ipcc_code.isin(["LAND USE, LAND-USE CHANGE AND FORESTRY"]), ["jurisdiction", "Year", "CO2", "tot_ghg"]]
-    can_tot = can_tot.merge(can_lulucf, on=["jurisdiction", "Year"])
-
-    #Calculating totals excluding LULUCF
-    can_tot["CO2_x"] = can_tot.CO2_x - can_tot.CO2_y
-    can_tot["tot_ghg_x"] = can_tot.tot_ghg_x - can_tot.tot_ghg_y
-    can_tot.drop(["CO2_y", "tot_ghg_y"], axis=1, inplace=True)
-    can_tot.rename(columns={"CO2_x":"Total_GHG_Emissions_Excluding_LUCF_MtCO2e", "tot_ghg_x":"Total_CO2_Emissions_Excluding_LUCF_MtCO2e"}, inplace=True)
-    can_tot.rename(columns={"Year":"year"}, inplace=True)
+    can[gas].replace(to_replace={"x":None}, inplace=True)
+    can[gas] = can[gas].astype(float)
 
     can["ipcc_code"].replace(to_replace=sector_names_ipcc_map_can, inplace=True)
-    can = can[["jurisdiction", "Year", "ipcc_code", "CO2"]]
-    can.columns = ["jurisdiction", "year", "ipcc_code", "CO2_emissions"]
+    can = can[["jurisdiction", "Year", "ipcc_code", gas]]
+
     can = can.loc[~can.ipcc_code.isna(), :] #keep all sectors in 'can' dataframe but assign IEA and IPCC codes so that they can be sorted
 
     can["supra_jur"] = "Canada"
