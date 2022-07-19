@@ -25,8 +25,6 @@ read_file = stream.read()
 exec(read_file)
 
 
-
-
 # Common pre-processing
 # CANADA
 
@@ -52,6 +50,9 @@ can["F-GASES"] = can[["HFCs", "PFCs", "SF6", "NF3"]].sum(axis=1)
 can.drop(["HFCs", "PFCs", "SF6", "NF3"], axis=1, inplace=True)
 
 can["supra_jur"] = "Canada"
+
+can = can[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', 'CO2', 'CH4', 'N2O', 'F-GASES',
+       'all_GHG']]
 
 
 
@@ -90,7 +91,7 @@ for file in file_list:
             china_proc = pd.concat([china_proc, temp_proc])
 
 
-            # From the CEADS data, we can actually recover the emissions associated with each broad fuel category (like for national jurisdictions)
+# From the CEADS data, we can actually recover the emissions associated with each broad fuel category (like for national jurisdictions)
 
 # Replace province names by those in dataset
 china_comb.replace(to_replace=subnat_names_map_chn, inplace=True)
@@ -110,13 +111,17 @@ china = china.loc[china.ipcc_code!="Total Consumption"] # remove total category 
 
 chn = china.groupby(["jurisdiction", "year", "ipcc_code"]).sum()
 chn = chn.reset_index()
-["year"] = chn.year.astype(int)
+chn["year"] = chn.year.astype(int)
 
 # generating empty columns for greenhouse gases that are not in China's source data
 for col in ["CH4", "N2O", "F-GASES", "all_GHG"]:
     chn[col] = np.nan
 
 chn["supra_jur"] = "China"
+
+chn = chn[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', 'CO2', 'CH4', 'N2O', 'F-GASES',
+       'all_GHG']]
+
 
 
 # UNITED STATES
@@ -140,42 +145,48 @@ us.loc[:, "ipcc_code"] = us.loc[:, "Subsector"]
 us.loc[:, "ipcc_code"] = us.loc[:, "ipcc_code"].replace(to_replace=category_names_ipcc_usa_map)
 
 excl_sectors = ['Transport - Natural gas pipeline', 'Carbon Dioxide Consumption', 'Abandoned Oil and Gas Wells', 'Phosphoric Acid Production',
-                'Natural Gas Systems', 'Petroleum Systems', 'Urea Consumption for Non-Agricultural Purposes']
+                'Natural Gas Systems', 'Petroleum Systems', 'Urea Consumption for Non-Agricultural Purposes', 
+                "LULUCF CH4 Emissions", "LULUCF Carbon Stock Change", "LULUCF N2O Emissions"]
+                # excluding LULUCF emissions because we want totals that exclude those
 
 us = us.loc[~us.ipcc_code.isin(excl_sectors), :]
 
+# combustion and non-combustion CO2 sectors are different IPCC categories so it's ok to replace the label
+us["Gas"].replace(to_replace={"CO2 (combustion)":"CO2", "CO2 (non-combustion)":"CO2"}, inplace=True)
+
 us = pd.pivot_table(us, values = "Emission (mmt CO2e)", index=['jurisdiction','Year', 'ipcc_code'], columns = 'Gas').reset_index()
 
-us["CO2"] = us["CO2 (combustion)"]+us["CO2 (non-combustion)"]
 us["F-GASES"] = us[["HFCs", "PFCs", "NF3", "SF6"]].sum(axis=1)
-us["all_GHG"] = us[["HFCs", "PFCs", "NF3", "SF6"]].sum(axis=1)
+us["all_GHG"] = us[["CO2", "CH4", "N2O", "F-GASES"]].sum(axis=1)
 
-us = us.drop(["CO2 (combustion)", "CO2 (non-combustion)", "LULUCF", 
-              "NF3", "SF6", "PFCs", "HFCs"], axis=1)
+us = us.drop(["NF3", "SF6", "PFCs", "HFCs"], axis=1)
 us = us.rename(columns={"Year":"year"})
 
 us = us.loc[us.year<=2020, :]
-us = us.sort_values(by=["jurisdiction", "year", "ipcc_code"])
 
 #needed to aggregate over IPCC sectors as I have attributed same ipcc_code to multiple Rhodium categories
-us = us.groupby(by=["jurisdiction", "year", "ipcc_code"]).sum()
-us = us.reset_index()
+usa = us.groupby(by=["jurisdiction", "year", "ipcc_code"]).sum()
+usa = usa.reset_index()
 
 # replace name of Georgia State to avoid clash with Georgia country
-us["jurisdiction"].replace(to_replace={"Georgia":"Georgia_US"}, inplace=True)
+usa["jurisdiction"].replace(to_replace={"Georgia":"Georgia_US"}, inplace=True)
 
 # add supra jurisdiction column
-us["supra_jur"] = "United States"
+usa["supra_jur"] = "United States"
+
+usa = usa[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', 'CO2', 'CH4', 'N2O', 'F-GASES',
+       'all_GHG']]
+
 
 
 def subnat_total():
 
     #CANADA 
-    can_tot = can.loc[can.Category=="0"]
-    can_tot.drop("Category", axis=1, inplace=True)
+    can_tot = can.loc[can.ipcc_code=="0"]
+    can_tot = can_tot.drop("ipcc_code", axis=1)
 
-    can_lulucf = can.loc[can.Category.isin(["LAND USE, LAND-USE CHANGE AND FORESTRY"]), :]
-    can_lulucf.drop("Category", axis=1, inplace=True)
+    can_lulucf = can.loc[can.ipcc_code.isin(["3B"]), :]
+    can_lulucf = can_lulucf.drop(["ipcc_code", "supra_jur"], axis=1)
 
     #Calculating totals excluding LULUCF
     temp = can_tot.merge(can_lulucf, on=["jurisdiction", "year"], how="left")
@@ -189,12 +200,12 @@ def subnat_total():
 
     # CHINA
 
-    chn_tot = china.groupby(["jurisdiction", "year"]).sum()
+    chn_tot = chn.groupby(["supra_jur", "jurisdiction", "year"]).sum()
     chn_tot = chn_tot.reset_index()
 
     # USA
 
-    usa_tot = us.groupby(["jurisdiction", "year"]).sum()
+    usa_tot = us.groupby(["supra_jur", "jurisdiction", "year"]).sum()
     usa_tot = usa_tot.reset_index()
 
     # COMBINED
@@ -216,17 +227,15 @@ def inventory_subnat(wcpd_df, ipcc_iea_map, gas):
 
     # CANADA
 
-    can_inv = can[["jurisdiction", "year", "ipcc_code", gas]]
+    can_inv = can[["supra_jur", "jurisdiction", "year", "ipcc_code", gas]]
 
     # CHINA
 
-    chn_inv = chn[["jurisdiction", "year", "ipcc_code", gas]]
+    chn_inv = chn[["supra_jur", "jurisdiction", "year", "ipcc_code", gas]]
 
     # UNITED STATES
 
-    usa_inv = us[["jurisdiction", "year", "ipcc_code", gas]]
-
-
+    usa_inv = usa[["supra_jur", "jurisdiction", "year", "ipcc_code", gas]]
 
 
     # -------------------------------Combined inventory df-----------------------------------
@@ -238,12 +247,12 @@ def inventory_subnat(wcpd_df, ipcc_iea_map, gas):
     combined_subnat = combined_subnat.merge(ipcc_iea_map, on=["ipcc_code"], how="left")
     combined_subnat[["iea_code"]] = combined_subnat[["iea_code"]].fillna("NA")
 
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(us_states), "supra_jur"] = "United States"
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(can_prov), "supra_jur"] = "Canada"
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(chn_prov), "supra_jur"] = "China"
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(jpn_pref), "supra_jur"] = "Japan"
+   # inventory_subnat.loc[inventory_subnat.jurisdiction.isin(us_states), "supra_jur"] = "United States"
+   # inventory_subnat.loc[inventory_subnat.jurisdiction.isin(can_prov), "supra_jur"] = "Canada"
+   # inventory_subnat.loc[inventory_subnat.jurisdiction.isin(chn_prov), "supra_jur"] = "China"
+   # inventory_subnat.loc[inventory_subnat.jurisdiction.isin(jpn_pref), "supra_jur"] = "Japan"
 
     inventory_subnat = inventory_subnat.merge(combined_subnat, on=["supra_jur", "jurisdiction", "year", "ipcc_code", "iea_code"], how="left")
-    inventory_subnat = inventory_subnat[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', "iea_code", 'CO2_emissions']]
+    inventory_subnat = inventory_subnat[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', "iea_code", gas]]
     
     return inventory_subnat
