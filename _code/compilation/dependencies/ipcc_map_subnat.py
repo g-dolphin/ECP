@@ -2,15 +2,12 @@
 
 # Canada
 
-can_map = pd.read_csv('/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/ipcc_code_name_map.csv')
-
-sector_names_ipcc_map_can = dict(zip(list(can_map['category'].values), list(can_map['IPCC_CODE'].values)))
-
-
+category_names_ipcc_can = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/ipcc_code_name_map_can.csv")
+category_names_ipcc_can_map = dict(zip(category_names_ipcc_can.category, category_names_ipcc_can.ipcc_code))
 
 # China
 
-sector_names_ipcc_map_chn = {'Farming, Forestry, Animal Husbandry, Fishery and Water Conservancy      ':'1A4C',
+category_names_ipcc_chn_map = {'Farming, Forestry, Animal Husbandry, Fishery and Water Conservancy      ':'1A4C',
                           'Coal Mining and Dressing                                 ':'1A1C',
                           'Petroleum and Natural Gas Extraction                     ':'1B2',
                           'Ferrous Metals Mining and Dressing                       ':'1A2I',
@@ -62,11 +59,11 @@ sector_names_ipcc_map_chn = {'Farming, Forestry, Animal Husbandry, Fishery and W
 
 # United States
 
-sector_names_ipcc_map_usa = {'Wastewater Treatment':'4D',
+category_names_ipcc_usa_map = {'Wastewater Treatment':'4D',
        'Rice Cultivation':'3C7', 'Manure Management':'3A2', 'Landfills':'4A',
        'Incineration of Waste':'4C1', 'Field Burning of Agricultural Residues':'3C1',
        'Enteric Fermentation':'3A1', 'Composting':'4B', 'Ferroalloy Production':'2C2',
-#       'Iron and Steel Production & Metallurgical Coke Production':'1A2A', TEMPORARY FIX
+       'Iron and Steel Production & Metallurgical Coke Production':'1A2A',
        'Petrochemical Production':'2B8',
        'Stationary Combustion':'1A5A', 'Mobile Combustion':'1A5B',
        'Carbide Production and Consumption':'2B5',
@@ -86,7 +83,8 @@ sector_names_ipcc_map_usa = {'Wastewater Treatment':'4D',
        'Electronics Industry':'2E', 
        'Adipic Acid Production':'2B3', 'N2O from Product Uses':'2G3',
        'Nitric Acid Production':'2B2', 'Agricultural Soil Management':'3C4',
-       'Coal Mining':'1B1A', 'Caprolactam, Glyoxal, and Glyoxylic Acid Production':'2B4'}
+       'Coal Mining':'1B1A', 'Caprolactam, Glyoxal, and Glyoxylic Acid Production':'2B4'
+       'Electrical Transmission and Distribution'}
 
 #'Abandoned Oil and Gas Wells', 'MVAC', 'Petroleum Systems', 'Electrical Transmission and Distribution',
 # 'LULUCF Carbon Stock Change', 'LULUCF N2O Emissions', 'LULUCF CH4 Emissions', 'Natural Gas Systems',
