@@ -83,8 +83,7 @@ category_names_ipcc_usa_map = {'Wastewater Treatment':'4D',
        'Electronics Industry':'2E', 
        'Adipic Acid Production':'2B3', 'N2O from Product Uses':'2G3',
        'Nitric Acid Production':'2B2', 'Agricultural Soil Management':'3C4',
-       'Coal Mining':'1B1A', 'Caprolactam, Glyoxal, and Glyoxylic Acid Production':'2B4'
-       'Electrical Transmission and Distribution'}
+       'Coal Mining':'1B1A', 'Caprolactam, Glyoxal, and Glyoxylic Acid Production':'2B4'}
 
 #'Abandoned Oil and Gas Wells', 'MVAC', 'Petroleum Systems', 'Electrical Transmission and Distribution',
 # 'LULUCF Carbon Stock Change', 'LULUCF N2O Emissions', 'LULUCF CH4 Emissions', 'Natural Gas Systems',
