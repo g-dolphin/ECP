@@ -17,13 +17,13 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
     # only country and year are used as keys, meaning that all sectors and fuel types within a same country and for a given year 
     # receive the same 'total GHG' figure
 
-    temp_nat = jur_tot_emissions[["jurisdiction", "year", gas, "all_GHG"]]
+    temp_jur = jur_tot_emissions[["jurisdiction", "year", gas, "all_GHG"]]
     temp_wld = world_total[["year", gas, "all_GHG"]]
 
-    temp_nat = jur_tot_emissions.rename(columns={gas:gas+"_nat", "all_GHG":"all_GHG_nat"})
-    temp_wld = world_total.rename(columns={gas:gas+"_wld", "all_GHG":"all_GHG_wld"})
+    temp_jur = temp_jur.rename(columns={gas:gas+"_nat", "all_GHG":"all_GHG_nat"})
+    temp_wld = temp_wld.rename(columns={gas:gas+"_wld", "all_GHG":"all_GHG_wld"})
 
-    emissions_share = pd.merge(emissions, temp_nat, how='left', on=['jurisdiction','year'])
+    emissions_share = pd.merge(emissions, temp_jur, how='left', on=['jurisdiction','year'])
     emissions_share = pd.merge(emissions_share, temp_wld, how='left', on=['year'])
     
     share_vars_map = {gas+"_jurGHG":"all_GHG_nat", 
@@ -41,8 +41,8 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
         emissions_share.drop(["jurisdiction_y"], axis=1, inplace=True)
         emissions_share.rename(columns={"jurisdiction_x":"jurisdiction"}, inplace=True)
 
-        share_vars_map[gas+"_supraGHG"] = "all_GHG_supra"
-        share_vars_map[gas+"_supra"+gas] = gas+"_supra"
+        share_vars_map[gas+"_supraGHG"] = "supra_all_GHG"
+        share_vars_map[gas+"_supra"+gas] = "supra_"+gas
     
     ret_df_vars = list(emissions.columns)
     ret_df_vars.remove(gas)
@@ -73,7 +73,7 @@ def emissions_share_sectors(emissions, sectors_wld_total, gas, jur_level=None):
         inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", gas]]
     else:
         if jur_level == "subnational":
-            inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", gas]]
+            inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", gas]]
         else:
             inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", gas]]
 
