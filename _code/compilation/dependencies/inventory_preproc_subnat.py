@@ -3,6 +3,7 @@
 
 import os
 import glob
+from re import sub
 import pandas as pd
 import numpy as np
 
@@ -134,11 +135,23 @@ file_list = glob.glob('*.csv')
 for file in file_list:
     temp = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/'+file, decimal=',')
     #extract US state name from file name
-    state_name = file[len("DetailedGHGinventory_"):-4]
+    state_name = file[len("DetailedGHGinventory_"):-4].replace("_", " ").title()
     #add state name as key column
     temp.loc[:, "jurisdiction"] = state_name
+    #drop unused columns
+    temp.drop(["Ranking", "Sector"], axis=1, inplace=True)
     #concat
     usa = pd.concat([usa, temp])
+
+sub_ind = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/industry/TS2022_central_subind_ghg.csv')
+sub_ind.rename(columns={"StateName":"jurisdiction", "Industry":"Subsector"}, inplace=True)
+sub_ind = sub_ind.loc[sub_ind.Gas=="CO2 (combustion)"] # keeping only the more detailed data for CO2 combustion
+
+usa = usa.loc[usa.Subsector!='Industry - All combustion'] # excluding this category because we have disaggregated data for the sub-industries
+
+# concatenate inventory categories
+
+usa = pd.concat([usa, sub_ind])
 
 #add ipcc_code
 usa.loc[:, "ipcc_code"] = usa.loc[:, "Subsector"]
@@ -150,24 +163,26 @@ excl_sectors = ['Transport - Natural gas pipeline', 'Carbon Dioxide Consumption'
                 # excluding LULUCF emissions because we want totals that exclude those
 
 usa = usa.loc[~usa.ipcc_code.isin(excl_sectors), :]
+usa.drop(["Subsector"], axis=1, inplace=True)
 
 # combustion and non-combustion CO2 sectors are different IPCC categories so it's ok to replace the label
 usa["Gas"].replace(to_replace={"CO2 (combustion)":"CO2", "CO2 (non-combustion)":"CO2"}, inplace=True)
 
-usa = pd.pivot_table(usa, values = "Emission (mmt CO2e)", index=['jurisdiction','Year', 'ipcc_code'], columns = 'Gas')
+# rename and limit to 2021
+usa.rename(columns={"Year":"year"}, inplace=True)
+usa = usa.loc[usa.year<=2021, :]
+
+# aggregate to keep a single entry per jurisdiction/year/gas/ipcc_code - identical IPCC codes are assigned to multiple Rhodium sectors
+usa = usa.groupby(["jurisdiction", "year", "Gas", "ipcc_code"]).sum()
 usa.reset_index(inplace=True)
 
-usa.rename(columns={"Year":"year"}, inplace=True)
-usa = usa.loc[usa.year<=2020, :]
+usa = usa.pivot(index=['jurisdiction', 'year', 'ipcc_code'], values = "Total Emission(mmt CO2)", columns="Gas")
+usa.reset_index(inplace=True)
 
 usa["F-GASES"] = usa[["HFCs", "PFCs", "NF3", "SF6"]].sum(axis=1)
 usa["all_GHG"] = usa[["CO2", "CH4", "N2O", "F-GASES"]].sum(axis=1)
 
 usa.drop(["NF3", "SF6", "PFCs", "HFCs"], axis=1, inplace=True)
-
-#needed to aggregate over IPCC sectors as I have attributed same ipcc_code to multiple Rhodium categories
-usa = usa.groupby(by=["jurisdiction", "year", "ipcc_code"]).sum()
-usa = usa.reset_index()
 
 # replace name of Georgia State to avoid clash with Georgia country
 usa["jurisdiction"].replace(to_replace={"Georgia":"Georgia_US"}, inplace=True)
