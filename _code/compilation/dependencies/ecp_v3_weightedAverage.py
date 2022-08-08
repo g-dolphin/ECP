@@ -88,7 +88,7 @@ def ecp(coverage_df, jur_level, weight_type, weight_year=None, sectors=bool):
     
 
 
-    def ecp_aggregation(ecp_df):
+def ecp_aggregation(ecp_df):
 
     global ecp_agg
     
@@ -97,7 +97,7 @@ def ecp(coverage_df, jur_level, weight_type, weight_year=None, sectors=bool):
 
     #World calculations
     ecp_world_agg = ecp_agg[["jurisdiction", "year", "ecp_ets_wldGHG_kusd", "ecp_ets_wld"+gas+"_kusd",
-                             "ecp_tax_wldGHG_kusd", "ecp_tax_wld"+gas+"_kusd"]]
+                            "ecp_tax_wldGHG_kusd", "ecp_tax_wld"+gas+"_kusd"]]
 
     ecp_world_agg = ecp_world_agg.groupby(['year']).sum()
 

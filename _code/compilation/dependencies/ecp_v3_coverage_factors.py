@@ -18,7 +18,7 @@ def coverage_factors(inst_df, gas):
     
     ## LOAD COVERAGE FACTORS FILES 
     coverage_factor = ecp_general.concatenate("/Users/gd/GitHub/WorldCarbonPricingDatabase/_raw/coverage_factor")
-    coverage_factor = coverage_factor[["jurisdiction", "year", "ipcc_code", "cf_"+gas.lower()]]
+    coverage_factor = coverage_factor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas.lower()]]
     
 
     if len(coverage_factor[coverage_factor.duplicated(keep=False)]) != 0:
@@ -44,7 +44,7 @@ def coverage_factors(inst_df, gas):
                 inst_df = inst_df.merge(coverage_factor, left_on=merge_keys,
                                         right_on=["jurisdiction", "year", "ipcc_code", "scheme_id"], how="left")
                 inst_df.drop(["scheme_id"], axis=1, inplace=True)
-                inst_df.rename(columns={"em_share":cf_col_names[id_col_name]}, inplace=True)
+                inst_df.rename(columns={"cf_"+gas:cf_col_names[id_col_name]}, inplace=True)
 
                 cf_cols = cf_cols + [cf_col_names[id_col_name]]
 
