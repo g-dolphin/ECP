@@ -172,6 +172,9 @@ usa["Gas"].replace(to_replace={"CO2 (combustion)":"CO2", "CO2 (non-combustion)":
 usa.rename(columns={"Year":"year"}, inplace=True)
 usa = usa.loc[usa.year<=2021, :]
 
+usa[["Total Emission(mmt CO2)"]] = usa[["Total Emission(mmt CO2)"]].astype(float)
+usa.fillna(0, inplace=True) # needed to otherwise the sum across columns won't work
+
 # aggregate to keep a single entry per jurisdiction/year/gas/ipcc_code - identical IPCC codes are assigned to multiple Rhodium sectors
 usa = usa.groupby(["jurisdiction", "year", "Gas", "ipcc_code"]).sum()
 usa.reset_index(inplace=True)
