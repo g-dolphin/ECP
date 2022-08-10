@@ -1,18 +1,19 @@
+import pandas as pd
+import numpy as np
+import re
 
 
-
-
-def ecp(coverage_df, jur_level, gas, weight_type, weight_year=None, sectors=bool):
+def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year=None, sectors=bool):
     
     global ecp_variables_map 
     
     if jur_level == "national":
         merge_keys = ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]
-        prices_temp = prices_usd.copy()
+        prices_temp = prices.copy()
         
     if jur_level == "subnational":
         merge_keys = ["jurisdiction", "year", "ipcc_code", "iea_code"]
-        prices_temp = prices_usd.loc[prices_usd.Product=="Natural gas", :].copy()
+        prices_temp = prices.loc[prices.Product=="Natural gas", :].copy()
         prices_temp.drop(["Product"], axis=1, inplace=True)
               
     if weight_type=="time_varying":
@@ -88,7 +89,7 @@ def ecp(coverage_df, jur_level, gas, weight_type, weight_year=None, sectors=bool
     
 
 
-def ecp_aggregation(ecp_df):
+def ecp_aggregation(ecp_df, gas):
 
     global ecp_agg
     
@@ -119,7 +120,7 @@ def ecp_aggregation(ecp_df):
     return ecp_agg
 
 
-def national_from_subnat(df, list_subnat):
+def national_from_subnat(df, list_subnat, key, gas):
     
     temp = df.loc[df.jurisdiction.isin(list_subnat), :]
     temp = temp.groupby(["year"]).sum()
