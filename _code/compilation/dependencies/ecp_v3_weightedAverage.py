@@ -2,7 +2,7 @@
 
 
 
-def ecp(coverage_df, jur_level, weight_type, weight_year=None, sectors=bool):
+def ecp(coverage_df, jur_level, gas, weight_type, weight_year=None, sectors=bool):
     
     global ecp_variables_map 
     
@@ -117,3 +117,29 @@ def ecp_aggregation(ecp_df):
     ecp_agg["ecp_all_supra"+gas+"_kusd"] = ecp_agg["ecp_tax_supra"+gas+"_kusd"] + ecp_agg["ecp_ets_supra"+gas+"_kusd"]
 
     return ecp_agg
+
+
+def national_from_subnat(df, list_subnat):
+    
+    temp = df.loc[df.jurisdiction.isin(list_subnat), :]
+    temp = temp.groupby(["year"]).sum()
+    temp.reset_index(inplace=True)
+    temp["jurisdiction"] = key
+
+    temp[["ecp_ets_jurGHG_kusd", "ecp_tax_jurGHG_kusd", 
+        "ecp_ets_jur"+gas+"_kusd", "ecp_tax_jur"+gas+"_kusd", 
+        "ecp_all_jurGHG_kusd", "ecp_all_jurGHG_kusd"]] = np.nan
+
+    swap_list = {"ecp_ets_jurGHG_kusd":"ecp_ets_supraGHG_kusd", "ecp_tax_jurGHG_kusd":"ecp_tax_supraGHG_kusd", 
+                "ecp_ets_jur"+gas+"_kusd":"ecp_ets_supra"+gas+"_kusd", "ecp_tax_jur"+gas+"_kusd":"ecp_tax_supra"+gas+"_kusd", 
+                "ecp_all_jurGHG_kusd":"ecp_all_supraGHG_kusd", "ecp_all_jur"+gas+"_kusd":"ecp_all_supra"+gas+"_kusd",
+                "ecp_ets_supraGHG_kusd":"ecp_ets_jurGHG_kusd", "ecp_tax_supraGHG_kusd":"ecp_tax_jurGHG_kusd", 
+                "ecp_ets_supra"+gas+"_kusd":"ecp_ets_jur"+gas+"_kusd", "ecp_tax_supra"+gas+"_kusd":"ecp_tax_jur"+gas+"_kusd", 
+                "ecp_all_supraGHG_kusd":"ecp_all_jurGHG_kusd", "ecp_all_supra"+gas+"_kusd":"ecp_all_jur"+gas+"_kusd"}
+
+    temp.rename(columns=swap_list, inplace=True)
+
+    df = df.loc[df.jurisdiction != key, :]
+    df = pd.concat([df, temp])
+        
+    return df
