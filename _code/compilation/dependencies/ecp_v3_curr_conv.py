@@ -7,17 +7,21 @@ Created on Wed Feb 23 17:00:28 2022
 """
 
 import os
+import pandas as pd
+import numpy as np
+import re
+
 from importlib.machinery import SourceFileLoader
 
 path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
-path_git_data = "/Users/gd/GitHub/ECP/_raw/wb_rates"
+path_git_data = "/Users/gd/GitHub/ECP/_raw"
 
 ## Emissions prices and rates conversion
 # All prices converted to [2019] USD
 
-def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):    
+def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):    
  
     #Loading and formatting x-rate dataframe
     
@@ -130,19 +134,19 @@ def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):
     # need to adjust the cum_inf dataframe so that it includes inflation rates for subnational jurisditions.
     # assuming national inflation rate for subnational entities - might be worth updating to entity-specific rates
     
-    for jur in list(inv_can.jurisdiction.unique())[:-1]: # remove 'canada' entry from list
+    for jur in subnat_can_list: 
         temp_df = cum_inf.loc[cum_inf.jurisdiction=="Canada", :].copy()
         temp_df["jurisdiction"].replace(to_replace={"Canada":jur}, inplace=True)
         
         cum_inf = pd.concat([cum_inf, temp_df])
         
-    for jur in list(inv_usa.jurisdiction.unique()):
+    for jur in subnat_usa_list:
         temp_df = cum_inf.loc[cum_inf.jurisdiction=="United States", :].copy()
         temp_df["jurisdiction"].replace(to_replace={"United States":jur}, inplace=True)
         
         cum_inf = pd.concat([cum_inf, temp_df])
     
-    for jur in list(inv_chn.jurisdiction.unique()):
+    for jur in subnat_chn_list:
         temp_df = cum_inf.loc[cum_inf.jurisdiction=="China", :].copy()
         temp_df["jurisdiction"].replace(to_replace={"China":jur}, inplace=True)
         
@@ -192,13 +196,13 @@ def cur_conv(wcpd_all, inv_can, inv_usa, inv_chn):
     
     # remove all files from directory before writing new ones to avoid leaving behind legacy files
     
-    directory = path_git_data+'/wcpd_usd/'
+    directory = path_git_data+'/wcpd_usd/'+gas+'/'
     for f in os.listdir(directory):
         os.remove(os.path.join(directory, f))
     
     # write files
     for jur in wcpd_usd.jurisdiction.unique():
-        wcpd_usd.loc[wcpd_usd.jurisdiction==jur][col_sel].to_csv(path_git_data+'/wcpd_usd/prices_usd_'+jur_dic[jur]+'.csv', index=None)
+        wcpd_usd.loc[wcpd_usd.jurisdiction==jur][col_sel].to_csv(path_git_data+'/wcpd_usd/'+gas+'/prices_usd_'+gas+'_'+jur_dic[jur]+'.csv', index=None)
         
            
     return wcpd_usd

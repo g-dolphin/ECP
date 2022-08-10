@@ -9,6 +9,7 @@ Created on Thu Feb 17 16:52:03 2022
 import os
 import pandas as pd
 import glob
+import numpy as np
 
 path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
 

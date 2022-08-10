@@ -21,10 +21,7 @@ def unique_combinations(elements: list[str]) -> list[tuple[str, str]]:
     return list(itertools.combinations(elements, 2))
 
 
-def overlap(inst_df):
-    
-    ## LOAD OVERLAP DATAFRAMES
-    overlap = pd.read_csv("/Users/gd/GitHub/WorldCarbonPricingDatabase/_raw/overlap/overlap_mechanisms.csv")
+def overlap(inst_df, overlap):
     
     if len(overlap[overlap.duplicated(['inst_1', 'inst_2', 'ipcc_code', 'year'], keep=False)]) != 0:
         print("The overlap dataframe contains duplicates! Correct it before proceeding further.")

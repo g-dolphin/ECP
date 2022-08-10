@@ -23,7 +23,7 @@ import pandas as pd
 #3. Carry over these new dataframes in the subsequent steps of the script
 
 #Function pairing `_share` dataframes with coverage dummies
-def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df,
+def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df, gas,
              int_sectors=bool, jur_level=None, scope_year=None):
 
     wcpd_temp = pd.DataFrame()
@@ -52,11 +52,11 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df,
     coverage_factor = dict(zip(scheme_id_cols, scheme_cf_cols))
 
     if int_sectors == True: 
-        emissions_cols = ["co2_wld_sect_wldCO2"]
+        emissions_cols = [gas+"_wld_sect_wld"+gas]
     elif jur_level=="national":
-        emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2']
+        emissions_cols = [gas+"_jurGHG", gas+"_jur"+gas,  gas+"_wldGHG",  gas+"_wld"+gas]
     else:        
-        emissions_cols = ['CO2_jurGHG', 'CO2_jurCO2', 'CO2_wldGHG', 'CO2_wldCO2', 'CO2_supraGHG', 'CO2_supraCO2']
+        emissions_cols = [gas+"_jurGHG",  gas+"_jur"+gas,  gas+"_wldGHG",  gas+"_wld"+gas,  gas+"_supraGHG",  gas+"_supra"+gas]
 
     # national jurisdictions
     if jur_level=="national": 
@@ -64,7 +64,7 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df,
         wcpd_cols = wcpd_keys+["ets", "tax"]+overlap_cols+scheme_id_cols+scheme_cf_cols
         wcpd_temp = wcpd_temp[wcpd_cols]
 
-        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["CO2_emissions"]))) 
+        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+[gas]))) 
         #NB: The order of the elements in these lists matters! There must be a one to one correspondence between their respective elements
 
     # subnational jurisdictions
@@ -79,7 +79,7 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df,
 
         wcpd_temp = wcpd_temp[wcpd_cols]
 
-        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["supra_jur", "CO2_emissions"]))) 
+        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["supra_jur", gas]))) 
 
     # Adjust list of merge keys in case we want to calculate fixed scope coverage
     if scope_year != None:

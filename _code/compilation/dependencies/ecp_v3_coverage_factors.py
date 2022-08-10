@@ -11,15 +11,15 @@ from importlib.machinery import SourceFileLoader
 path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
-def coverage_factors(inst_df):
+def coverage_factors(inst_df, gas):
     
     tax_id_cols = [x for x in inst_df.columns if x.startswith("tax_") and x.endswith("_id")]
     ets_id_cols = [x for x in inst_df.columns if x.startswith("ets_") and x.endswith("_id")]
     
     ## LOAD COVERAGE FACTORS FILES 
     coverage_factor = ecp_general.concatenate("/Users/gd/GitHub/WorldCarbonPricingDatabase/_raw/coverage_factor")
-    coverage_factor.rename(columns={"Jurisdiction":"jurisdiction","Year":"year","IPCC_code":"ipcc_code"}, inplace=True)
-    coverage_factor.drop(["source", "comment"], axis=1, inplace=True)
+    coverage_factor = coverage_factor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas.lower()]]
+    
 
     if len(coverage_factor[coverage_factor.duplicated(keep=False)]) != 0:
         print("The coverage_factor dataframe contains duplicates! Correct before proceeding further.")
@@ -44,7 +44,7 @@ def coverage_factors(inst_df):
                 inst_df = inst_df.merge(coverage_factor, left_on=merge_keys,
                                         right_on=["jurisdiction", "year", "ipcc_code", "scheme_id"], how="left")
                 inst_df.drop(["scheme_id"], axis=1, inplace=True)
-                inst_df.rename(columns={"em_share":cf_col_names[id_col_name]}, inplace=True)
+                inst_df.rename(columns={"cf_"+gas.lower():cf_col_names[id_col_name]}, inplace=True)
 
                 cf_cols = cf_cols + [cf_col_names[id_col_name]]
 
