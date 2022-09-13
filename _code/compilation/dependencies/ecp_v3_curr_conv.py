@@ -99,7 +99,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
     
     # Loading and formatting inflation dataframe
     inf_rate = ecp_general.wb_series("Inflation, GDP deflator: linked series (annual %)", "inf_rate")
-    inf_rate = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2020),:]
+    inf_rate = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2021),:]
     inf_rate.to_csv(path_git_data+'/wb_rates/inf_rate.csv', index=None)
     
     
