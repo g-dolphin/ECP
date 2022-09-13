@@ -23,7 +23,7 @@ import pandas as pd
 #3. Carry over these new dataframes in the subsequent steps of the script
 
 #Function pairing `_share` dataframes with coverage dummies
-def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df, gas,
+def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
              int_sectors=bool, jur_level=None, scope_year=None):
 
     wcpd_temp = pd.DataFrame()
@@ -110,7 +110,7 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, overlap_df, gas,
         if i.startswith("ets")==True:
             binary[i] = "ets"
     
-    # calculation of overlap
+    # coverage and overlap columns
     for var in emissions_cols:
         for scheme in scheme_id_cols: # schemes_cols contains id's of all schemes
             temp["cov"+"_"+scheme[:-3]+"_"+var] = temp[binary[scheme]]*temp[coverage_factor[scheme]]*temp[var]
