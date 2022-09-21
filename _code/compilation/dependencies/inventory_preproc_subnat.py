@@ -118,6 +118,10 @@ chn["year"] = chn.year.astype(int)
 for col in ["CH4", "N2O", "F-GASES", "all_GHG"]:
     chn[col] = np.nan
 
+# convert from mmt to kt
+for col in ['CO2', 'CH4', 'N2O', 'F-GASES', 'all_GHG']:
+    chn[col] = chn[col]*1000
+
 chn["supra_jur"] = "China"
 
 chn = chn[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', 'CO2', 'CH4', 'N2O', 'F-GASES',
@@ -189,6 +193,10 @@ usa.drop(["NF3", "SF6", "PFCs", "HFCs"], axis=1, inplace=True)
 
 # replace name of Georgia State to avoid clash with Georgia country
 usa["jurisdiction"].replace(to_replace={"Georgia":"Georgia_US"}, inplace=True)
+
+# convert from mmt to kt
+for col in ['CO2', 'CH4', 'N2O', 'F-GASES', 'all_GHG']:
+    usa[col] = usa[col]*1000
 
 # add supra jurisdiction column
 usa["supra_jur"] = "United States"
