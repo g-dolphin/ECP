@@ -120,12 +120,12 @@ def ecp_aggregation(ecp_df, gas):
     return ecp_agg
 
 
-def national_from_subnat(df, list_subnat, key, gas):
+def national_from_subnat(df, list_subnat, nat_jur, gas):
     
     temp = df.loc[df.jurisdiction.isin(list_subnat), :]
     temp = temp.groupby(["year"]).sum()
     temp.reset_index(inplace=True)
-    temp["jurisdiction"] = key
+    temp["jurisdiction"] = nat_jur+"sub"
 
     temp[["ecp_ets_jurGHG_kusd", "ecp_tax_jurGHG_kusd", 
         "ecp_ets_jur"+gas+"_kusd", "ecp_tax_jur"+gas+"_kusd", 
@@ -140,7 +140,15 @@ def national_from_subnat(df, list_subnat, key, gas):
 
     temp.rename(columns=swap_list, inplace=True)
 
-    df = df.loc[df.jurisdiction != key, :]
-    df = pd.concat([df, temp])
+    temp_nat = df.loc[df.jurisdiction == nat_jur, :]
+
+    temp_nat_subnat = pd.concat([temp_nat, temp])
+    temp_nat_subnat = temp_nat_subnat.groupby(["year"]).sum() # summing country-level coverage from country-level and subnational mechanisms
+    temp_nat_subnat.reset_index(inplace=True)
+
+    temp_nat_subnat["jurisdiction"] = nat_jur
+
+    df = df.loc[df.jurisdiction != nat_jur, :]
+    df = pd.concat([df, temp_nat_subnat])
         
     return df
