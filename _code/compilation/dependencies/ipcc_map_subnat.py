@@ -45,7 +45,7 @@ category_names_ipcc_chn_map = {'Farming, Forestry, Animal Husbandry, Fishery and
                           'Instruments, Meters, Cultural and Office Machinery         ':'1A2H',
                           'Other Manufacturing Industry                             ':'1A2M',
                           'Scrap and waste':'1A2M',
-                          'Production and Supply of Electric Power, Steam and Hot Water   ':'1A1A',
+                          'Production and Supply of Electric Power, Steam and Hot Water   ':'1A1A1', # temporary fix - we don't have CO2 emissions disaggregated by sub categories of Category 1A1A for China's provinces
                           'Production and Supply of Gas                             ':'1B2B',
                           'Production and Supply of Tap Water                       ':'1A4A', # to be verified
                           'Construction                                             ':'1A2K',
