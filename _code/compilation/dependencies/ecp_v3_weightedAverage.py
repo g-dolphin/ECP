@@ -13,7 +13,7 @@ def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year
         
     if jur_level == "subnational":
         merge_keys = ["jurisdiction", "year", "ipcc_code", "iea_code"]
-        prices_temp = prices.loc[prices.Product=="Natural gas", :].copy()
+        prices_temp = prices.loc[prices.Product=="Natural gas", :].copy() # currently taking "Natural gas" price for all sector emissions. Not an issue since virtually all subnational prices are the same across fuels.
         prices_temp.drop(["Product"], axis=1, inplace=True)
               
     if weight_type=="time_varying":
