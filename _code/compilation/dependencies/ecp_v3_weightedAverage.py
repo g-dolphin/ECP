@@ -28,24 +28,24 @@ def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year
         
         temp_df = prices_temp.merge(temp_df, on=fw_merge_keys, how="left")
 
-    ecp_variables_map = {"ecp_ets_jurGHG_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jurGHG"), x))==True], 
-                         "ecp_ets_jur"+gas+"_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jur"+gas), x))==True], 
-                         "ecp_ets_wldGHG_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+wldGHG"), x))==True],
-                         "ecp_ets_wld"+gas+"_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+wld"+gas), x))==True],
-                         "ecp_tax_jurGHG_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+jurGHG"), x))==True], 
-                         "ecp_tax_jur"+gas+"_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+jur"+gas), x))==True], 
-                         "ecp_tax_wldGHG_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+wldGHG"), x))==True], 
-                         "ecp_tax_wld"+gas+"_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+wld"+gas), x))==True]}
+    ecp_variables_map = {"ecp_ets_jurGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jurGHG"), x))==True], 
+                         "ecp_ets_jur"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jur"+gas), x))==True], 
+                         "ecp_ets_wldGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+wldGHG"), x))==True],
+                         "ecp_ets_wld"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+wld"+gas), x))==True],
+                         "ecp_tax_jurGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+jurGHG"), x))==True], 
+                         "ecp_tax_jur"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+jur"+gas), x))==True], 
+                         "ecp_tax_wldGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+wldGHG"), x))==True], 
+                         "ecp_tax_wld"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+wld"+gas), x))==True]}
 
-    ecp_variables_map_sect = {"ecp_ets_sect"+gas+"_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+_share"), x))==True], 
-                              "ecp_tax_sect"+gas+"_kusd":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+_share"), x))==True]}
+    ecp_variables_map_sect = {"ecp_ets_sect"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+_share"), x))==True], 
+                              "ecp_tax_sect"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+_share"), x))==True]}
     
     
     if jur_level == "subnational" and sectors == False:
-        ecp_variables_map["ecp_ets_supraGHG_kusd"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+supraGHG"), x))==True]
-        ecp_variables_map["ecp_ets_supra"+gas+"_kusd"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+supra"+gas), x))==True]
-        ecp_variables_map["ecp_tax_supraGHG_kusd"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+supraGHG"), x))==True]
-        ecp_variables_map["ecp_tax_supra"+gas+"_kusd"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+supra"+gas), x))==True]
+        ecp_variables_map["ecp_ets_supraGHG_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+supraGHG"), x))==True]
+        ecp_variables_map["ecp_ets_supra"+gas+"_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+supra"+gas), x))==True]
+        ecp_variables_map["ecp_tax_supraGHG_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+supraGHG"), x))==True]
+        ecp_variables_map["ecp_tax_supra"+gas+"_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+supra"+gas), x))==True]
 
     if sectors == False:
         ecp_mapping = ecp_variables_map
@@ -71,17 +71,17 @@ def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year
 
     
     if sectors == False:
-        temp_df["ecp_all_jurGHG_kusd"] = temp_df["ecp_tax_jurGHG_kusd"]+temp_df["ecp_ets_jurGHG_kusd"]
-        temp_df["ecp_all_jur"+gas+"_kusd"] = temp_df["ecp_tax_jur"+gas+"_kusd"]+temp_df["ecp_ets_jur"+gas+"_kusd"]
-        temp_df["ecp_all_wldGHG_kusd"] = temp_df["ecp_tax_wldGHG_kusd"]+temp_df["ecp_ets_wldGHG_kusd"]
-        temp_df["ecp_all_wld"+gas+"_kusd"] = temp_df["ecp_tax_wld"+gas+"_kusd"]+temp_df["ecp_ets_wld"+gas+"_kusd"]
+        temp_df["ecp_all_jurGHG_usd_k"] = temp_df["ecp_tax_jurGHG_usd_k"]+temp_df["ecp_ets_jurGHG_usd_k"]
+        temp_df["ecp_all_jur"+gas+"_usd_k"] = temp_df["ecp_tax_jur"+gas+"_usd_k"]+temp_df["ecp_ets_jur"+gas+"_usd_k"]
+        temp_df["ecp_all_wldGHG_usd_k"] = temp_df["ecp_tax_wldGHG_usd_k"]+temp_df["ecp_ets_wldGHG_usd_k"]
+        temp_df["ecp_all_wld"+gas+"_usd_k"] = temp_df["ecp_tax_wld"+gas+"_usd_k"]+temp_df["ecp_ets_wld"+gas+"_usd_k"]
 
     elif sectors == True:
-        temp_df["ecp_all_sect"+gas+"_kusd"] = temp_df["ecp_tax_sect"+gas+"_kusd"]+temp_df["ecp_ets_sect"+gas+"_kusd"]
+        temp_df["ecp_all_sect"+gas+"_usd_k"] = temp_df["ecp_tax_sect"+gas+"_usd_k"]+temp_df["ecp_ets_sect"+gas+"_usd_k"]
         
     if jur_level == "subnational" and sectors == False:
-        temp_df["ecp_all_supraGHG_kusd"] = temp_df["ecp_tax_supraGHG_kusd"]+temp_df["ecp_ets_supraGHG_kusd"]
-        temp_df["ecp_all_supra"+gas+"_kusd"] = temp_df["ecp_tax_supra"+gas+"_kusd"]+temp_df["ecp_ets_supra"+gas+"_kusd"]
+        temp_df["ecp_all_supraGHG_usd_k"] = temp_df["ecp_tax_supraGHG_usd_k"]+temp_df["ecp_ets_supraGHG_usd_k"]
+        temp_df["ecp_all_supra"+gas+"_usd_k"] = temp_df["ecp_tax_supra"+gas+"_usd_k"]+temp_df["ecp_ets_supra"+gas+"_usd_k"]
         
     temp_df = temp_df.loc[~temp_df.ipcc_code.isin(flow_excl), :] # exclude aggregate sectors to avoid double counting
     
@@ -97,13 +97,13 @@ def ecp_aggregation(ecp_df, gas):
     ecp_agg.reset_index(inplace=True)
 
     #World calculations
-    ecp_world_agg = ecp_agg[["jurisdiction", "year", "ecp_ets_wldGHG_kusd", "ecp_ets_wld"+gas+"_kusd",
-                            "ecp_tax_wldGHG_kusd", "ecp_tax_wld"+gas+"_kusd"]]
+    ecp_world_agg = ecp_agg[["jurisdiction", "year", "ecp_ets_wldGHG_usd_k", "ecp_ets_wld"+gas+"_usd_k",
+                            "ecp_tax_wldGHG_usd_k", "ecp_tax_wld"+gas+"_usd_k"]]
 
     ecp_world_agg = ecp_world_agg.groupby(['year']).sum()
 
-    cols_map = {"ecp_tax_wldGHG_kusd":"ecp_tax_jurGHG_kusd", "ecp_tax_wld"+gas+"_kusd":"ecp_tax_jur"+gas+"_kusd",
-                "ecp_ets_wldGHG_kusd":"ecp_ets_jurGHG_kusd", "ecp_ets_wld"+gas+"_kusd":"ecp_ets_jur"+gas+"_kusd"}
+    cols_map = {"ecp_tax_wldGHG_usd_k":"ecp_tax_jurGHG_usd_k", "ecp_tax_wld"+gas+"_usd_k":"ecp_tax_jur"+gas+"_usd_k",
+                "ecp_ets_wldGHG_usd_k":"ecp_ets_jurGHG_usd_k", "ecp_ets_wld"+gas+"_usd_k":"ecp_ets_jur"+gas+"_usd_k"}
 
     ecp_world_agg.rename(columns=cols_map, inplace=True)
     ecp_world_agg["jurisdiction"] = "World"
@@ -112,10 +112,10 @@ def ecp_aggregation(ecp_df, gas):
     ecp_agg = pd.concat([ecp_agg, ecp_world_agg])
 
     # all schemes ecp
-    ecp_agg["ecp_all_jurGHG_kusd"] = ecp_agg["ecp_tax_jurGHG_kusd"] + ecp_agg["ecp_ets_jurGHG_kusd"]
-    ecp_agg["ecp_all_jur"+gas+"_kusd"] = ecp_agg["ecp_tax_jur"+gas+"_kusd"] + ecp_agg["ecp_ets_jur"+gas+"_kusd"]
-    ecp_agg["ecp_all_supraGHG_kusd"] = ecp_agg["ecp_tax_supraGHG_kusd"] + ecp_agg["ecp_ets_supraGHG_kusd"]
-    ecp_agg["ecp_all_supra"+gas+"_kusd"] = ecp_agg["ecp_tax_supra"+gas+"_kusd"] + ecp_agg["ecp_ets_supra"+gas+"_kusd"]
+    ecp_agg["ecp_all_jurGHG_usd_k"] = ecp_agg["ecp_tax_jurGHG_usd_k"] + ecp_agg["ecp_ets_jurGHG_usd_k"]
+    ecp_agg["ecp_all_jur"+gas+"_usd_k"] = ecp_agg["ecp_tax_jur"+gas+"_usd_k"] + ecp_agg["ecp_ets_jur"+gas+"_usd_k"]
+    ecp_agg["ecp_all_supraGHG_usd_k"] = ecp_agg["ecp_tax_supraGHG_usd_k"] + ecp_agg["ecp_ets_supraGHG_usd_k"]
+    ecp_agg["ecp_all_supra"+gas+"_usd_k"] = ecp_agg["ecp_tax_supra"+gas+"_usd_k"] + ecp_agg["ecp_ets_supra"+gas+"_usd_k"]
 
     return ecp_agg
 
@@ -127,16 +127,16 @@ def national_from_subnat(df, list_subnat, nat_jur, gas):
     temp.reset_index(inplace=True)
     temp["jurisdiction"] = nat_jur+"sub"
 
-    temp[["ecp_ets_jurGHG_kusd", "ecp_tax_jurGHG_kusd", 
-        "ecp_ets_jur"+gas+"_kusd", "ecp_tax_jur"+gas+"_kusd", 
-        "ecp_all_jurGHG_kusd", "ecp_all_jurGHG_kusd"]] = np.nan
+    temp[["ecp_ets_jurGHG_usd_k", "ecp_tax_jurGHG_usd_k", 
+        "ecp_ets_jur"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k", 
+        "ecp_all_jurGHG_usd_k", "ecp_all_jurGHG_usd_k"]] = np.nan
 
-    swap_list = {"ecp_ets_jurGHG_kusd":"ecp_ets_supraGHG_kusd", "ecp_tax_jurGHG_kusd":"ecp_tax_supraGHG_kusd", 
-                "ecp_ets_jur"+gas+"_kusd":"ecp_ets_supra"+gas+"_kusd", "ecp_tax_jur"+gas+"_kusd":"ecp_tax_supra"+gas+"_kusd", 
-                "ecp_all_jurGHG_kusd":"ecp_all_supraGHG_kusd", "ecp_all_jur"+gas+"_kusd":"ecp_all_supra"+gas+"_kusd",
-                "ecp_ets_supraGHG_kusd":"ecp_ets_jurGHG_kusd", "ecp_tax_supraGHG_kusd":"ecp_tax_jurGHG_kusd", 
-                "ecp_ets_supra"+gas+"_kusd":"ecp_ets_jur"+gas+"_kusd", "ecp_tax_supra"+gas+"_kusd":"ecp_tax_jur"+gas+"_kusd", 
-                "ecp_all_supraGHG_kusd":"ecp_all_jurGHG_kusd", "ecp_all_supra"+gas+"_kusd":"ecp_all_jur"+gas+"_kusd"}
+    swap_list = {"ecp_ets_jurGHG_usd_k":"ecp_ets_supraGHG_usd_k", "ecp_tax_jurGHG_usd_k":"ecp_tax_supraGHG_usd_k", 
+                "ecp_ets_jur"+gas+"_usd_k":"ecp_ets_supra"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k":"ecp_tax_supra"+gas+"_usd_k", 
+                "ecp_all_jurGHG_usd_k":"ecp_all_supraGHG_usd_k", "ecp_all_jur"+gas+"_usd_k":"ecp_all_supra"+gas+"_usd_k",
+                "ecp_ets_supraGHG_usd_k":"ecp_ets_jurGHG_usd_k", "ecp_tax_supraGHG_usd_k":"ecp_tax_jurGHG_usd_k", 
+                "ecp_ets_supra"+gas+"_usd_k":"ecp_ets_jur"+gas+"_usd_k", "ecp_tax_supra"+gas+"_usd_k":"ecp_tax_jur"+gas+"_usd_k", 
+                "ecp_all_supraGHG_usd_k":"ecp_all_jurGHG_usd_k", "ecp_all_supra"+gas+"_usd_k":"ecp_all_jur"+gas+"_usd_k"}
 
     temp.rename(columns=swap_list, inplace=True)
 
