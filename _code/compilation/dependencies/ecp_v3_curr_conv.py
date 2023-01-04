@@ -105,7 +105,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
     
     cum_inf = pd.DataFrame()
     
-    price_year = 2019
+    price_year = 2021
     
     for jur in inf_rate.jurisdiction.unique():
         temp = inf_rate.loc[inf_rate.jurisdiction==jur, :].copy()

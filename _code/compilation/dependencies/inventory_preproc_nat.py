@@ -19,7 +19,7 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
     # aggregate fuel products to three aggregate categories (coal, oil, natural gas)
     result = {}
 
-    with open(path_ghg+'/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv', 'r',
+    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv', 'r',
              encoding = 'latin-1') as csvfile:
         data_reader = csv.reader(csvfile)
         next(data_reader, None)  # skip the headers
@@ -59,7 +59,7 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
             # perform the aggregation (in the present case, for each row, the code adds the value of 'value' to the container)
             result[year][location][product_category][sector_name][flow] += value
 
-    with open(path_ghg+'/national/IEA/iea_energy_combustion_emissions/detailed_figures/agg_product/iea_aggprod.csv', "w", encoding = 'utf-8') as csv_file:
+    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv', "w", encoding = 'utf-8') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(('Country','year','Flow','Sector','Product','CO2'))
 
@@ -70,10 +70,10 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
                         for flow in result[year][location][product_category][sector_name]:
                             writer.writerow((location, year, flow, sector_name, product_category, result[year][location][product_category][sector_name][flow]))
 
-    os.remove(path_ghg+'/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv')                
+    os.remove(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv')                
 
     # standardize country names to WB names
-    combustion_nat = pd.read_csv(path_ghg+"/national/IEA/iea_energy_combustion_emissions/detailed_figures/agg_product/iea_aggprod.csv",
+    combustion_nat = pd.read_csv(path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv",
                       encoding = "utf-8") #specify encoding
 
     map_iea_wb = {"CÃ\x83Â´te d'Ivoire": "Cote d'Ivoire", "CÃ´te d'Ivoire": "Cote d'Ivoire",
@@ -91,7 +91,7 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
     combustion_nat['Country'] = combustion_nat['Country'].replace(to_replace=map_iea_wb) 
 
-    combustion_nat.to_csv(path_ghg+'/national/IEA/iea_energy_combustion_emissions/detailed_figures/agg_product/iea_aggprod.csv',index=None)
+    combustion_nat.to_csv(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv',index=None)
 
     # dataframe format/labels standardization
     combustion_nat.rename(columns={"Country":"jurisdiction", "Year":"year", "Flow":"iea_code"}, inplace=True)
