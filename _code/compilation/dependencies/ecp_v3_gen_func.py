@@ -35,8 +35,8 @@ def concatenate(indir):
 #Change file path in function to choose which raw data to use (pre-/post-2015 files/nomenclature)
 
 
-def concat_iea(indir = path_ghg+"/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_annual/Post2015Nom", 
-               outfile = path_ghg+"/national/IEA/iea_energy_combustion_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv"):
+def concat_iea(indir = path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_annual/Post2015Nom", 
+               outfile = path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv"):
     os.chdir(indir) #sets the current directory to 'indir'
     fileList=glob.glob("*.csv") #this command generates a list of csv files
     # to concatenate, we will stack the files into a single Python list

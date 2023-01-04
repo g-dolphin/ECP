@@ -1,4 +1,4 @@
-jurisdiction,year,ipcc_code,iea_code,Product,tax_rate_incl_ex_clcu,ets_price_clcu,ets_2_price_clcu,tax_curr_code,ets_curr_code,ets_2_curr_code,tax_rate_incl_ex_usd,ets_price_usd,ets_2_price_usd,tax_rate_incl_ex_kusd,ets_price_kusd,ets_2_price_kusd,tax_curr_x_rate,ets_curr_x_rate,ets_2_curr_x_rate
+jurisdiction,year,ipcc_code,iea_code,Product,tax_rate_incl_ex_clcu,ets_price_clcu,ets_2_price_clcu,tax_curr_code,ets_curr_code,ets_2_curr_code,tax_rate_incl_ex_usd,ets_price_usd,ets_2_price_usd,tax_rate_incl_ex_usd_k,ets_price_usd_k,ets_2_price_usd_k,tax_curr_x_rate,ets_curr_x_rate,ets_2_curr_x_rate
 Azerbaijan,1989,0,,,,,,,,,,,,,,,,,
 Azerbaijan,1989,1,,,,,,,,,,,,,,,,,
 Azerbaijan,1989,1A,ABFLOW001,Coal,,,,,,,,,,,,,,,
