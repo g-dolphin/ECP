@@ -101,7 +101,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
 
     # GDP deflator
     gdp_dfl = ecp_general.wb_series("GDP deflator: linked series (base year varies by country)", "gdp_dfl")
-    gdp_dfl = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2021),:]
+    gdp_dfl = gdp_dfl.loc[(gdp_dfl.year>=1985) & (gdp_dfl.year<=2021),:]
     gdp_dfl.to_csv(path_git_data+'/wb_rates/gdp_dfl.csv', index=None)
 
     gdp_dfl_ii = pd.DataFrame()
@@ -111,6 +111,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
         temp = gdp_dfl.loc[(gdp_dfl.jurisdiction==jur), :]
         gdp_dfl_base_yr = gdp_dfl.loc[(gdp_dfl.jurisdiction==jur) & (gdp_dfl.year==price_year), :]
         gdp_dfl_base_yr.rename(columns={"gdp_dfl":"gdp_dfl_by"}, inplace=True)
+        gdp_dfl_base_yr.drop(["year"], axis=1, inplace=True)
 
         temp = temp.merge(gdp_dfl_base_yr, on=["jurisdiction"], how='left')
         temp["base_year_ratio"] = temp.gdp_dfl_by /temp.gdp_dfl
@@ -123,9 +124,9 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
     gdp_dfl = gdp_dfl_ii
 
     # Loading and formatting inflation dataframe
-    inf_rate = ecp_general.wb_series("Inflation, GDP deflator: linked series (annual %)", "inf_rate")
-    inf_rate = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2021),:]
-    inf_rate.to_csv(path_git_data+'/wb_rates/inf_rate.csv', index=None)
+#    inf_rate = ecp_general.wb_series("Inflation, GDP deflator: linked series (annual %)", "inf_rate")
+#    inf_rate = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2021),:]
+#    inf_rate.to_csv(path_git_data+'/wb_rates/inf_rate.csv', index=None)
     
 #    cum_inf = pd.DataFrame()
     
