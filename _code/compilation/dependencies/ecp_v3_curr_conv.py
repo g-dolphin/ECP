@@ -97,63 +97,86 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
     
     x_rate.drop("jurisdiction", axis=1, inplace=True)
     
-    # Loading and formatting inflation dataframe
-    inf_rate = ecp_general.wb_series("Inflation, GDP deflator: linked series (annual %)", "inf_rate")
-    inf_rate = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2021),:]
-    inf_rate.to_csv(path_git_data+'/wb_rates/inf_rate.csv', index=None)
-    
-    
-    cum_inf = pd.DataFrame()
-    
     price_year = 2021
-    
-    for jur in inf_rate.jurisdiction.unique():
-        temp = inf_rate.loc[inf_rate.jurisdiction==jur, :].copy()
-        temp["cum_inf"] = np.nan
-            
-        for yr in temp.year.unique():
-            x = 1 #initialization of cumulative inflation value
-            
-            if yr < price_year:
-                for i in range(yr, price_year):
-                    inflation = temp.loc[temp.year==i, "inf_rate"].item()
-                    x = x*(1+inflation/100)
-    
-            if yr > price_year:
-                for i in (price_year, yr):
-                    inflation = temp.loc[temp.year==i, "inf_rate"].item()
-                    x = x/(1+inflation/100)
-        
-            temp.loc[temp.year==yr, "cum_inf"] = x
-        
-        if cum_inf.empty==True:
-            cum_inf = temp
+
+    # GDP deflator
+    gdp_dfl = ecp_general.wb_series("GDP deflator: linked series (base year varies by country)", "gdp_dfl")
+    gdp_dfl = gdp_dfl.loc[(gdp_dfl.year>=1985) & (gdp_dfl.year<=2021),:]
+    gdp_dfl.to_csv(path_git_data+'/wb_rates/gdp_dfl.csv', index=None)
+
+    gdp_dfl_ii = pd.DataFrame()
+
+    # Current to constant ratios
+    for jur in gdp_dfl.jurisdiction.unique():
+        temp = gdp_dfl.loc[(gdp_dfl.jurisdiction==jur), :]
+        gdp_dfl_base_yr = gdp_dfl.loc[(gdp_dfl.jurisdiction==jur) & (gdp_dfl.year==price_year), :]
+        gdp_dfl_base_yr.rename(columns={"gdp_dfl":"gdp_dfl_by"}, inplace=True)
+        gdp_dfl_base_yr.drop(["year"], axis=1, inplace=True)
+
+        temp = temp.merge(gdp_dfl_base_yr, on=["jurisdiction"], how='left')
+        temp["base_year_ratio"] = temp.gdp_dfl_by /temp.gdp_dfl
+
+        if gdp_dfl_ii.empty==True:
+            gdp_dfl_ii = temp
         else:
-            cum_inf = pd.concat([cum_inf, temp])
+            gdp_dfl_ii = pd.concat([gdp_dfl_ii, temp])
+
+    gdp_dfl = gdp_dfl_ii
+
+    # Loading and formatting inflation dataframe
+#    inf_rate = ecp_general.wb_series("Inflation, GDP deflator: linked series (annual %)", "inf_rate")
+#    inf_rate = inf_rate.loc[(inf_rate.year>=1985) & (inf_rate.year<=2021),:]
+#    inf_rate.to_csv(path_git_data+'/wb_rates/inf_rate.csv', index=None)
+    
+#    cum_inf = pd.DataFrame()
+    
+#    for jur in inf_rate.jurisdiction.unique():
+#        temp = inf_rate.loc[inf_rate.jurisdiction==jur, :].copy()
+#        temp["cum_inf"] = np.nan
+            
+#        for yr in temp.year.unique():
+#            x = 1 #initialization of cumulative inflation value
+            
+#            if yr < price_year:
+#                for i in range(yr, price_year):
+#                    inflation = temp.loc[temp.year==i, "inf_rate"].item()
+#                    x = x*(1+inflation/100)
+    
+#            if yr > price_year:
+#                for i in (price_year, yr):
+#                    inflation = temp.loc[temp.year==i, "inf_rate"].item()
+#                    x = x/(1+inflation/100)
+        
+#            temp.loc[temp.year==yr, "cum_inf"] = x
+        
+#        if cum_inf.empty==True:
+#            cum_inf = temp
+#        else:
+#            cum_inf = pd.concat([cum_inf, temp])
     
     # need to adjust the cum_inf dataframe so that it includes inflation rates for subnational jurisditions.
     # assuming national inflation rate for subnational entities - might be worth updating to entity-specific rates
     
     for jur in subnat_can_list: 
-        temp_df = cum_inf.loc[cum_inf.jurisdiction=="Canada", :].copy()
+        temp_df = gdp_dfl.loc[gdp_dfl.jurisdiction=="Canada", :].copy()
         temp_df["jurisdiction"].replace(to_replace={"Canada":jur}, inplace=True)
         
-        cum_inf = pd.concat([cum_inf, temp_df])
+        gdp_dfl = pd.concat([gdp_dfl, temp_df])
         
     for jur in subnat_usa_list:
-        temp_df = cum_inf.loc[cum_inf.jurisdiction=="United States", :].copy()
+        temp_df = gdp_dfl.loc[gdp_dfl.jurisdiction=="United States", :].copy()
         temp_df["jurisdiction"].replace(to_replace={"United States":jur}, inplace=True)
         
-        cum_inf = pd.concat([cum_inf, temp_df])
+        gdp_dfl = pd.concat([gdp_dfl, temp_df])
     
     for jur in subnat_chn_list:
-        temp_df = cum_inf.loc[cum_inf.jurisdiction=="China", :].copy()
+        temp_df = gdp_dfl.loc[gdp_dfl.jurisdiction=="China", :].copy()
         temp_df["jurisdiction"].replace(to_replace={"China":jur}, inplace=True)
         
-        cum_inf = pd.concat([cum_inf, temp_df])
+        gdp_dfl = pd.concat([gdp_dfl, temp_df])
     
         
-    cum_inf.to_csv(path_git_data+'/wb_rates/cum_infl.csv', index=None)
+    gdp_dfl.to_csv(path_git_data+'/wb_rates/gdp_dfl_ratio.csv', index=None)
     
     
     # Add exchange rate to cp dataframe
@@ -172,7 +195,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
         wcpd_usd.rename(columns={"official_x_rate":curr_code_map[name]}, inplace=True)
         wcpd_usd.drop("currency_code", axis=1, inplace=True)
     
-    wcpd_usd = wcpd_usd.merge(cum_inf[["jurisdiction", "year", "cum_inf"]], on=["jurisdiction", "year"], how="left")
+    wcpd_usd = wcpd_usd.merge(gdp_dfl[["jurisdiction", "year", "gdp_dfl"]], on=["jurisdiction", "year"], how="left")
     
     price_columns = [x for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
     price_columns_usd = [x[:-5]+"_usd" for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
@@ -185,7 +208,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
     # Calculate USD and 2019USD values for all schemes
     for key in price_cols_dic.keys():
         wcpd_usd.loc[:, price_cols_dic[key]] = wcpd_usd.loc[:, key]*(1/wcpd_usd.loc[:, x_rate_dic[key]])
-        wcpd_usd.loc[:, price_const_cols_dic[key]] = wcpd_usd.loc[:, price_cols_dic[key]]*wcpd_usd.loc[:, "cum_inf"]
+        wcpd_usd.loc[:, price_const_cols_dic[key]] = wcpd_usd.loc[:, price_cols_dic[key]]*wcpd_usd.loc[:, "gdp_dfl"]
         
         
     col_sel = ['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product']+list(price_cols_dic.keys())+list(curr_code_map.keys())+list(price_cols_dic.values())+list(price_const_cols_dic.values())+list(x_rate_dic.values())
