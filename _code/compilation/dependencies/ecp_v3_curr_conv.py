@@ -195,7 +195,7 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
         wcpd_usd.rename(columns={"official_x_rate":curr_code_map[name]}, inplace=True)
         wcpd_usd.drop("currency_code", axis=1, inplace=True)
     
-    wcpd_usd = wcpd_usd.merge(gdp_dfl[["jurisdiction", "year", "gdp_dfl"]], on=["jurisdiction", "year"], how="left")
+    wcpd_usd = wcpd_usd.merge(gdp_dfl[["jurisdiction", "year", "base_year_ratio"]], on=["jurisdiction", "year"], how="left")
     
     price_columns = [x for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
     price_columns_usd = [x[:-5]+"_usd" for x in wcpd_usd.columns if bool(re.match(re.compile("ets.+price"), x))==True or bool(re.match(re.compile("tax.+rate_incl+."), x))==True]
@@ -205,10 +205,10 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
     price_const_cols_dic = dict(zip(price_columns, price_columns_const_usd))
     x_rate_dic = dict(zip(price_columns, dic_values))
     
-    # Calculate USD and 2019USD values for all schemes
+    # Calculate USD and constant USD values for all schemes
     for key in price_cols_dic.keys():
         wcpd_usd.loc[:, price_cols_dic[key]] = wcpd_usd.loc[:, key]*(1/wcpd_usd.loc[:, x_rate_dic[key]])
-        wcpd_usd.loc[:, price_const_cols_dic[key]] = wcpd_usd.loc[:, price_cols_dic[key]]*wcpd_usd.loc[:, "gdp_dfl"]
+        wcpd_usd.loc[:, price_const_cols_dic[key]] = wcpd_usd.loc[:, price_cols_dic[key]]*wcpd_usd.loc[:, "base_year_ratio"]
         
         
     col_sel = ['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product']+list(price_cols_dic.keys())+list(curr_code_map.keys())+list(price_cols_dic.values())+list(price_const_cols_dic.values())+list(x_rate_dic.values())
