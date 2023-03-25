@@ -175,7 +175,12 @@ def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list):
         
         gdp_dfl = pd.concat([gdp_dfl, temp_df])
     
-        
+    # temp fix for year 2022
+    gdp_dfl_2022 = gdp_dfl.loc[gdp_dfl.year==2021]
+    gdp_dfl_2022["year"] = 2022
+
+    gdp_dfl = pd.concat([gdp_dfl, gdp_dfl_2022])
+
     gdp_dfl.to_csv(path_git_data+'/wb_rates/gdp_dfl_ratio.csv', index=None)
     
     
