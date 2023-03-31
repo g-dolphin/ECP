@@ -25,7 +25,7 @@ user_root_path = "/Users/gd/GitHub"
 git_repo_path = "/ECP"
 
 #output_dir = ""
-output_dir = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/working_paper/figures"
+output_dir = "/Users/gd/Desktop"
 
 
 ipcc_sector = ["1A1A1", "1A1B", "1A2A", "1A2C", "1A2D", "1A2I", 
@@ -55,13 +55,13 @@ cntries_list_II = ['Argentina',
                    'Switzerland', 'United Kingdom']
 
 
-df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage.csv")
-df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/world_sectoral_coverage.csv")
-df_cov_2010Scope = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage_2010scope.csv")
+df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/tot_coverage_jurisdiction_CO2.csv")
+#df_cov = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/tot_coverage_world_sectors_CO2.csv")
+#df_cov_2010Scope = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/total_coverage_2010scope.csv")
 
-df_prices_econ = pd.read_csv(user_root_path+git_repo_path+"/_dataset/price/ecp_economy/ecp.csv")
-df_prices_sect = pd.read_csv(user_root_path+git_repo_path+"/_dataset/price/ecp_sectors/ecp_sector.csv")
-df_prices_sect_wld = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_sectors_wld/world_sectoral_ecp.csv")
+df_prices_econ = pd.read_csv(user_root_path+git_repo_path+"/_dataset/price/ecp_economy/ecp_CO2.csv")
+df_prices_sect = pd.read_csv(user_root_path+git_repo_path+"/_dataset/price/ecp_sectors/ecp_sector_CO2.csv")
+df_prices_sect_wld = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_sectors_wld/world_sectoral_ecp_CO2.csv")
 
 
 
@@ -69,18 +69,18 @@ df_prices_sect_wld = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/pr
 # COVERAGE
 
 
-df_cov = df_cov.loc[df_cov['Year']>=1990]
-df_cov = df_cov.loc[df_cov['Year']<=2020]
+df_cov = df_cov.loc[df_cov['year']>=1990]
+df_cov = df_cov.loc[df_cov['year']<=2021]
 
 # only keep countries for which coverage becomes >0 at least once in the sample
-jur_list = df_cov.loc[df_cov['cov_all_CO2_jurCO2']>0, "Jurisdiction"].unique() 
+jur_list = df_cov.loc[df_cov['cov_all_CO2_jurCO2']>0, "jurisdiction"].unique() 
 
-df_cov = df_cov.loc[df_cov.Jurisdiction.isin(list(jur_list)+["World"]), :]
+df_cov = df_cov.loc[df_cov.jurisdiction.isin(list(jur_list)+["World"]), :]
 df_cov["cov_all_CO2_jurCO2"] = df_cov["cov_all_CO2_jurCO2"]*100
 
 ## Heatmap of jurisdiction-level coverage
 
-df_cov_hm = df_cov.pivot(index='Jurisdiction', columns='Year', values='cov_all_CO2_jurCO2')
+df_cov_hm = df_cov.pivot(index='jurisdiction', columns='year', values='cov_all_CO2_jurCO2')
 
 plt.subplots(figsize=(30,34))
 #ax=subplot(111)
@@ -103,12 +103,12 @@ plt.yticks(size=26)
 plt.ylabel("Jurisdiction", fontsize=32)
 
 plt.tight_layout()
-plt.savefig(output_dir+"/cov_hm.pdf")
+plt.savefig(output_dir+"/cov_hm.png")
 plt.close()
 
 ## Heatmap of world sector-level coverage
 
-df_cov = df_cov.loc[df_cov.IPCC_cat_code.isin(ipcc_sector), :]
+df_cov = df_cov.loc[df_cov.ipcc_code.isin(ipcc_sector), :]
 df_cov["cov_all_CO2_WldSectCO2"] = df_cov["cov_all_CO2_WldSectCO2"]*100
 
 df_cov_hm = df_cov.pivot(index='IPCC_cat_code', columns='Year', values='cov_all_CO2_WldSectCO2')
@@ -142,7 +142,7 @@ plt.close()
 
 ## World coverage of schemes implemented as of 2010
 
-jur_list_2010 = df_cov_2010Scope.loc[df_cov_2010Scope['cov_all_CO2_wldCO2']>0, "Jurisdiction"].unique() 
+jur_list_2010 = df_cov_2010Scope.loc[df_cov_2010Scope['cov_all_CO2_wldCO2']>0, "jurisdiction"].unique() 
 
 eu_ets_jur = ['Austria', 'Belgium', 'Bulgaria', 'Cyprus',
                'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France',
@@ -156,17 +156,17 @@ rggi_jur = ['Connecticut', 'Delaware', 'Maine', 'Maryland', 'Massachusetts',
             'New Hampshire', 'New Jersey', 'New York', 'Rhode Island', 
             'Vermont']
 
-df_cov_2010Scope = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction.isin(jur_list_2010), :]
+df_cov_2010Scope = df_cov_2010Scope.loc[df_cov_2010Scope.jurisdiction.isin(jur_list_2010), :]
 
-df_cov_2010Scope_euets = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction.isin(eu_ets_jur), :].groupby(["Year"]).sum()
+df_cov_2010Scope_euets = df_cov_2010Scope.loc[df_cov_2010Scope.jurisdiction.isin(eu_ets_jur), :].groupby(["Year"]).sum()
 df_cov_2010Scope_euets.reset_index(inplace=True)
-df_cov_2010Scope_euets["Jurisdiction"] = "EU ETS"
+df_cov_2010Scope_euets["jurisdiction"] = "EU ETS"
  
-df_cov_2010Scope_rggi = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction.isin(rggi_jur), :].groupby(["Year"]).sum()
+df_cov_2010Scope_rggi = df_cov_2010Scope.loc[df_cov_2010Scope.jurisdiction.isin(rggi_jur), :].groupby(["Year"]).sum()
 df_cov_2010Scope_rggi.reset_index(inplace=True)
-df_cov_2010Scope_rggi["Jurisdiction"] = "RGGI"
+df_cov_2010Scope_rggi["jurisdiction"] = "RGGI"
 
-df_cov_2010Scope = df_cov_2010Scope.loc[(~df_cov_2010Scope.Jurisdiction.isin(eu_ets_jur)) & (~df_cov_2010Scope.Jurisdiction.isin(rggi_jur)), :]
+df_cov_2010Scope = df_cov_2010Scope.loc[(~df_cov_2010Scope.jurisdiction.isin(eu_ets_jur)) & (~df_cov_2010Scope.jurisdiction.isin(rggi_jur)), :]
 df_cov_2010Scope = pd.concat([df_cov_2010Scope, df_cov_2010Scope_euets, df_cov_2010Scope_rggi])
 
 markers = [".", ",", "o", "H", "X", "*", "p", "s", "+"]
@@ -181,7 +181,7 @@ for jur_group in [["EU ETS"], ["Alberta", "Switzerland", "RGGI"]]:
     fig = plt.figure(figsize=(18,12))
     
     for jur in jur_group:
-        temp = df_cov_2010Scope.loc[df_cov_2010Scope.Jurisdiction==jur, :]
+        temp = df_cov_2010Scope.loc[df_cov_2010Scope.jurisdiction==jur, :]
         plt.plot(temp.Year, temp.cov_all_CO2_wldCO2*100, 
                  label=jur,
                  linewidth=2, ms=10, marker=markers[i])
@@ -218,7 +218,7 @@ df_prices_sect = df_prices_sect.loc[df_prices_sect['Year']<=2020]
 fig = plt.figure(figsize=(18,12))
 
 for ctry in cntries_list:
-    temp_econ = df_prices_econ.loc[df_prices_econ.Jurisdiction==ctry, :]
+    temp_econ = df_prices_econ.loc[df_prices_econ.jurisdiction==ctry, :]
     plt.plot(temp_econ.Year, temp_econ.ecp_all_jurGHG_2019USD, label=ctry)
 
 plt.title("Emissions price, by jurisdiction", fontsize=26)
@@ -240,8 +240,8 @@ sectors = ["ABFLOW003", "ABFLOW012", "ABFLOW028"]
 
 # Multi-sector bar plot 2018
 
-selec_conditions = (df_prices_sect.Jurisdiction.isin(cntries_list)) & (df_prices_sect.Flow.isin(sectors)) & (df_prices_sect.Year==2018) 
-temp_sect = df_prices_sect.loc[selec_conditions, ["Jurisdiction", "Year", "Flow", "Total_ew_price_sector_2019USD"]]
+selec_conditions = (df_prices_sect.jurisdiction.isin(cntries_list)) & (df_prices_sect.Flow.isin(sectors)) & (df_prices_sect.Year==2018) 
+temp_sect = df_prices_sect.loc[selec_conditions, ["jurisdiction", "Year", "Flow", "Total_ew_price_sector_2019USD"]]
 
 
 fig = plt.figure(figsize=(18,12))
@@ -297,14 +297,14 @@ j = 0
 
 for sector in ["ABFLOW003", "ABFLOW013", "ABFLOW028", "ABFLOW034"]:
     print(i,j)
-    temp = df_prices_sect.loc[(df_prices_sect.Jurisdiction.isin(cntries_list_II)) & (df_prices_sect.iea_code==sector)]
+    temp = df_prices_sect.loc[(df_prices_sect.jurisdiction.isin(cntries_list_II)) & (df_prices_sect.iea_code==sector)]
     temp = temp.loc[(temp.Year>=1990) & (temp.Year<=2020), :]
     temp_wld_sect = df_prices_sect_wld.loc[(df_prices_sect_wld.IPCC_cat_code==iea_ipcc_map[sector])]
     temp_wld_sect = temp_wld_sect.loc[(temp_wld_sect.Year>=1990) & (temp_wld_sect.Year<=2020), :]
     
     k=0
     for ctry in cntries_list_II:
-        temp_ctry = temp.loc[temp.Jurisdiction==ctry]
+        temp_ctry = temp.loc[temp.jurisdiction==ctry]
         axs[i,j].plot(temp_ctry.Year, temp_ctry.total_ew_price_sector_2019USD, 
                  linewidth=2, label=ctry, color="royalblue", 
                  linestyle=linestyle[k])
