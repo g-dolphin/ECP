@@ -121,6 +121,8 @@ def wb_series(series_name, new_name):
     series["year"] = series.apply(lambda x: x['year'][:4], axis = 1)
     series["year"] = series.year.astype(int)
     
+    series["jurisdiction"].replace(to_replace={"Czechia":"Czech Republic"}, inplace=True)
+
     return series
     
     
