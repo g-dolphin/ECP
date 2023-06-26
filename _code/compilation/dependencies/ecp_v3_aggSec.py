@@ -4,8 +4,14 @@ import pandas as pd
 import re
 import numpy as np
 import math
+from importlib.machinery import SourceFileLoader
+from itertools import chain
+
+path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
 
 ipccCodes = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv")
+
+ecp_general = SourceFileLoader('general', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
 # need to specify which inventory one is drawing from (national or subnational) and specify the corresponding path
 inventoryPath = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/processed/"
@@ -13,9 +19,8 @@ inventoryPath = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_da
 invName = {"national":"nat", "subnational":"subnat"}
 
 
-def cfWeightedPrices(gas, priceSeries):
-
-    global prices_usd, prices_usd_comb, all_inst_col
+def cfWeightedPrices(gas, priceSeries, priceSeriesPath, 
+                     price_cols, wcpd_all, IPCC1AList):
 
     # PRICES
     prices_usd = ecp_general.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath[priceSeries])
@@ -48,6 +53,8 @@ def cfWeightedPrices(gas, priceSeries):
     prices_usd  = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]+[all_inst_col]].sort_values(by=["jurisdiction", "year"])
     prices_usd_comb = prices_usd[prices_usd["ipcc_code"].isin(IPCC1AList)]
 
+    return prices_usd, prices_usd_comb, all_inst_col
+
 # function calculating emissions as shares of 
 
 def inventoryShare(category, jurGroup, gas):
@@ -56,68 +63,65 @@ def inventoryShare(category, jurGroup, gas):
 
     # remove unused columns
     inventory = inventory[['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', gas]]
+    inventory = inventory.loc[inventory.year<=2018, :]
 
-    # extending inventory to years beyond the last year
     for yr in range(2019, 2023):
         temp = inventory.loc[inventory.year==2018, :].copy()
         temp["year"].replace(to_replace={2018:yr}, inplace=True)
 
         inventory = pd.concat([inventory, temp])
 
-    if jurGroup == "national":
-        inventoryIPCC1A = inventory.loc[inventory.ipcc_code.isin(IPCC1AList), :]
-
-        #recalculating ipcc category level totals (to account for rounding errors)
-        inventoryIPCC1A_sectot = inventoryIPCC1A.groupby(by=["jurisdiction", "year", "iea_code"]).sum()
-        inventoryIPCC1A_sectot.reset_index(inplace=True)
-        inventoryIPCC1A_sectot.rename(columns={gas:gas+"_sectot"}, inplace=True)
-
-        inventoryIPCC1A = inventoryIPCC1A.merge(inventoryIPCC1A_sectot, on=["jurisdiction", "year", "iea_code"])
-        inventoryIPCC1A[gas+"_sharesec"] = inventoryIPCC1A[gas]/inventoryIPCC1A[gas+"_sectot"]
-
-        inventoryIPCC1A.loc[:, gas+"_sharesec"] = inventoryIPCC1A.loc[:, gas+"_sharesec"].fillna(0)
-        inventoryIPCC1A.drop([gas+"_sectot"], axis=1, inplace=True)
-
-        inventory = inventory.loc[~inventory.ipcc_code.isin(IPCC1AList)]
-        inventory = pd.concat([inventory, inventoryIPCC1A])
-        inventory.sort_values(by=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"], inplace=True)
-
+    # inventory subset
+    ## creating parent-child category dictionary to include child categories in inventory subset
     ipccList = list(ipccCodes.IPCC_CODE.unique())
     ipccDict = {}
+    ipccDict[category] = [x for x in ipccList if (x.startswith(category)) if (len(x)==len(category)+1)]
+    
+    ## creating subset
+    inventory = inventory.loc[inventory.ipcc_code.isin([category]+ipccDict[category])]
 
-    # creating parent-child category dictionary
-    for category in ipccList:
-        ipccDict[category] = [x for x in ipccList if (x.startswith(category)) if (len(x)==len(category)+1)]
-
-    # this will calculate weights for each emission category that is specified
-    # a. extract/calculate emissions (using emissions inventories)
+    # A. extract/calculate emissions (using emissions inventories)
     # recall that (i) the inventory is constructed from different sources and (ii) for non-combustion emissions, the "Product" disaggregation does not exist
     # figures for some (most) aggregate categories are not in the inventory per se and have to calculated
     
     tempEmissionsAgg = inventory.loc[inventory.ipcc_code.isin([category])]
     tempEmissionsSub = inventory.loc[inventory.ipcc_code.isin(ipccDict[category])]
 
-    tempEmissionsAgg.drop(["ipcc_code", "iea_code", "Product"], axis=1, inplace=True)
+#    tempEmissionsAgg.drop(["ipcc_code", "iea_code", "Product"], axis=1, inplace=True)
 
-    # b. calculate aggregate category emissions, if not provided
-    if np.isnan(tempEmissionsAgg.unique()).any():
-        aggSecEm = tempEmissionsSub.groupby(["jurisdiction", "year"]).sum()
-        aggSecEm.reset_index(inplace=True)
-        
-        aggSecEm.rename(columns={"CO2":"CO2_fromSubCat"})
-        aggSecEm["ipcc_code"] = category
-        aggSecEm["iea_code"] = ""
+    # B. calculate aggregate category emissions based on subcategory emissions figures, (if not provided and) if possible
+    # incidentally, this will take care of the fact that ipcc category level totals for IEA are not consistent with sum of subcat totals (due to rounding errors)
 
-        if category.startswith("1A") and jurGroup == "national":
-            tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm, on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"])
-        else:
-            tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm, on=["jurisdiction", "year", "ipcc_code", "iea_code"])
+#    if np.isnan(tempEmissionsAgg[gas].unique()).any():
+    iea_code = tempEmissionsAgg.iea_code.unique()[0]
 
-    # c. for each subcategory, calculate emissions as share of emissions of its parent category
-    tempEmissionsSub = tempEmissionsSub.merge(tempEmissionsAgg, on=["jurisdiction", "year"])
-    tempEmissionsSub["shareAggSec"] = tempEmissionsSub[gas+"_x"]/tempEmissionsSub[gas+"_y"]
+    aggSecEm = tempEmissionsSub.groupby(["jurisdiction", "year"]).sum()
+    aggSecEm.reset_index(inplace=True)
+    
+    aggSecEm.rename(columns={"CO2":"CO2_fromSubCat"}, inplace=True)
+    aggSecEm["ipcc_code"] = category
+    aggSecEm["iea_code"] = iea_code
+
+    #if category.startswith("1A") and jurGroup == "national":
+    #    tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm, on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"])
+    #else:
+    #tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm, on=["jurisdiction", "year", "ipcc_code", "iea_code"],
+    #                                          how='left')
+    #tempEmissionsAgg.drop(["CO2"], axis=1, inplace=True)
+    aggSecEm.rename(columns={"CO2_fromSubCat":"CO2"}, inplace=True)
+
+    # C. for each subcategory, calculate emissions as share of emissions of its parent category
+
+    # handling the fact that national inventories for combustion categories have a Product dimension
+    # and that the IEA category totals do not match sum of individual categories
+
+    tempEmissionsSub = tempEmissionsSub.merge(aggSecEm[["jurisdiction", "year", gas]], 
+                                              on=["jurisdiction", "year"], how='left')
+    tempEmissionsSub[gas+"_shareAggSec"] = tempEmissionsSub[gas+"_x"]/tempEmissionsSub[gas+"_y"]
+
+    tempEmissionsSub.drop(["CO2_y"], axis=1, inplace=True)
+    tempEmissionsSub.rename(columns={gas+"_x":gas}, inplace=True)
 
     fullDF = pd.concat([tempEmissionsAgg, tempEmissionsSub])
 
     return fullDF
-
