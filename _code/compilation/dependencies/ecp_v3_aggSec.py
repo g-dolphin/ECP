@@ -15,7 +15,6 @@ ecp_general = SourceFileLoader('general', path_dependencies+'/ecp_v3_gen_func.py
 
 # need to specify which inventory one is drawing from (national or subnational) and specify the corresponding path
 inventoryPath = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/processed/"
-
 invName = {"national":"nat", "subnational":"subnat"}
 
 
@@ -57,7 +56,7 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
 
 # function calculating emissions as shares of 
 
-def inventoryShare(category, jurGroup, gas):
+def inventoryShare(category, jurGroup, gas, level):
 
     inventory = pd.read_csv(inventoryPath+"/inventory_"+invName[jurGroup]+"_"+gas+".csv")
 
@@ -87,27 +86,22 @@ def inventoryShare(category, jurGroup, gas):
     tempEmissionsAgg = inventory.loc[inventory.ipcc_code.isin([category])]
     tempEmissionsSub = inventory.loc[inventory.ipcc_code.isin(ipccDict[category])]
 
-#    tempEmissionsAgg.drop(["ipcc_code", "iea_code", "Product"], axis=1, inplace=True)
-
     # B. calculate aggregate category emissions based on subcategory emissions figures, (if not provided and) if possible
     # incidentally, this will take care of the fact that ipcc category level totals for IEA are not consistent with sum of subcat totals (due to rounding errors)
 
-#    if np.isnan(tempEmissionsAgg[gas].unique()).any():
     iea_code = tempEmissionsAgg.iea_code.unique()[0]
 
-    aggSecEm = tempEmissionsSub.groupby(["jurisdiction", "year"]).sum()
-    aggSecEm.reset_index(inplace=True)
-    
+    if level == 'level_5':
+        aggSecEm = tempEmissionsAgg.groupby(["jurisdiction", "year", 'ipcc_code', 'iea_code']).sum()
+        aggSecEm.reset_index(inplace=True)
+    else:
+        aggSecEm = tempEmissionsSub.groupby(["jurisdiction", "year"]).sum()
+        aggSecEm.reset_index(inplace=True)
+
     aggSecEm.rename(columns={"CO2":"CO2_fromSubCat"}, inplace=True)
     aggSecEm["ipcc_code"] = category
     aggSecEm["iea_code"] = iea_code
 
-    #if category.startswith("1A") and jurGroup == "national":
-    #    tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm, on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"])
-    #else:
-    #tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm, on=["jurisdiction", "year", "ipcc_code", "iea_code"],
-    #                                          how='left')
-    #tempEmissionsAgg.drop(["CO2"], axis=1, inplace=True)
     aggSecEm.rename(columns={"CO2_fromSubCat":"CO2"}, inplace=True)
 
     # C. for each subcategory, calculate emissions as share of emissions of its parent category
@@ -115,13 +109,11 @@ def inventoryShare(category, jurGroup, gas):
     # handling the fact that national inventories for combustion categories have a Product dimension
     # and that the IEA category totals do not match sum of individual categories
 
-    tempEmissionsSub = tempEmissionsSub.merge(aggSecEm[["jurisdiction", "year", gas]], 
+    tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm[["jurisdiction", "year", gas]], 
                                               on=["jurisdiction", "year"], how='left')
-    tempEmissionsSub[gas+"_shareAggSec"] = tempEmissionsSub[gas+"_x"]/tempEmissionsSub[gas+"_y"]
+    tempEmissionsAgg[gas+"_shareAggSec"] = tempEmissionsAgg[gas+"_x"]/tempEmissionsAgg[gas+"_y"]
 
-    tempEmissionsSub.drop(["CO2_y"], axis=1, inplace=True)
-    tempEmissionsSub.rename(columns={gas+"_x":gas}, inplace=True)
+    tempEmissionsAgg.drop(["CO2_y"], axis=1, inplace=True)
+    tempEmissionsAgg.rename(columns={gas+"_x":gas}, inplace=True)
 
-    fullDF = pd.concat([tempEmissionsAgg, tempEmissionsSub])
-
-    return fullDF
+    return tempEmissionsAgg
