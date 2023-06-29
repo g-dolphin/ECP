@@ -50,9 +50,10 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
     prices_usd.drop(["tax_cf", "ets_cf"], axis=1, inplace=True)
 
     prices_usd  = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]+[all_inst_col]].sort_values(by=["jurisdiction", "year"])
-    prices_usd_comb = prices_usd[prices_usd["ipcc_code"].isin(IPCC1AList)]
 
-    return prices_usd, prices_usd_comb, all_inst_col
+    return prices_usd, all_inst_col
+
+
 
 # function calculating emissions as shares of 
 
@@ -94,26 +95,27 @@ def inventoryShare(category, jurGroup, gas, level):
     if level == 'level_5':
         aggSecEm = tempEmissionsAgg.groupby(["jurisdiction", "year", 'ipcc_code', 'iea_code']).sum()
         aggSecEm.reset_index(inplace=True)
+        
     else:
         aggSecEm = tempEmissionsSub.groupby(["jurisdiction", "year"]).sum()
         aggSecEm.reset_index(inplace=True)
 
-    aggSecEm.rename(columns={"CO2":"CO2_fromSubCat"}, inplace=True)
-    aggSecEm["ipcc_code"] = category
-    aggSecEm["iea_code"] = iea_code
-
-    aggSecEm.rename(columns={"CO2_fromSubCat":"CO2"}, inplace=True)
+        aggSecEm["ipcc_code"] = category
+        aggSecEm["iea_code"] = iea_code
 
     # C. for each subcategory, calculate emissions as share of emissions of its parent category
 
     # handling the fact that national inventories for combustion categories have a Product dimension
     # and that the IEA category totals do not match sum of individual categories
 
-    tempEmissionsAgg = tempEmissionsAgg.merge(aggSecEm[["jurisdiction", "year", gas]], 
+    tempEmissions = pd.concat([tempEmissionsAgg, tempEmissionsSub])
+
+    tempEmissions = tempEmissions.merge(aggSecEm[["jurisdiction", "year", gas]], 
                                               on=["jurisdiction", "year"], how='left')
-    tempEmissionsAgg[gas+"_shareAggSec"] = tempEmissionsAgg[gas+"_x"]/tempEmissionsAgg[gas+"_y"]
+    tempEmissions[gas+"_shareAggSec"] = tempEmissions[gas+"_x"]/tempEmissions[gas+"_y"]
 
-    tempEmissionsAgg.drop(["CO2_y"], axis=1, inplace=True)
-    tempEmissionsAgg.rename(columns={gas+"_x":gas}, inplace=True)
+    tempEmissions.drop(["CO2_y"], axis=1, inplace=True)
+    tempEmissions.rename(columns={gas+"_x":gas}, inplace=True)
 
-    return tempEmissionsAgg
+
+    return tempEmissions
