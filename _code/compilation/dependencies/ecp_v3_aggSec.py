@@ -89,8 +89,10 @@ def inventoryShare(category, jurGroup, gas, level):
 
     # B. calculate aggregate category emissions based on subcategory emissions figures, (if not provided and) if possible
     # incidentally, this will take care of the fact that ipcc category level totals for IEA are not consistent with sum of subcat totals (due to rounding errors)
-
-    iea_code = tempEmissionsAgg.iea_code.unique()[0]
+    try:
+        iea_code = tempEmissionsAgg.iea_code.unique()[0]
+    except:
+        iea_code = np.nan
 
     if level == 'level_5':
         aggSecEm = tempEmissionsAgg.groupby(["jurisdiction", "year", 'ipcc_code', 'iea_code']).sum()
