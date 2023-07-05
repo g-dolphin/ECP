@@ -19,7 +19,7 @@ invName = {"national":"nat", "subnational":"subnat"}
 
 
 def cfWeightedPrices(gas, priceSeries, priceSeriesPath, 
-                     price_cols, wcpd_all, IPCC1AList):
+                     price_cols, wcpd_all):
 
     # PRICES
     prices_usd = ecp_general.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath[priceSeries])
@@ -28,7 +28,7 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
     prices_usd = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]]
 
     prices_usd = prices_usd.merge(wcpd_all[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", "tax_cf", "ets_cf"]], 
-                                on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"])
+                                  on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"])
 
     # calculate total price by summing across all mechanisms columns
     if priceSeries=="kFixRate":
