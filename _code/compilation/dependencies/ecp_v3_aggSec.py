@@ -19,7 +19,7 @@ invName = {"national":"nat", "subnational":"subnat"}
 
 
 def cfWeightedPrices(gas, priceSeries, priceSeriesPath, 
-                     price_cols, wcpd_all):
+                     price_cols, wcpd_all, countries_dic, subnat_dic):
 
     # PRICES
     prices_usd = ecp_general.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath[priceSeries])
@@ -50,6 +50,12 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
     prices_usd.drop(["tax_cf", "ets_cf"], axis=1, inplace=True)
 
     prices_usd  = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]+[all_inst_col]].sort_values(by=["jurisdiction", "year"])
+
+    for jur in countries_dic.keys():
+        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/gd/GitHub/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+countries_dic[jur]+".csv", index=None)
+    for jur in subnat_dic.keys():
+        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/gd/GitHub/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+subnat_dic[jur]+".csv", index=None)
+
 
     return prices_usd, all_inst_col
 
