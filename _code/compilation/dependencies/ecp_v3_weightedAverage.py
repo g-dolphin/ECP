@@ -26,7 +26,8 @@ def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year
         fw_merge_keys = merge_keys.copy()
         fw_merge_keys.remove("year")
         
-        temp_df = prices_temp.merge(temp_df, on=fw_merge_keys, how="left")
+        # merging on `prices_temp` keys in this case because this is the dataframe with all years
+        temp_df = temp_df.merge(prices_temp, on=fw_merge_keys, how="right")
 
     ecp_variables_map = {"ecp_ets_jurGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jurGHG"), x))==True], 
                          "ecp_ets_jur"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jur"+gas), x))==True], 
@@ -89,7 +90,7 @@ def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year
     
 
 
-def ecp_aggregation(ecp_df, gas):
+def ecp_aggregation(ecp_df, gas, intro=None):
 
     global ecp_agg
     
@@ -97,19 +98,20 @@ def ecp_aggregation(ecp_df, gas):
     ecp_agg.reset_index(inplace=True)
 
     #World calculations
-    ecp_world_agg = ecp_agg[["jurisdiction", "year", "ecp_ets_wldGHG_usd_k", "ecp_ets_wld"+gas+"_usd_k",
-                            "ecp_tax_wldGHG_usd_k", "ecp_tax_wld"+gas+"_usd_k"]]
+    if intro == None:
+        ecp_world_agg = ecp_agg[["jurisdiction", "year", "ecp_ets_wldGHG_usd_k", "ecp_ets_wld"+gas+"_usd_k",
+                                "ecp_tax_wldGHG_usd_k", "ecp_tax_wld"+gas+"_usd_k"]]
 
-    ecp_world_agg = ecp_world_agg.groupby(['year']).sum()
+        ecp_world_agg = ecp_world_agg.groupby(['year']).sum()
 
-    cols_map = {"ecp_tax_wldGHG_usd_k":"ecp_tax_jurGHG_usd_k", "ecp_tax_wld"+gas+"_usd_k":"ecp_tax_jur"+gas+"_usd_k",
-                "ecp_ets_wldGHG_usd_k":"ecp_ets_jurGHG_usd_k", "ecp_ets_wld"+gas+"_usd_k":"ecp_ets_jur"+gas+"_usd_k"}
+        cols_map = {"ecp_tax_wldGHG_usd_k":"ecp_tax_jurGHG_usd_k", "ecp_tax_wld"+gas+"_usd_k":"ecp_tax_jur"+gas+"_usd_k",
+                    "ecp_ets_wldGHG_usd_k":"ecp_ets_jurGHG_usd_k", "ecp_ets_wld"+gas+"_usd_k":"ecp_ets_jur"+gas+"_usd_k"}
 
-    ecp_world_agg.rename(columns=cols_map, inplace=True)
-    ecp_world_agg["jurisdiction"] = "World"
-    ecp_world_agg.reset_index(inplace=True)
+        ecp_world_agg.rename(columns=cols_map, inplace=True)
+        ecp_world_agg["jurisdiction"] = "World"
+        ecp_world_agg.reset_index(inplace=True)
 
-    ecp_agg = pd.concat([ecp_agg, ecp_world_agg])
+        ecp_agg = pd.concat([ecp_agg, ecp_world_agg])
 
     # all schemes ecp
     ecp_agg["ecp_all_jurGHG_usd_k"] = ecp_agg["ecp_tax_jurGHG_usd_k"] + ecp_agg["ecp_ets_jurGHG_usd_k"]
