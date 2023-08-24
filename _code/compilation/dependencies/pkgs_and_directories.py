@@ -7,12 +7,15 @@ import glob
 import pandas as pd
 import numpy as np
 import re
+import requests
 
 import copy
 import itertools
 
 from pandas import read_csv
 from importlib.machinery import SourceFileLoader
+from zipfile import ZipFile
+from io import BytesIO, StringIO
 
 path_wcpd = '/Users/gd/GitHub/WorldCarbonPricingDatabase/_dataset/data'
 path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
