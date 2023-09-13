@@ -1,0 +1,39 @@
+﻿MAINPROD,ABFLOW002,Main activity electricity and heat production
+MAINELEC,ABFLOW003,Main activity electricity plants
+MAINCHP,ABFLOW004,Main activity CHP plants
+MAINHEAT,ABFLOW005,Main activity heat plants
+EPOWERPLT,ABFLOW006,"Own use in electricity, CHP and heat plants"
+AUTOPROD,ABFLOW007,Unallocated autoproducers
+AUTOELEC,ABFLOW008,Autoproducer electricity plants
+AUTOCHP,ABFLOW009,Autoproducer CHP plants
+AUTOHEAT,ABFLOW010,Autoproducer heat plants
+OTHEN,ABFLOW011,Other energy industry own use
+TOTIND,ABFLOW012,Manufacturing industries and construction
+IRONSTL,ABFLOW016,  Iron and steel
+CHEMICAL,ABFLOW017,  Chemical and petrochemical
+NONFERR,ABFLOW018,  Non-ferrous metals
+NONMET,ABFLOW019,  Non-metallic minerals
+TRANSEQ,ABFLOW020,  Transport equipment
+MACHINE,ABFLOW021,  Machinery
+MINING,ABFLOW013, Mining and quarrying
+FOODPRO,ABFLOW022,  Food and tobacco
+PAPERPRO,ABFLOW023,"  Paper, pulp and printing"
+WOODPRO,ABFLOW024,  Wood and wood products
+CONSTRUC,ABFLOW014, Construction
+TEXTILES,ABFLOW025,  Textile and leather
+INONSPEC,ABFLOW026,  Industry not elsewhere specified
+TOTTRANS,ABFLOW027,Transport
+ROAD,ABFLOW028, Road
+DOMESAIR,ABFLOW029, Domestic aviation
+RAIL,ABFLOW030, Rail
+PIPELINE,ABFLOW031, Pipeline transport
+DOMESNAV,ABFLOW032, Domestic navigation
+TRNONSPE,ABFLOW033, Transport not elsewhere specified
+RESIDENT,ABFLOW034,Residential
+COMMPUB,ABFLOW035,Commercial and public services
+AGRICULT,ABFLOW036,Agriculture/forestry
+FISHING,ABFLOW037,Fishing
+ONONSPEC,ABFLOW038,Final consumption not elsewhere specified
+MARBUNK,ABFLOW039,Memo: International marine bunkers
+AVBUNK,ABFLOW040,Memo: International aviation bunkers
+CO2FCOMB,ABFLOW001,CO2 fuel combustion
