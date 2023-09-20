@@ -1,4 +1,5 @@
-﻿MAINPROD,ABFLOW002,Main activity electricity and heat production
+﻿FLOWname,FLOW,Flow
+MAINPROD,ABFLOW002,Main activity electricity and heat production
 MAINELEC,ABFLOW003,Main activity electricity plants
 MAINCHP,ABFLOW004,Main activity CHP plants
 MAINHEAT,ABFLOW005,Main activity heat plants

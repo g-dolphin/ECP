@@ -46,18 +46,31 @@ def concat_iea(indir = path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed
     dfList = []
 
     colnames = ["LOCATION","Country","PRODUCT","Product","FLOW",
-                "Flow (Mt of CO2)","TIME","Time","Value","Flag Codes","Flags"]
+                "Flow (kt of CO2)","TIME","Time","Value","Flag Codes","Flags"]
 
     #each iteration of the loop will add a dataframe to the list
-    for filename in fileList:
-        df=pd.read_csv(filename, header=0, encoding = 'latin-1') #latin-1 encoding to deal with special characters
+    for fileName in fileList:
+        df=pd.read_csv(fileName, header=0, encoding = 'latin-1') #latin-1 encoding to deal with special characters
+
+        if fileName == "IEA_CO2_AB_2019_2021.csv":
+            MapDF = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/iea_codes.csv")
+            concordance = dict(zip(MapDF.FLOWname, MapDF.FLOW))
+
+            df["FLOW"].replace(to_replace=concordance, inplace=True)
+            df.columns = ["COUNTRY", "Country", "FLOW",
+                          "Flow (kt of CO2)", "PRODUCT", "Product",
+                          "TIME", "Time", "Value", "Flag Codes", "Flags"]
+
+            # reordering columns
+            df = df[["COUNTRY", "Country", "PRODUCT", "Product", "FLOW",	
+                     "Flow (kt of CO2)", "TIME", "Time", "Value", "Flag Codes", "Flags"]]
+            df.rename(columns={"COUNTRY":"LOCATION"}, inplace=True)
+
         dfList.append(df)
 
-    concatDf=pd.concat(dfList,axis=0) #'axis=0' means that we are concatenating vertically
+    concatDf=pd.concat(dfList,axis=0) #'axis=0' ensures that we are concatenating vertically
     concatDf.columns=colnames
     concatDf.to_csv(outfile,index=None)
-    
-    
     
 ######Aggregated product categories######
 
