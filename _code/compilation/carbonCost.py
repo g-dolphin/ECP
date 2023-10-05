@@ -3,44 +3,32 @@
 """
 Created on Fri Dec 11 17:07:34 2020
 
-@author: GD
+@author: G. Dolphin
 """
-#https://pymrio.readthedocs.io/en/latest/index.html
 
 # This script executes the calculation of:
-# - carbon cost (per unit of VA)
+# - carbon cost (per unit of VA), at country- and industrial sector-level
 # - share of GDP covered by carbon prices
-# - embedded carbon prices
 
-# 1. Choose environmentally extended MRIO table
+# The steps taken are as follows:
+# 1. Select environmentally extended MRIO table - 
+# The MRIO dataset used here is the Global Resource Input Output Assessment (GLORIA)
 
+# 2. Map carbon pricing data with emissions data contained in the MRIO - 
+# This is necessary to accurately calculate the embedded carbon price I need to 
+# establish which proportion of an industry's emissions is actually priced and at what level.
 # GLORIA EE-MRIO tables provide an implicit concordance between IEA/IPCC and (MRIO) industrial sectors;
 # that is, they allocate emissions from IEA/IPCC sectors to specific MRIO industries. 
 # This concordance is 1-to-1 or weighted according to shares calculated from monetary IO tables.
 
-# Yet, carbon pricing database is structured by IPCC/IEA item; so, in order to accurately 
-# calculate the embedded carbon price I need to establish which proportion of an industry's 
-# emissions is actually priced and at what level.
-
-# Note: the GLORIA environmental matrix (Q) includes a breakdown of emissions by IPCC category. 
-# This allows for mapping with the carbon pricing database, since it is structured by IPCC sector.
-
-
-# 2. Multiply (element-by-element) direct industry-level emissions by the associated price
-
-# 3. Multiply vector in 2. by L matrix
-
-# This gives the carbon price embedded in each product/industry from a given country of origin
-
-# 4. Use data in 3 to calculate actual (hypothetical BCAs)
-
-
-# scope 1 emissions are all direct emissions 
-# scope 2 includes all direct emissions + emissions from "energy-related" products    
-    # add emissions factor from direct emissions and from purchase of electricity and heat
-    # this requires to truncate the technical requirements matrix
-    
-# scope 3 includes all emissions (direct and indirect) - this is the leontief multiplier obtained from the inversion of the matrix
+# CARBON COST
+# 3. Multiply (element-by-element) direct industry-level emissions by the associated price (in current prices)
+# 4. Sum carbon cost over all emissions sources and divide by total VA of sector (or country)
+# SHARE OF GDP COVERED BY CARBON PRICE
+# 3. Multiply (element-by-element) direct industry-level emissions by binary coverage variable
+# 4. Shrink dimension to a single binary variable indicating whether the industrial sector is covered by carbon pricing
+# 5. Multiply VA of each sector by binary variable and sum over all sectors
+# 6. Divide by total country VA (GDP)
 
 import os
 import pandas as pd
@@ -63,17 +51,19 @@ cwd = os.getcwd()
 
 # dependencies
 
-gloria = SourceFileLoader('gloria', cwd+'/_code/calculations/dependencies/gloriaProcessing.py').load_module()
-prices = SourceFileLoader('ecp', cwd+'/_code/calculations/dependencies/pricingProcessing.py').load_module()
-
-# ----------------------------------------------------------------------------
-
-out_path = "/Users/gd/OneDrive - rff/Documents/Research/projects/embedded_carbon_price/data/"
+gloria = SourceFileLoader('gloria', cwd+'/_code/compilation/_dependencies/dep_ccost/gloriaProcessing.py').load_module()
+prices = SourceFileLoader('ecp', cwd+'/_code/compilation/_dependencies/dep_ccost/pricingProcessing.py').load_module()
                 
 # ----------------------------------------------------------------------------
 
-ctryName_iso3 = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_and_trade/embedded_carbon_price/data/wb_iso3_map.csv")
-ctryName_iso3_map = dict(zip(ctryName_iso3.iso3_code, ctryName_iso3.ctry_name))
+ctryISO3Name = pd.read_csv(cwd+"/_raw/_aux_files/wb_iso3_map.csv")
+ctryISO3Name = dict(zip(ctryISO3Name.iso3_code, ctryISO3Name.ctry_name))
+
+ctryNameISO3 = {}
+
+for key in ctryISO3Name.keys():
+    ctryNameISO3[ctryISO3Name[key]] = key
+
 
 # This function does the calculation(s) for one year
 
@@ -85,7 +75,6 @@ def embeddedCP_gloria(year):
     ecp.rename(columns={'carbon_price':"ecp",
                             "country":"regionName"},
                    inplace=True)
-#    ecp.drop(["'co2_excl_short_cycle_org_c_total_EDGAR_consistent'"], axis=1, inplace=True)    
 
     ecp["sector"] = ecp["sector"].apply(lambda x: x.replace("&", " "))
     ecp["sector"] = ecp["sector"].apply(lambda x: x.replace(" ", "."))
@@ -94,36 +83,44 @@ def embeddedCP_gloria(year):
 
     gloriaProc = gloria.gloria57_proc(year)
 
-    # create emissions dataframe and add country names
+    # create emissions dataframe
     emissions = gloriaProc[0]
     tot_out = gloriaProc[1]
     tot_inp = gloriaProc[2]
 
-    #emissions["regionName"] = emissions["region"]
-    #emissions["regionName"].replace(to_replace=ctryName_iso3_map, inplace=True)
-    #emissions = emissions[["regionName", "region", "sector", "ipcc_cat", "co2_emissions"]]
+    # add country group codes
+    emissions["regionISO3"] = emissions["regionName"]
+    emissions["regionISO3"].replace(to_replace=ctryNameISO3, inplace=True)
+    emissions.rename(columns={"variable":"ipcc_cat"},
+                     inplace=True)
+    emissions = emissions[["regionName", "regionISO3", "sector", "ipcc_cat", "co2_emissions"]]
+
+    # add country group codes
+    tot_out["regionISO3"] = tot_out["regionName"]
+    tot_out["regionISO3"].replace(to_replace=ctryNameISO3, inplace=True)
+    tot_out.rename(columns={"variable":"ipcc_cat"},
+                     inplace=True)
+    tot_out = tot_out[["regionName", "regionISO3", "sector", "tot_int_demand", "Y", "tot_out"]]
 
     # Aggregate 'emissions' dataframe before merging with the 'tot_out' and `cprices` dataframes
-    # because prices are aggregated at sector level already, not split by IPCC categories
+    # because prices are aggregated at sector level already, not split by IPCC categories.
+    # This comes from pre-processing of carbon prices dataset in "ecp_incidence" project.
     
-    emissions_agg = emissions.groupby(by=['regionName', 'sector']).sum()
-    #emissions_agg = emissions_agg.drop(["ecp"], axis=1)
-    emissions_agg = emissions_agg.reset_index()
+    emissions_agg = emissions.groupby(by=['regionName', 'sector']).sum().reset_index()
 
-    # merge emissions and carbon pricing dataframe
+    # Merge emissions and carbon pricing dataframe
     # (ensure that GLORIA and ECP ipcc disaggregation match)
     emissions_agg = pd.merge(emissions_agg, ecp, on=["regionName", "sector"],
                              how='left')
 
     # calculate which emissions are covered by a carbon price
-    emissions_agg["co2_binary"] = emissions_agg.co2_emissions*emissions_agg.pricing
-    emissions_agg.loc[emissions_agg.co2_binary>0, "co2_binary"] = 1
+    emissions_agg["co2_pricing"] = emissions_agg.co2_emissions*emissions_agg.pricing
+    emissions_agg.loc[emissions_agg.co2_pricing>0, "co2_bin"] = 1
 
-    # calculate value of emissions at [constant 2021 prices]
+    # calculate value of emissions at [current 2021 prices]
     # - emissions are expressed in Gg (or kt), prices are expressed in current USD per tonne of CO2
     emissions_agg["ecp"] = emissions_agg["ecp"].fillna(0)
-    emissions_agg["co2_value"] = (emissions_agg.co2_emissions)*emissions_agg.ecp
-
+    emissions_agg["co2_cost"] = emissions_agg.co2_emissions*emissions_agg.ecp
 
     # note: accounting for pricing coverage in this way only provides a 'rough'
     # estimate of carbon pricing in the economy - as soon as one type of emissions is covered 
@@ -131,12 +128,14 @@ def embeddedCP_gloria(year):
 
     emint = tot_out[["regionName", "sector", "tot_out"]].merge(emissions_agg, on=["regionName", "sector"])
 
-    # ---------------------- SHARE OF GDP COVERED BY >0 CARBON PRICES ---------------
+    # ---------------------- END OF INPUTS ----------------------
+
+    # ---------------------- CALCULATING METRICS ----------------------
+    ## SHARE OF GDP COVERED BY >0 CARBON PRICES 
 
     # share of country/region GDP and share of world GDP
 
-    GDP_region = emint[["regionName", "sector", "tot_out"]].groupby(["regionName"]).sum()
-    GDP_region.reset_index(inplace=True)
+    GDP_region = emint[["regionName", "sector", "tot_out"]].groupby(["regionName"]).sum().reset_index()
     GDP_region.rename(columns={"tot_out":"regionGDP"},
                       inplace=True)
 
@@ -148,36 +147,34 @@ def embeddedCP_gloria(year):
     coverageGDP["shareGDP"] = coverageGDP["tot_out"]/coverageGDP["regionGDP"]
     coverageGDP["shareWldGDP"] = coverageGDP["tot_out"]/GDP_world.item()
 
-    coverageGDP["coverageRegion"] = coverageGDP.shareGDP*coverageGDP.pricing#co2_binary
-    coverageRegion = coverageGDP[["regionName", "coverageRegion"]]
-    coverageRegion = coverageRegion.groupby(["regionName"]).sum()
-    coverageRegion.reset_index(inplace=True)
+    coverageGDP["cpCoverage"] = coverageGDP.shareGDP*coverageGDP.pricing
+    coverageRegion = coverageGDP[["regionName", "cpCoverage"]]
+    coverageRegion = coverageRegion.groupby(["regionName"]).sum().reset_index()
 
-    coverageGDP["coverageWld"] = coverageGDP.shareWldGDP*coverageGDP.pricing#co2_binary
-    coverageWld = coverageGDP[["regionName", "coverageWld"]]
-    coverageWld = coverageWld.coverageWld.sum()
+    coverageGDP["cpCoverageWld"] = coverageGDP.shareWldGDP*coverageGDP.pricing
+    coverageWld = coverageGDP[["regionName", "cpCoverageWld"]]
+    coverageWld = coverageWld.cpCoverageWld.sum()
 
-    coverageRegion = coverageRegion.append({"regionName":"World", "coverageRegion":coverageWld},
+    coverageRegion = coverageRegion.append({"regionName":"World", "cpCoverage":coverageWld},
                                              ignore_index=True)
 
     coverageRegion["year"] = year
-    coverageRegion = coverageRegion[['year', 'regionName', 'coverageRegion']]
-    coverageRegion.to_csv("/Users/gd/GitHub/EmbeddedCarbonPrice/output/data/cpriceCoverageGDP.csv",
+    coverageRegion = coverageRegion[['regionName', 'year', 'cpCoverage']]
+    coverageRegion.to_csv(cwd+"/_dataset/coverage/cpriceCoverageGDP.csv",
                           index=None)
 
-    # ---------------------- DIRECT EMISSIONS AND CARBON COST INTENSITY ---------------
+    ## DIRECT EMISSIONS AND CARBON COST INTENSITY 
     # Intensities calculated here are SCOPE 1 (direct emissions) intensities
     # The emissions intensity is expressed in tCO2/US dollar
     
-    emint["int_co2_em"] = (emint.co2_emissions) / (emint.tot_out*1000) # see note on units at start of section
-    emint["int_co2_val"] = emint.co2_value / (emint.tot_out*1000)
+    emint["co2_int"] = emint.co2_emissions / (emint.tot_out*1000) # see note on units at start of section
+    emint["ccost_int"] = emint.co2_cost / (emint.tot_out*1000)
     
-    emint[['regionName', 'sector', 'year', "int_co2_em", "int_co2_val"]].to_csv("/Users/gd/GitHub/EmbeddedCarbonPrice/output/data/carbonCost.csv",
+    emint[['regionName', 'sector', 'year', "co2_int", "ccost_int"]].to_csv(cwd+"/_dataset/carbonCost/carbonCost.csv",
                  index=None)
     
-    emintTot = emint.groupby(["regionName", "year"]).sum()
-    emintTot.reset_index(inplace=True)
-    emintTot[['regionName', 'year', "int_co2_em", "int_co2_val"]].to_csv("/Users/gd/GitHub/EmbeddedCarbonPrice/output/data/carbonCostTot.csv",
+    emintTot = emint.groupby(["regionName", "year"]).sum().reset_index()
+    emintTot[['regionName', 'year', "co2_int", "ccost_int"]].to_csv(cwd+"/_dataset/carbonCost/carbonCostTot.csv",
                  index=None)
 
     return

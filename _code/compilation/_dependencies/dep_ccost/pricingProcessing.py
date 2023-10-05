@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-cpricesGLORIApath = "/Users/gd/GitLab/spc/econometrics"
+cpricesGLORIApath = "/Users/gd/GitLab/spc/econometrics/data"
 
 # ----------------------------- MATCHING EMISSIONS WITH PRICES ---------------
 
