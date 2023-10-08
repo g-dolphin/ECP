@@ -86,7 +86,6 @@ def embeddedCP_gloria(year):
     # create emissions dataframe
     emissions = gloriaProc[0]
     tot_out = gloriaProc[1]
-    tot_inp = gloriaProc[2]
 
     # add country group codes
     emissions["regionISO3"] = emissions["regionName"]
@@ -174,6 +173,10 @@ def embeddedCP_gloria(year):
                  index=None)
     
     emintTot = emint.groupby(["regionName", "year"]).sum().reset_index()
+    emintTot = emintTot[['regionName', 'year', "tot_out", "co2_emissions", "co2_cost"]]
+    emintTot["co2_int"] = emintTot.co2_emissions / (emint.tot_out*1000)
+    emintTot["ccost_int"] = emintTot.co2_cost / (emintTot.tot_out*1000)
+
     emintTot[['regionName', 'year', "co2_int", "ccost_int"]].to_csv(cwd+"/_dataset/carbonCost/carbonCostTot.csv",
                  index=None)
 
