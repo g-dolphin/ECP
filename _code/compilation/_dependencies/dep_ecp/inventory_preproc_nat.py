@@ -4,7 +4,7 @@ import csv
 import os
 from importlib.machinery import SourceFileLoader
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
+path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
 path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
 
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()

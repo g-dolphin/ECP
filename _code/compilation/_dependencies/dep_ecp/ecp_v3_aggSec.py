@@ -7,7 +7,7 @@ import math
 from importlib.machinery import SourceFileLoader
 from itertools import chain
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
+path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
 
 ipccCodes = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv")
 
@@ -22,7 +22,7 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
                      price_cols, wcpd_all, countries_dic, subnat_dic):
 
     # PRICES
-    prices_usd = ecp_general.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath[priceSeries])
+    prices_usd = ecp_general.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath)
 
     # currently including the price of the main tax or ets scheme; should be revised to account for all schemes
     prices_usd = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]]

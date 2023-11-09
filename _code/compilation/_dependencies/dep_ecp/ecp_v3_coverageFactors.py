@@ -8,7 +8,7 @@ Created on Wed Mar 23 10:05:24 2022
 
 from importlib.machinery import SourceFileLoader
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/dependencies'
+path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
 def coverageFactors(inst_df, gas):
