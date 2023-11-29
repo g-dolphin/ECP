@@ -26,67 +26,54 @@ def cur_conv(wcpd_all, gas,
              baseYear=None):    
     
     #Loading and formatting x-rate dataframe
+    x_rate = pd.read_csv("/Users/gd/GitHub/ECP/_raw/wb_rates/xRate_bis.csv")
 
-    x_rate = ecp_general.wb_series("Official exchange rate (LCU per US$, period average)", "official_x_rate")    
+#    iso3_wb_map={
+#        'Antigua And Barbuda':'Antigua and Barbuda',
+#        'Bahamas (The)':'Bahamas, The',
+#        'Bolivia (Plurinational State Of)':'Bolivia',
+#        'Bosnia And Herzegovina':'Bosnia and Herzegovina',
+#        'Central African Republic (The)':'Central African Republic',
+#        'Comoros (The)':'Comoros',
+#        'Congo (The Democratic Republic Of The)':'Congo, Dem. Rep.',
+#        'Congo (The)':'Congo, Rep.',
+#        'Czechia':'Czech Republic',
+#        "Côte D'Ivoire":"Cote d'Ivoire",
+#        'Dominican Republic (The)':'Dominican Republic',
+#        'Egypt':'Egypt, Arab Rep.',
+#        'Gambia (The)':'Gambia, The',
+#        'Hong Kong':'Hong Kong SAR, China',
+#        'Iran (Islamic Republic Of)':'Iran, Islamic Rep.',
+#        'Korea (The Democratic People’S Republic Of)':'Korea, Dem. Rep.',
+#        'Korea (The Republic Of)':'Korea, Rep.',
+#        'Kyrgyzstan':'Kyrgyz Republic',
+#        'Lao People’S Democratic Republic (The)':'Lao PDR',
+#        'Macao':'Macao SAR, China',
+#        'Marshall Islands (The)':'Marshall Islands',
+#        'Micronesia (Federated States Of)':'Federated States of Micronesia',
+#        'Moldova (The Republic Of)':'Moldova',
+#        'Netherlands (The)':'Netherlands',
+#        'Niger (The)':'Niger',
+#        'North Macedonia':'Macedonia, FYR',
+#        'Philippines (The)':'Philippines',
+#        'Russian Federation (The)':'Russian Federation',
+#        'Saint Kitts And Nevis':'St. Kitts and Nevis',
+#        'Saint Lucia':'St. Lucia',
+#        'Saint Vincent And The Grenadines':'St. Vincent and the Grenadines',
+#        'Sao Tome And Principe':'Sao Tome and Principe',
+#        'Slovakia':'Slovak Republic',
+#        'Sudan (The)':'Sudan',
+#        'Taiwan (Province Of China)':'Taiwan, China',
+#        'Tanzania, United Republic Of':'Tanzania',
+#        'Trinidad And Tobago':'Trinidad and Tobago',
+#        'United Arab Emirates (The)':'United Arab Emirates',
+#        'United Kingdom Of Great Britain And Northern Ireland (The)':'United Kingdom',
+#        'United States Of America (The)':'United States',
+#        'Venezuela (Bolivarian Republic Of)':'Venezuela, RB',
+#        'Viet Nam':'Vietnam',
+#        'Yemen':'Yemen, Rep.'}
 
-    # Attaching currency code
-    # [Make sure that the jurisdiction names are identical to World Bank names]
-    cur_code = pd.read_csv(path_git_data+'/wb_rates/iso_cur_code.csv', 
-                                skiprows=[0,1,2], encoding="latin-1")
-
-    cur_code.drop(["Currency", "Numeric Code", "Minor unit", "Fund"], axis=1, inplace=True)
-    cur_code.rename(columns={"ENTITY":"jurisdiction", "Alphabetic Code":"currency_code"}, inplace=True)
-    cur_code.drop_duplicates(["jurisdiction"], inplace=True)
-
-    cur_code["jurisdiction"] = cur_code["jurisdiction"].apply(lambda x: str(x).lower().title())
-    cur_code.drop(cur_code.tail(10).index, inplace=True)
-
-    iso3_wb_map={
-        'Antigua And Barbuda':'Antigua and Barbuda',
-        'Bahamas (The)':'Bahamas, The',
-        'Bolivia (Plurinational State Of)':'Bolivia',
-        'Bosnia And Herzegovina':'Bosnia and Herzegovina',
-        'Central African Republic (The)':'Central African Republic',
-        'Comoros (The)':'Comoros',
-        'Congo (The Democratic Republic Of The)':'Congo, Dem. Rep.',
-        'Congo (The)':'Congo, Rep.',
-        'Czechia':'Czech Republic',
-        "Côte D'Ivoire":"Cote d'Ivoire",
-        'Dominican Republic (The)':'Dominican Republic',
-        'Egypt':'Egypt, Arab Rep.',
-        'Gambia (The)':'Gambia, The',
-        'Hong Kong':'Hong Kong SAR, China',
-        'Iran (Islamic Republic Of)':'Iran, Islamic Rep.',
-        'Korea (The Democratic People’S Republic Of)':'Korea, Dem. Rep.',
-        'Korea (The Republic Of)':'Korea, Rep.',
-        'Kyrgyzstan':'Kyrgyz Republic',
-        'Lao People’S Democratic Republic (The)':'Lao PDR',
-        'Macao':'Macao SAR, China',
-        'Marshall Islands (The)':'Marshall Islands',
-        'Micronesia (Federated States Of)':'Federated States of Micronesia',
-        'Moldova (The Republic Of)':'Moldova',
-        'Netherlands (The)':'Netherlands',
-        'Niger (The)':'Niger',
-        'North Macedonia':'Macedonia, FYR',
-        'Philippines (The)':'Philippines',
-        'Russian Federation (The)':'Russian Federation',
-        'Saint Kitts And Nevis':'St. Kitts and Nevis',
-        'Saint Lucia':'St. Lucia',
-        'Saint Vincent And The Grenadines':'St. Vincent and the Grenadines',
-        'Sao Tome And Principe':'Sao Tome and Principe',
-        'Slovakia':'Slovak Republic',
-        'Sudan (The)':'Sudan',
-        'Taiwan (Province Of China)':'Taiwan, China',
-        'Tanzania, United Republic Of':'Tanzania',
-        'Trinidad And Tobago':'Trinidad and Tobago',
-        'United Arab Emirates (The)':'United Arab Emirates',
-        'United Kingdom Of Great Britain And Northern Ireland (The)':'United Kingdom',
-        'United States Of America (The)':'United States',
-        'Venezuela (Bolivarian Republic Of)':'Venezuela, RB',
-        'Viet Nam':'Vietnam',
-        'Yemen':'Yemen, Rep.'}
-
-    cur_code.loc[:, "jurisdiction"] = cur_code.loc[:, "jurisdiction"].replace(to_replace=iso3_wb_map)
+#    x_rate.loc[:, "jurisdiction"] = x_rate.loc[:, "jurisdiction"].replace(to_replace=iso3_wb_map)
 
     # GDP deflator
     gdp_dfl = ecp_general.wb_series("GDP deflator: linked series (base year varies by country)", "gdp_dfl")
@@ -143,7 +130,7 @@ def cur_conv(wcpd_all, gas,
 
 
     # Add x-rate dataframe and gdp deflator dataframes to cp dataframe
-    wcpd_usd = wcpd_all
+    wcpd_usd = wcpd_all.copy()
 
     wcpd_usd.rename(columns={"ets_price":"ets_price_clcu",
                                 "ets_2_price":"ets_2_price_clcu"}, inplace=True)
@@ -158,9 +145,9 @@ def cur_conv(wcpd_all, gas,
         x_rate = x_rate.loc[x_rate.year==2019,:]
         x_rate.drop(["year"], axis=1, inplace=True)
 
-    # Merge x_rate with cur_code
-    x_rate = x_rate.merge(cur_code, on="jurisdiction", how="left")    
-    x_rate.dropna(inplace=True)
+    # Merge `x_rate` with `cur_code`
+#    x_rate = x_rate.merge(cur_code, on="jurisdiction", how="left")    
+#    x_rate.dropna(inplace=True)
 
     if xRateFixed == True:
         x_rate.drop_duplicates(["currency_code"], inplace=True)
@@ -175,7 +162,7 @@ def cur_conv(wcpd_all, gas,
         else:
             wcpd_usd = pd.merge(wcpd_usd, x_rate, how='left', left_on=[name, "year"], right_on=['currency_code', "year"])
 
-        wcpd_usd.rename(columns={"official_x_rate":curr_code_map[name]}, inplace=True)
+        wcpd_usd.rename(columns={"x-rate":curr_code_map[name]}, inplace=True)
         wcpd_usd.drop("currency_code", axis=1, inplace=True)
 
     wcpd_usd = wcpd_usd.merge(gdp_dfl[["jurisdiction", "year", "base_year_ratio"]], on=["jurisdiction", "year"], how="left")
@@ -247,5 +234,3 @@ def cur_conv(wcpd_all, gas,
         
             
     return wcpd_usd
-    
-    

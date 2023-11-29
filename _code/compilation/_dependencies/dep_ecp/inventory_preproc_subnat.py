@@ -16,12 +16,12 @@ read_file = stream.read()
 exec(read_file)
 
 # load inventory sector names to IPCC 
-stream = open("/Users/gd/GitHub/ECP/_code/compilation/dependencies/ipcc_map_subnat.py")
+stream = open("/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp/ipcc_map_subnat.py")
 read_file = stream.read()
 exec(read_file)
 
 # jur names mapping
-stream = open("/Users/gd/GitHub/ECP/_code/compilation/dependencies/jur_names_concordances.py")
+stream = open("/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp/jur_names_concordances.py")
 read_file = stream.read()
 exec(read_file)
 
