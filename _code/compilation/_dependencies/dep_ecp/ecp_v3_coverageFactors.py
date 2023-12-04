@@ -18,7 +18,7 @@ def coverageFactors(inst_df, gas):
     
     ## LOAD COVERAGE FACTORS FILES 
     coverageFactor = ecp_general.concatenate("/Users/gd/GitHub/WorldCarbonPricingDatabase/_raw/coverageFactor")
-    coverageFactor = coverageFactor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas.lower()]]
+    coverageFactor = coverageFactor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas]]
     
 
     if len(coverageFactor[coverageFactor.duplicated(keep=False)]) != 0:
@@ -44,15 +44,23 @@ def coverageFactors(inst_df, gas):
                 inst_df = inst_df.merge(coverageFactor, left_on=merge_keys,
                                         right_on=["jurisdiction", "year", "ipcc_code", "scheme_id"], how="left")
                 inst_df.drop(["scheme_id"], axis=1, inplace=True)
-                inst_df.rename(columns={"cf_"+gas.lower():cf_col_names[id_col_name]}, inplace=True)
+                inst_df.rename(columns={"cf_"+gas:cf_col_names[id_col_name]}, inplace=True)
 
                 cf_cols = cf_cols + [cf_col_names[id_col_name]]
 
         # re-ordering columns
-        inst_df = inst_df[['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', 'tax',
-                         'ets']+[tax_id_cols[0]]+['tax_rate_excl_ex_clcu', 'tax_ex_rate',
-                         'tax_rate_incl_ex_clcu', 'tax_curr_code']+[ets_id_cols[0]]+['ets_price',
-                         'ets_curr_code']+[ets_id_cols[1]]+['ets_2_price',
-                         'ets_2_curr_code']+cf_cols]
-    
+        # error handling introduced to deal with absence of 'iea_code' in 'overlap' script dataframe
+        try:
+            inst_df = inst_df[['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', 'tax',
+                            'ets']+[tax_id_cols[0]]+['tax_rate_excl_ex_clcu', 'tax_ex_rate',
+                            'tax_rate_incl_ex_clcu', 'tax_curr_code']+[ets_id_cols[0]]+['ets_price',
+                            'ets_curr_code']+[ets_id_cols[1]]+['ets_2_price',
+                            'ets_2_curr_code']+cf_cols]
+        except:
+            inst_df = inst_df[['jurisdiction', 'year', 'ipcc_code', 'Product', 'tax',
+                            'ets']+[tax_id_cols[0]]+['tax_rate_excl_ex_clcu', 'tax_ex_rate',
+                            'tax_rate_incl_ex_clcu', 'tax_curr_code']+[ets_id_cols[0]]+['ets_price',
+                            'ets_curr_code']+[ets_id_cols[1]]+['ets_2_price',
+                            'ets_2_curr_code']+cf_cols]
+
     return inst_df
