@@ -101,15 +101,19 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
     # Data from EDGAR database
 
-    edgar = pd.read_excel(path_ghg+"/national/EDGAR/v60_CO2_excl_short-cycle_org_C_1970_2018.xls",
-                              sheet_name="v6.0_EM_CO2_fossil_IPCC2006", skiprows=9)
+    edgar = pd.read_csv(path_ghg+"/national/EDGAR/v2023/EDGAR_CO2_1970-2021.csv")
 
-    edgar.drop(['IPCC_annex', 'C_group_IM24_sh', 'Country_code_A3', 'ipcc_code_2006_for_standard_report_name', 'fossil_bio'], axis=1, inplace=True)
+    edgar = edgar.loc[edgar.fossil_bio=="fossil"]
+
+    edgar.drop(['Unnamed: 0', 'IPCC_annex', 'C_group_IM24_sh', 'Country_code_A3', 
+                'Substance', 'ipcc_code_2006_for_standard_report_name', 'fossil_bio'], 
+               axis=1, inplace=True)
 
     edgar = edgar.loc[~edgar.Name.isin(["Int. Shipping", "Int. Aviation"]), :]
-    edgar = edgar.melt(id_vars=["Name", "ipcc_code_2006_for_standard_report"])
+    edgar = edgar.melt(id_vars=["Name", "ipcc_code_2006_for_standard_report"],
+                       value_name="CO2", var_name="year")
 
-    edgar.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code", "variable":"year", "value":"CO2"}, 
+    edgar.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code"}, 
                      inplace=True)
     # format ipcc_code and year columns
     edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
@@ -120,7 +124,7 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
     # select sectors
     ippu_fug_nat = edgar.loc[edgar.ipcc_code.str.match("1B|2"), :]
 
-    ippu_fug_nat["jurisdiction"] = ippu_fug_nat["jurisdiction"].replace(to_replace=edgar_wb_map)
+    ippu_fug_nat["jurisdiction"].replace(to_replace=edgar_wb_map, inplace=True)
 
     # dataframe standardization
     ippu_fug_nat = ippu_fug_nat[["jurisdiction", "year", "ipcc_code", "CO2"]]
@@ -145,61 +149,76 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
 def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
-    gas_file_name = {"CH4":"v60_CH4_1970_2018.xls", "N2O":"v60_N2O_1970_2018.xls"}
+    gas_file_name = {"CH4":"EDGAR_CH4_1970-2021.csv", "N2O":"EDGAR_N2O_1970-2021.csv",
+                     "F-GASES":"EDGAR_FGASES_1970-2021.csv"}
 
     if gas == "F-GASES":
-        # list of file names containing F-gases data
-        file_names_fgases = os.listdir("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/national/EDGAR/v60_GHG_fgases_1990_2018")
 
-        fgases_tot = pd.DataFrame()
+        edgar_fgas = pd.read_csv(path_ghg+"/national/EDGAR/v2023/"+gas_file_name[gas])
+        # list of file names containing F-gases data
+        #file_names_fgases = os.listdir("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/national/EDGAR/v60_GHG_fgases_1990_2018")
+
+        #fgases_tot = pd.DataFrame()
 
         # Aggregate files for f-gases
-        for i in range(0,len(file_names_fgases)):
-            edgar_fgas = pd.read_excel(path_ghg+"/national/EDGAR/v60_GHG_fgases_1990_2018/"+file_names_fgases[i], skiprows=9,
-                                sheet_name="v6.0_EM_"+file_names_fgases[i][:-15]+"_IPCC2006")
-            edgar_fgas = edgar_fgas.loc[edgar_fgas.fossil_bio=="fossil"] # keep only fossil emissions
+        #for i in range(0,len(file_names_fgases)):
+        #    edgar_fgas = pd.read_excel(path_ghg+"/national/EDGAR/v60_GHG_fgases_1990_2018/"+file_names_fgases[i], skiprows=9,
+        #                        sheet_name="v6.0_EM_"+file_names_fgases[i][:-15]+"_IPCC2006")
+        edgar_fgas = edgar_fgas.loc[edgar_fgas.fossil_bio=="fossil"] # keep only fossil emissions
 
-            edgar_fgas.drop(["IPCC_annex", "C_group_IM24_sh", "Country_code_A3", "ipcc_code_2006_for_standard_report_name",
-                             "fossil_bio"], axis=1, inplace=True)
-            edgar_fgas.rename(columns={"Name":"ctry_name"}, inplace=True)
+        edgar_fgas.drop(['Unnamed: 0', "IPCC_annex", "C_group_IM24_sh", "Country_code_A3", 
+                         "ipcc_code_2006_for_standard_report_name", "fossil_bio"], 
+                         axis=1, inplace=True)
 
-            edgar_fgas = edgar_fgas.melt(id_vars=["ctry_name", "ipcc_code_2006_for_standard_report"])
+        edgar_fgas = edgar_fgas.melt(id_vars=["Name", "Substance", "ipcc_code_2006_for_standard_report"],
+                                     var_name="year", value_name=gas)
 
-            edgar_fgas.rename(columns={"ctry_name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code", 
-                                       "variable":"year", "value":file_names_fgases[i][:-15]}, inplace=True)
+        edgar_fgas.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code"}, 
+                          inplace=True)
 
-            # format ipcc_code and year columns
-            edgar_fgas["ipcc_code"] = edgar_fgas["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
-            edgar_fgas["year"] = edgar_fgas["year"].apply(lambda x: x.replace('Y_', '').upper())
-            edgar_fgas["ipcc_code"] = edgar_fgas["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
-            edgar_fgas["year"] = edgar_fgas["year"].astype(int)
+        # format ipcc_code and year columns
+        edgar_fgas["ipcc_code"] = edgar_fgas["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
+        edgar_fgas["year"] = edgar_fgas["year"].apply(lambda x: x.replace('Y_', '').upper())
+        edgar_fgas["ipcc_code"] = edgar_fgas["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
+        edgar_fgas["year"] = edgar_fgas["year"].astype(int)
 
-            edgar_fgas['jurisdiction'].replace(to_replace=edgar_wb_map, inplace=True)
+        edgar_fgas['jurisdiction'].replace(to_replace=edgar_wb_map, inplace=True)
 
-            # convert to CO2 equivalent
-            edgar_fgas[file_names_fgases[i][:-15]] =  edgar_fgas[file_names_fgases[i][:-15]]*ipcc_gwp_list[file_names_fgases[i][:-15]]
+        # convert to CO2 equivalent
+        dfGWP = pd.DataFrame(data={"Substance":ipcc_gwp_list.keys(), "gwp":ipcc_gwp_list.values()})
+        edgar_fgas = edgar_fgas.merge(dfGWP, on=["Substance"],
+                                      how="left")
+        
+        edgar_fgas[gas] = edgar_fgas[gas]*edgar_fgas["gwp"]
+        edgar_fgas.drop(["gwp"], axis=1, inplace=True)
+        #edgar_fgas[file_names_fgases[i][:-15]] =  edgar_fgas[file_names_fgases[i][:-15]]*ipcc_gwp_list[file_names_fgases[i][:-15]]
 
-            if fgases_tot.empty == True:
-                fgases_tot = edgar_fgas
-            else:
-                fgases_tot = fgases_tot.merge(edgar_fgas, on=["jurisdiction", "year", "ipcc_code"], how="outer")
+        #    if fgases_tot.empty == True:
+        #        fgases_tot = edgar_fgas
+        #    else:
+        #        fgases_tot = fgases_tot.merge(edgar_fgas, on=["jurisdiction", "year", "ipcc_code"], how="outer")
 
         # Sum of all f-gases
-        fgases_tot.fillna(0, inplace=True)
-        fgases_tot["F-GASES"] = fgases_tot.drop(["jurisdiction", "year", "ipcc_code"], axis=1).sum(axis=1)
-        edgar = fgases_tot[["jurisdiction", "year", "ipcc_code", "F-GASES"]] # keep only aggregate F-GASES value and merge keys
+        edgar_fgas.fillna(0, inplace=True)
+        #fgases_tot["F-GASES"] = fgases_tot.drop(["jurisdiction", "year", "ipcc_code"], axis=1).sum(axis=1)
+        
+        edgar = edgar_fgas[["jurisdiction", "year", "ipcc_code", "F-GASES"]].groupby(["jurisdiction", "year", "ipcc_code"]).sum().reset_index().copy() # keep only aggregate F-GASES value and merge keys
 
     else:
 
-        edgar = pd.read_excel(path_ghg+"/national/EDGAR/"+gas_file_name[gas],
-                                sheet_name="v6.0_EM_"+gas+"_IPCC2006", skiprows=9)
+        edgar = pd.read_csv(path_ghg+"/national/EDGAR/v2023/"+gas_file_name[gas])
 
-        edgar.drop(['IPCC_annex', 'C_group_IM24_sh', 'Country_code_A3', 'ipcc_code_2006_for_standard_report_name', 'fossil_bio'], axis=1, inplace=True)
+        edgar = edgar.loc[edgar.fossil_bio=="fossil"]
+
+        edgar.drop(['Unnamed: 0', 'IPCC_annex', 'C_group_IM24_sh', 'Substance',
+                    'Country_code_A3', 'ipcc_code_2006_for_standard_report_name', 'fossil_bio'], 
+                   axis=1, inplace=True)
 
         edgar = edgar.loc[~edgar.Name.isin(["Int. Shipping", "Int. Aviation"]), :]
-        edgar = edgar.melt(id_vars=["Name", "ipcc_code_2006_for_standard_report"])
+        edgar = edgar.melt(id_vars=["Name", "ipcc_code_2006_for_standard_report"],
+                           var_name="year", value_name=gas)
 
-        edgar.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code", "variable":"year", "value":gas}, 
+        edgar.rename(columns={"Name":"jurisdiction", "ipcc_code_2006_for_standard_report":"ipcc_code"}, 
                         inplace=True)
         # format ipcc_code and year columns
         edgar["ipcc_code"] = edgar["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
