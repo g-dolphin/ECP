@@ -52,14 +52,36 @@ def concat_iea(indir = path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed
     for fileName in fileList:
         df=pd.read_csv(fileName, header=0, encoding = 'latin-1') #latin-1 encoding to deal with special characters
 
-        if fileName == "IEA_CO2_AB_2019_2021.csv":
-            MapDF = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/iea_codes.csv")
-            concordance = dict(zip(MapDF.FLOWname, MapDF.FLOW))
+        # some weird encoding here.
+        df.rename(columns={'ï»¿"LOCATION"':"LOCATION"}, inplace=True)
 
-            df["FLOW"].replace(to_replace=concordance, inplace=True)
+        if fileName == "IEA_CO2_AB_2019_2021.csv":
+            MapDF_flow = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv")
+            MapDF_prod = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_PRODcodes.csv")
+            concordanceFLOW = dict(zip(MapDF_flow.FLOWname, MapDF_flow.FLOW))
+            concordancePROD = dict(zip(MapDF_prod.PRODUCTname, MapDF_prod.PRODUCT))
+
+            df["FLOW"].replace(to_replace=concordanceFLOW, inplace=True)
+            df["PRODUCT"].replace(to_replace=concordancePROD, inplace=True)
             df.columns = ["COUNTRY", "Country", "FLOW",
                           "Flow (kt of CO2)", "PRODUCT", "Product",
                           "TIME", "Time", "Value", "Flag Codes", "Flags"]
+            
+            # drop "World aviation bunkers", "World marine bunkers" rows
+            df = df.loc[~df.Country.isin(["World aviation bunkers", "World marine bunkers"])]
+
+            # replace country names
+            df["Country"].replace(to_replace={"Republic of Turkiye":"Turkey", "Guyana":"Memo: Guyana",
+                                              "Uganda":"Memo: Uganda", "Madagascar":"Memo: Madagascar"}, 
+                                              inplace=True)
+
+            # Create 'World' rows
+            dfWld = df.groupby(['FLOW', "Flow (kt of CO2)", 'PRODUCT', 'Product', 'TIME', 'Time', 
+                                    'Flag Codes', 'Flags']).sum().reset_index()
+            dfWld["Country"] = "World"
+            dfWld["COUNTRY"] = "WLD"
+
+            df = pd.concat([df, dfWld])
 
             # reordering columns
             df = df[["COUNTRY", "Country", "PRODUCT", "Product", "FLOW",	
