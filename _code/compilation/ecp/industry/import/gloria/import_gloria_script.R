@@ -83,54 +83,25 @@ demand_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "V
 sequential_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Sequential region-sector labels")
 
 
-newcat<-sector_ind$Sector_names
-newcat<-newcat[!is.na(newcat)]
+### 2 Filter as required #######################################################
 
-newreg<-region_ind$Region_names
-newreg<-newreg[!is.na(newreg)]
+dim(tqm)
+dim(yqm)
 
-nco<-length(unique(region_ind$Region_names))
-ncn<-length(newreg)
-nso<-length(unique(sector_ind$Sector_names))
-nsn<-length(newcat)
+# we only want co2 excl short cycle emissions
+rindx<-which(grepl("co2_excl_short_cycle",satellites_ind$Sat_indicator) & satellites_ind$Sat_unit=="kilotonnes")
 
-nd<-length(demand_ind$Final_demand_names)
+tqm<-tqm[rindx,]
+yqm<-yqm[rindx,]
+satellites_ind<-satellites_ind[rindx,]
 
+rm(rindx)
 
+### 3 Save in tmp dir and clean up #############################################
 
+save(demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,tqm,yqm,
+     file=file.path(gloriawd,"tmpdir",paste0("gloria_",timestep,".Rdata")))
 
-### 4 Cut down to the dimensions of interest ###################################
-## Using Region and Sector aggregation created by MM
-
-########## first require the index data
-sector_ind <- read_excel(file.path(gloriawd,"GLORIA_ReadMe_057_adj.xlsx"), 
-                         sheet = "Sectors")
-region_ind <- read_excel(file.path(gloriawd,"GLORIA_ReadMe_057_adj.xlsx"),  
-                         sheet = "Regions")
-
-demand_ind <- read_excel(file.path(gloriawd,"GLORIA_ReadMe_057_adj.xlsx"),  
-                         sheet = "Value added and final demand")
-
-satellites_ind <- read_excel(file.path(gloriawd,"GLORIA_ReadMe_057_adj.xlsx"),
-                         sheet = "Satellites")
-
-newcat<-sector_ind$MM_sector_name
-newcat<-newcat[!is.na(newcat)]
-
-newreg<-region_ind$MM_region_name
-newreg<-newreg[!is.na(newreg)]
-
-nco<-length(unique(region_ind$Region_names))
-ncn<-length(newreg)
-nso<-length(unique(sector_ind$Sector_names))
-nsn<-length(newcat)
-
-nd<-length(demand_ind$Final_demand_names)
-
-
-## MM to continue
-
-
-#############################################################################
+rm(list=ls()[! ls() %in% c("wd","gloriawd")])
 
 
