@@ -6,7 +6,8 @@ calculate_ewcp<-function(yr,
                          ecp_data,
                          gloria_q_data,
                          concordance,
-                         type) 
+                         type,
+                         sourcedat) 
 {
   # This function is written for easy debugging
   
@@ -27,10 +28,10 @@ calculate_ewcp<-function(yr,
   de<-de%>%filter(year == yr)
   
   ### Step 3: Extract gloria satellites data
-  # keep only EDGAR CO2 accounts excl short cycle
+  # keep only OECD / EDGAR
   zqs<-gloria_q_data
   zqs<-zqs %>% filter (grepl("co2",Sat_indicator))
-  zqs<-zqs %>% filter (grepl("excl_short_cycle",Sat_indicator))
+  zqs<-zqs %>% filter (grepl(sourcedat,Sat_indicator))
   # keep only ctry of interest
   zqs <- zqs %>% select(c(Sat_indicator,contains(ctry)))
   # shorten the strings in the sat indicator to keep only ipcc code
@@ -125,108 +126,6 @@ calculate_ewcp<-function(yr,
   ### Step 9: Return result
   return(result)
 }
-
-
-# vector of categories covered by eu ets II
-eu_ets_ipcc_II <- c("1A1A1", "1A1A2", "1A1A3", "1A1B", "1A1C", "1A2A",
-                    "1A2B", "1A2C", "1A2D", "1A2E", "1A2F", "1A2G", "1A2H",
-                    "1A2I", "1A2J", "1A2K", "1A2L", "1A2M", "1A3A2",
-                    "1C1A", "1C2B",
-                    "2A1", "2A2", "2A3", "2A4A", "2B1", "2B2", "2B3", 
-                    "2B4", "2B5", "2B6", "2B7", "2B8F",
-                    "2C1", "2C2", "2C3", "2C4", "2C5", "2C6", "2H1")
-
-
-ets2_coverage_fun<-function(yr,
-                           ctry,
-                           sect,
-                           gloria_q_data,
-                           concordance,
-                           type){
-  
-  ### Step 1: Create calculation dataframe
-  df<-as.data.frame(matrix(NA,nrow=nrow(concordance),ncol=2))
-  colnames(df)<-c("Sat_ind","ets2cover")
-  df$Sat_ind<-concordance$Sat_ind
-  # the below is to make the function work for both industry satellites z 
-  # and demand satellites y
-  if(type=="z"){
-    sectorf<-paste(ctry,sect,sep=".")
-  } else if(type=="y"){
-    sectorf=ctry
-  }
-  
-  ### Step 2: Extract gloria satellites data
-  # keep only EDGAR CO2 accounts excl short cycle
-  zqs<-gloria_q_data
-  zqs<-zqs %>% filter (grepl("co2",Sat_indicator))
-  zqs<-zqs %>% filter (grepl("excl_short_cycle",Sat_indicator))
-  # keep only ctry of interest
-  zqs <- zqs %>% select(c(Sat_indicator,contains(ctry)))
-  # shorten the strings in the sat indicator to keep only ipcc code
-  zqs <- zqs %>% mutate(Sat_indicator = substr(Sat_indicator,29,nchar(Sat_indicator)-18))
-  # keep only sector of interest
-  if(type=="z"){
-    zqs <- zqs %>% select (c(Sat_indicator,sectorf))
-    # rename colnames
-    zqs <- zqs %>% rename(emissions = sectorf)
-  } else if(type=="y"){
-    # rename colnames
-    colnames(zqs)[2]<-"emissions"
-  }
-  # add to df
-  df['emissions']<-zqs$emissions
-  
-  ### Step 3: Import concordance between ipcc sectors in ECP and in GLORIA
-  i_c_p <- concordance %>% pivot_longer(-Sat_ind,names_to="cp_ind",values_to="ident")
-  
-  ### Step 4: Map ets II coverage from ECP to GLORIA EDGAR categories
-  # We define all categories from 1A1 to 1A2 as covered by EU ETS 2
-  # These are energy related emissions from energy industries and from manufacturing
-  df$ets2cover[which(df$Sat_ind=="1A1a"):which(df$Sat_ind=="1A2m")]<-1
-  # Road transportation is not covered
-  df$ets2cover[which(df$Sat_ind=="1A3b"):which(df$Sat_ind=="1A3b_RES")]<-0
-  # special case: aviation 1A3a (only domestic 1A3aii is covered)
-  # we use CO2 emissions from the ecp dataset as allocation key 
-  df$ets2cover[df$Sat_ind=="1A3a"]<-
-    ecp$CO2[
-      ecp$jurisdiction==tmpc & ecp$year==yr & ecp$ipcc_code=="1A3A2"]/
-    ecp$CO2[
-      ecp$jurisdiction==tmpc & ecp$year==yr & ecp$ipcc_code=="1A3A"]
-  # Other energy related emissions (like fugitive emissions) are not covered
-  df$ets2cover[which(df$Sat_ind=="1A3c"):which(df$Sat_ind=="1B2")]<-0
-  # We define all categories from 2A1 to 2A3 as covered by EU ETS2
-  # These are process emissions from the main mineral industries (cement, lime, glass)
-  df$ets2cover[which(df$Sat_ind=="2A1"):which(df$Sat_ind=="2A3")]<-1
-  # special case: other process uses of carbonates 2A4 (only Ceramics 2A4a is covered)
-  # Given that ecp does not differentiate between subsectors here, we just assume
-  # that the whole 2A4 category is covered
-  df$ets2cover[which(df$Sat_ind=="2A4")]<-1
-  # Process emissions from chemical ind and metal ind (2B:2C) (we cover them all)
-  df$ets2cover[which(df$Sat_ind=="2B"):which(df$Sat_ind=="2C")]<-1
-  # Process emissions from other industries (2D:2G) not covered
-  df$ets2cover[which(df$Sat_ind=="2D"):which(df$Sat_ind=="2G")]<-0
-  # special case: 2H only 2H1 pulp and paper industry covered
-  # we account for this in our gloria sector specific ecp mapping, so can use the
-  # concordance table here. Sawmill pulp paper sector is identified by the case 
-  # where 2H2 does not map onto 2H
-  if(i_c_p$ident[i_c_p$cp_ind=="2H2" & i_c_p$Sat_ind=="2H"]==0){
-    df$ets2cover[which(df$Sat_ind=="2H")]<-1
-  } else {
-    df$ets2cover[which(df$Sat_ind=="2H")]<-0
-  }
-  # All else not covered
-  df$ets2cover[which(df$Sat_ind=="3A1"):which(df$Sat_ind=="5A")]<-0
-  
-  ### Step 5: calculate the extent to which the gloria sector is covered by ets2
-  df['emissions_covered']<-df$ets2cover*df$emissions
-  result<-sum(df$emissions_covered,na.rm=T)/df$emissions[df$Sat_ind=="total"]
-  
-  ### Step 6: Return result
-  return(result)
-}
-
-
 
 
 
