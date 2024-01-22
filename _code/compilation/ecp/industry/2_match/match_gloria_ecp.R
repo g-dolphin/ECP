@@ -3,10 +3,6 @@
 ################################################################################
 
 
-# Notes:
-# GLORIA is at basic prices. we use ECP at basic prices as well
-
-
 ################################################################################
 ## Packages, Filepaths & Data ##################################################
 
@@ -26,36 +22,105 @@ resultfp<-file.path(ecpmwd,"tmpdir")
 # Main function
 source(file.path(ecpmwd,"matching_function.R"))
 
-# ECP and concordance data
+# ECP and sector concordance data
 ecp<-read.csv(file.path(fpe,"ecp_sector_CO2.csv"))
 
-svect<-excel_sheets(file.path(ecpmwd,"ipcc_conc.xlsx"))
-svect
-iclist<-list()
-for(i in 1:length(svect)){
-  iclist[[i]]<-read_excel(file.path(ecpmwd,"ipcc_conc.xlsx"),sheet = svect[i])
-}
-names(iclist)<-svect
+load(file.path(ecpmwd,"ipcc_conc","ipcc_conc.RData"))
 
 # define years to run the process for
-yrs<-c(2010,2015,2020)
+yrs<-seq(1990,2022)
+
+
+################################################################################
+#### Concordance between country names #########################################
 
 # align country names
-load(file.path(wd,"1_import_&_format_raw","gloria","tmpdir",paste0("gloria_",yrs[1],".RData")))
-rm(leo,x,y,yq,z,zq,zocases)
-newreg
+load(file.path(wd,"1_import","gloria","tmpdir",paste0("gloria_",yrs[1],".RData")))
+rm(demand_ind,satellites_ind,sector_ind,sequential_ind,tqm,yqm)
 
+region_ind$Region_names
 unique(ecp$jurisdiction)
 
-ecp$jurisdiction[ecp$jurisdiction=="Czech Republic"]<-"Czech_Republic"
-ecp$jurisdiction[ecp$jurisdiction=="United Kingdom"]<-"United_Kingdom"
-ecp$jurisdiction[ecp$jurisdiction=="Korea, Rep."]<-"Korea_Rep"
-ecp$jurisdiction[ecp$jurisdiction=="Russian Federation"]<-"Russian_Federation"
-ecp$jurisdiction[ecp$jurisdiction=="Saudi Arabia"]<-"Saudi_Arabia"
-ecp$jurisdiction[ecp$jurisdiction=="Slovak Republic"]<-"Slovak_Republic"
-ecp$jurisdiction[ecp$jurisdiction=="United States"]<-"United_States"
-ecp$jurisdiction[ecp$jurisdiction=="South Africa"]<-"South_Africa"
+countryconc<-as.data.frame(matrix(ncol=2,nrow=length(unique(ecp$jurisdiction))))
+colnames(countryconc)<-c("c_ecp","c_gloria")
+countryconc$c_ecp<-unique(ecp$jurisdiction)
 
+# to start with
+for(i in 1:nrow(countryconc)){
+  #
+  cg<-region_ind$Region_names[substr(region_ind$Region_names,1,5)==substr(countryconc$c_ecp[i],1,5)]
+  #
+  if(length(cg)==0){
+    countryconc$c_gloria[i]<-NA
+  } else{
+    countryconc$c_gloria[i]<-cg
+  }
+  #
+}
+rm(cg)
+
+# then we fill the gaps manually
+countryconc$c_gloria[countryconc$c_ecp=="Andorra"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Antigua and Barbuda"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Austria"]<-"Austria"
+countryconc$c_gloria[countryconc$c_ecp=="Barbados"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Cabo Verde"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Comoros"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Congo, Dem. Rep."]<-"DR Congo"
+countryconc$c_gloria[countryconc$c_ecp=="Congo, Rep."]<-"Rep Congo"
+countryconc$c_gloria[countryconc$c_ecp=="Czech Republic"]<-"CSSR/Czech Republic (1990/1991)"
+countryconc$c_gloria[countryconc$c_ecp=="Dominica"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Federated States of Micronesia"]<-"Rest of Asia_Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Fiji"]<-"Rest of Asia_Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Grenada"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Guyana"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Iran, Islamic Rep."]<-"Iran"
+countryconc$c_gloria[countryconc$c_ecp=="Kiribati"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Korea, Dem. Rep."]<-"North Korea"
+countryconc$c_gloria[countryconc$c_ecp=="Korea, Rep."]<-"South Korea"
+countryconc$c_gloria[countryconc$c_ecp=="Kosovo"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Lao PDR"]<-"Laos"
+countryconc$c_gloria[countryconc$c_ecp=="Lesotho"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Liechtenstein"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Macao SAR, China"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Maldives"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Marshall Islands"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Mauritius"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Monaco"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Montenegro"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Nauru"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Nigeria"]<-"Nigeria"
+countryconc$c_gloria[countryconc$c_ecp=="North Macedonia"]<-"Macedonia"
+countryconc$c_gloria[countryconc$c_ecp=="Palau"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Puerto Rico"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Russian Federation"]<-"USSR/Russian Federation (1990/1991)"
+countryconc$c_gloria[countryconc$c_ecp=="Samoa"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="San Marino"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Sao Tome and Principe"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Serbia"]<-"Yugoslavia/Serbia (1991/1992)"
+countryconc$c_gloria[countryconc$c_ecp=="Seychelles"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Solomon Islands"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="South Africa"]<-"South Africa"
+countryconc$c_gloria[countryconc$c_ecp=="South Sudan"]<-"South Sudan"
+countryconc$c_gloria[countryconc$c_ecp=="St. Kitts and Nevis"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="St. Lucia"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="St. Vincent and the Grenadines"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Suriname"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Swaziland"]<-"Rest of Africa"
+countryconc$c_gloria[countryconc$c_ecp=="Taiwan, China"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Timor-Leste"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Tonga"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Trinidad and Tobago"]<-"Rest of Americas"
+countryconc$c_gloria[countryconc$c_ecp=="Tuvalu"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="United Kingdom"]<-"United Kingdom"
+countryconc$c_gloria[countryconc$c_ecp=="United States"]<-"United States of America"
+countryconc$c_gloria[countryconc$c_ecp=="Vanuatu"]<-"Rest of Asia-Pacific"
+countryconc$c_gloria[countryconc$c_ecp=="Vatican City"]<-"Rest of Europe"
+countryconc$c_gloria[countryconc$c_ecp=="Vietnam"]<-"Viet Nam"
+countryconc$c_gloria[countryconc$c_ecp=="West Bank and Gaza"]<-"Palestine"
+countryconc$c_gloria[countryconc$c_ecp=="Western Sahara"]<-"Rest of Africa"
+
+rm(region_ind)
 
 ################################################################################
 ## Run process #################################################################

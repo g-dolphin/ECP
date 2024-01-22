@@ -82,6 +82,23 @@ satellites_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet 
 demand_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Value added and final demand")
 sequential_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Sequential region-sector labels")
 
+# shorten sequential_ind to reflect the non-product version
+all_c_s<-sequential_ind$Sequential_regionSector_labels
+short_c_s<-all_c_s[cselector]
+sequential_ind$Sequential_regionSector_labels<-NA
+sequential_ind<-sequential_ind[1:length(short_c_s),]
+sequential_ind$Sequential_regionSector_labels<-short_c_s
+
+# create full countrylabel and full sectorlabel vectors
+cq<-region_ind$Region_names
+fcql<-list()
+for(i in 1:length(cq)){
+  fcql[[i]]<-rep(cq[i],times=nrow(sector_ind))
+}
+sequential_ind['fcq']<-do.call("c",fcql)
+sequential_ind['fsq']<-rep(sector_ind$Sector_names,times=nrow(region_ind))
+rm(cq,fcql)
+
 
 ### 2 Filter as required #######################################################
 
