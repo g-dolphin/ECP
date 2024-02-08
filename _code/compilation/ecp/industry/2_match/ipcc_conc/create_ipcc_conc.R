@@ -41,6 +41,8 @@ for(i in 1:nrow(g_sat)){
 g_codes
 # issue with excel removing ' in the totals row. No idea why. correct:
 g_codes[1]<-"total"
+g_codes[22]<-"1A3b_noRES"
+g_codes[28]<-"1A4"
 # continue
 concdf<-as.data.frame(matrix(nrow=length(g_codes),ncol=length(e_codes))) # create dataframe with dimensions (length(GLORIA IPCC codes), length(ECP IPCC codes))
 colnames(concdf)<-e_codes
@@ -495,15 +497,15 @@ newcat
 
 ### Petroleum extraction
 # here we want to map only 1B2A, not 1B2B
-conclist[['Petroleum_extraction']]$`1B2B`[conclist[['Petroleum_extraction']]$Sat_ind == "1B2"]<-0
+conclist[['Petroleum extraction']]$`1B2B`[conclist[['Petroleum extraction']]$Sat_ind == "1B2"]<-0
 
 ### Gas extraction
 # here we want to map only 1B2B, not 1B2A
-conclist[['Gas_extraction']]$`1B2A`[conclist[['Gas_extraction']]$Sat_ind == "1B2"]<-0
+conclist[['Gas extraction']]$`1B2A`[conclist[['Gas extraction']]$Sat_ind == "1B2"]<-0
 
 ### Pulp and paper
 # here we want to map only 2H1, not 2H2
-conclist[['Pulp and paper']]$`2H2`[conclist[['Sawmill_pulp_paper']]$Sat_ind == "2H"]<-0
+conclist[['Pulp and paper']]$`2H2`[conclist[['Sawmill pulp paper']]$Sat_ind == "2H"]<-0
 
 ### All the food and bev product industries
 # starting from beef meat (41) down to tobacco products (56)

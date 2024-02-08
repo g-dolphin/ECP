@@ -97,7 +97,19 @@ for(i in 1:length(cq)){
 }
 sequential_ind['fcq']<-do.call("c",fcql)
 sequential_ind['fsq']<-rep(sector_ind$Sector_names,times=nrow(region_ind))
-rm(cq,fcql)
+
+sequentiald_ind<- sequential_ind %>% select(Sequential_finalDemand_labels) %>% drop_na()
+
+fcqld<-list()
+for(i in 1:length(cq)){
+  fcqld[[i]]<-rep(cq[i],times=nrow(demand_ind))
+}
+
+sequentiald_ind['fcqd']<-do.call("c",fcqld)
+sequentiald_ind['demandind']<-rep(demand_ind$Final_demand_names,times=nrow(region_ind))
+
+
+rm(cq,fcql,fcqld)
 
 
 ### 2 Filter as required #######################################################
@@ -116,7 +128,7 @@ rm(rindx)
 
 ### 3 Save in tmp dir and clean up #############################################
 
-save(demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,tqm,yqm,
+save(demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind,tqm,yqm,
      file=file.path(gloriawd,"tmpdir",paste0("gloria_",timestep,".Rdata")))
 
 rm(list=ls()[! ls() %in% c("wd","gloriawd")])

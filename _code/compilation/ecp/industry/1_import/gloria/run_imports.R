@@ -169,5 +169,5 @@ qcode<-"20230310"
 mcode<-"20230315"
 source(file.path(gloriawd,"import_gloria_script.R"))
 
-rm(list=ls()[! ls() %in% c("wd")])
+rm(list=ls()[! ls() %in% c("wd","pl")])
 

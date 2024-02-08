@@ -1,6 +1,8 @@
 #### Matching function for ecp
 
 calculate_ewcp<-function(yr,
+                         ecp_jur,
+                         sattype,
                          ctry,
                          sect,
                          ecp_data,
@@ -18,35 +20,37 @@ calculate_ewcp<-function(yr,
   # the below is to make the function work for both industry satellites z 
   # and demand satellites y
   if(type=="z"){
-    sectorf<-paste(ctry,sect,sep=".")
+    sectorf<-sequential_ind$Sequential_regionSector_labels[sequential_ind$fcq==ctry & sequential_ind$fsq==sect]
   } else if(type=="y"){
-    sectorf=ctry
+    sectorf=sequentiald_ind$Sequential_finalDemand_labels[sequentiald_ind$fcqd==ctry & sequentiald_ind$demandind==sect]
   }
   
   ### Step 2: Extract ecp data
-  de<-ecp_data%>%filter(jurisdiction == ctry)
-  de<-de%>%filter(year == yr)
+  # Two cases
+  if(length(ecp_jur)==1){ # if there is only country
+    de<-ecp_data %>% filter(jurisdiction == ecp_jur, year==yr)
+    de$jurisdiction <- ctry
+  } else { # if there are several then we need to aggregate
+    de<- ecp_data %>% 
+      filter (jurisdiction %in% ecp_jur,year==yr) %>%
+      mutate (ecp_co2 = `CO2`*`ecp_all_usd`) %>%
+      group_by(ipcc_code) %>%
+      summarise(`CO2`=sum(`CO2`),`ecp_co2`=sum(ecp_co2)) %>%
+      mutate(ecp_all_usd = ecp_co2/`CO2`)
+    de$ecp_all_usd[is.na(de$ecp_all_usd)]<-0
+    de['jurisdiction']<-ctry
+  }
   
   ### Step 3: Extract gloria satellites data
-  # keep only OECD / EDGAR
-  zqs<-gloria_q_data
-  zqs<-zqs %>% filter (grepl("co2",Sat_indicator))
-  zqs<-zqs %>% filter (grepl(sourcedat,Sat_indicator))
-  # keep only ctry of interest
-  zqs <- zqs %>% select(c(Sat_indicator,contains(ctry)))
-  # shorten the strings in the sat indicator to keep only ipcc code
-  zqs <- zqs %>% mutate(Sat_indicator = substr(Sat_indicator,29,nchar(Sat_indicator)-18))
-  # keep only sector of interest
+  # sattype rows, countrysector column
   if(type=="z"){
-    zqs <- zqs %>% select (c(Sat_indicator,sectorf))
-    # rename colnames
-    zqs <- zqs %>% rename(emissions = sectorf)
+    zqs<-zq[which(grepl(sattype,satellites_ind$Sat_head_indicator)),r]
   } else if(type=="y"){
     # rename colnames
-    colnames(zqs)[2]<-"emissions"
+    zqs<-yq[which(grepl(sattype,satellites_ind$Sat_head_indicator)),r]
   }
   # add to df
-  df['emissions']<-zqs$emissions
+  df['emissions']<-zqs
   
   ### Step 4: Import concordance between ipcc sectors in ECP and in GLORIA
   i_c_p <- concordance %>% pivot_longer(-Sat_ind,names_to="cp_ind",values_to="ident")
