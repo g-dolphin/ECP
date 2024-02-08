@@ -120,6 +120,9 @@ countryconc$c_gloria[countryconc$c_ecp=="Vietnam"]<-"Viet Nam"
 countryconc$c_gloria[countryconc$c_ecp=="West Bank and Gaza"]<-"Palestine"
 countryconc$c_gloria[countryconc$c_ecp=="Western Sahara"]<-"Rest of Africa"
 
+countryconc<-rbind(countryconc,c("Yemen, Rep.","DR Yemen (Aden)"))
+
+
 rm(region_ind)
 
 ################################################################################
@@ -136,69 +139,59 @@ for(k in 1:length(yrs)){
   
   ### Step 2: Run for sectoral satellites
   # add row into data (i.e., rows corresponding to author-created indicators are added to the Satellite account matrix)
-  nr<-nrow(zq)+2
-  zq<-rbind(zq,NA,NA)
-  zq$Sat_indicator[nr-1]<-"emissions-weighted carbon price" # adding name of indicator (this line) and unit of indicator (next line)
-  zq$Sat_unit[nr-1]<-"USD/t"
-  zq$Sat_indicator[nr]<-"ets_ii_coverage" # adding name of indicator (this line) and unit of indicator (next line)
-  zq$Sat_unit[nr]<-"share of emissions"
+  print("industrial sectors")
+  nr<-nrow(tqm)+1
+  zq<-rbind(tqm,NA)
+  fcq<-sequential_ind$fcq
+  fsq<-sequential_ind$fsq
+  
   # fill in for each column
-  for(r in 3:ncol(zq)){
-    tmpc<-fcq[r-2] # the country
-    tmps<-fsq[r-2] # the sector
+  for(r in 1:ncol(zq)){
+    tmpc<-fcq[r] # the country
+    tmps<-fsq[r] # the sector
     # If we have ecp data for the country, we fill in
-    if(tmpc %in% ecp$jurisdiction){
-      zq[nr-1,r]<-calculate_ewcp(yr = yrs[k],
-                                 ctry = tmpc,
-                                 sect = tmps,
-                                 ecp_data = ecp,
-                                 gloria_q_data = zq,
-                                 concordance = iclist[[tmps]],
-                                 type = "z")
-      zq[nr,r]<-ets2_coverage_fun(yr=yrs[k],
-                                  ctry=tmpc,
-                                  sect=tmps,
-                                  gloria_q_data = zq,
-                                  concordance = iclist[[tmps]],
-                                  type = "z")
-    } else {} # otherwise we keep it as NA
+    zq[nr,r]<-calculate_ewcp(yr = yrs[k],
+                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                             sattype = sattype,
+                             ctry = tmpc,
+                             sect = tmps,
+                             ecp_data = ecp,
+                             gloria_q_data = zq,
+                             concordance = conclist[[tmps]],
+                             type = "z")
   }
   
   ### Step 3: Run for demand satellites
   # add row into data
-  nr<-nrow(yq)+2
-  yq<-rbind(yq,NA,NA)
-  yq$Sat_indicator[nr-1]<-"emissions-weighted carbon price"
-  yq$Sat_unit[nr-1]<-"USD/t"
-  yq$Sat_indicator[nr]<-"ets_ii_coverage"
-  yq$Sat_unit[nr]<-"share of emissions"
+  print("demand sectors")
+  nr<-nrow(yqm)+1
+  yq<-rbind(yqm,NA)
+  fcq<-sequentiald_ind$fcqd
+  fsq<-sequentiald_ind$demandind
+  
   # fill in for each column
-  for(r in 3:ncol(yq)){
-    tmpc<-substr(colnames(yq[r]),start=1,stop=nchar(colnames(yq[r]))-nchar("_Household final consumption P.3h")) # the country
-    # If we have ecp data for the country, we fill in
-    if(tmpc %in% ecp$jurisdiction){
-      yq[nr-1,r]<-calculate_ewcp(yr = yrs[k],
-                                 ctry = tmpc,
-                                 sect = NA,
-                                 ecp_data = ecp,
-                                 gloria_q_data = yq,
-                                 concordance = iclist[['Arts_and_recreation']], # we choose a non-modified concordance here
-                                 type = "y")
-      yq[nr,r]<-ets2_coverage_fun(yr=yrs[k],
-                                  ctry=tmpc,
-                                  sect=tmps,
-                                  gloria_q_data = yq,
-                                  concordance = iclist[[tmps]],
-                                  type = "y")
-    } else {} # otherwise we keep it as NA
+  for(r in 1:ncol(yq)){
+    tmpc<-fcq[r] # the country
+    tmps<-fsq[r] # the sector
+    # fill in
+    yq[nr,r]<-calculate_ewcp(yr = yrs[k],
+                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                             sattype = sattype,
+                             ctry = tmpc,
+                             sect = tmps,
+                             ecp_data = ecp,
+                             gloria_q_data = yq,
+                             concordance = conclist[['Other services']], # we choose a non-modified concordance here
+                             type = "y")
   }
   
   ### Step 4: Save data and clean up
   dir.create(file.path(resultfp, yrs[k]))
-  save(leo,x,y,yq,z,zq,fsq,fcq,newcat,newreg, file = file.path(resultfp,yrs[k],"ecp_gloria.RData"))
-  rm(leo,x,y,yq,z,zq)
+  save(yq,zq,demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind, 
+       file = file.path(resultfp,yrs[k],"ecp_gloria.RData"))
+  rm(tqm,yq,yqm,zq)
 }
 
 ## clean up 
-rm(list=ls()[! ls() %in% c("wd")])
+rm(list=ls()[! ls() %in% c("wd","pl","sattype","ecpmwd")])
 
