@@ -8,7 +8,7 @@ library(dplyr)
 library(data.table)
 library(Rfast)
 library(readxl)
-
+library(tidyr)
 
 ### specify here the filepath where the data is located
 fpe<-file.path("C:", "Users", "jomerkle", 
