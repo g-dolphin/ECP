@@ -24,6 +24,9 @@ source(file.path(ecpmwd,"matching_function.R"))
 
 # ECP and sector concordance data
 ecp<-read.csv(file.path(fpe,"ecp_sector_CO2.csv"))
+if(pl=="cons_p"){
+  ecp<-ecp %>% rename(ecp_all_usd = ecp_all_usd_k)
+} else{}
 
 load(file.path(ecpmwd,"ipcc_conc","ipcc_conc.RData"))
 

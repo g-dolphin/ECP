@@ -8,7 +8,7 @@ setwd(wd)
 gloriawd<-file.path(wd,"1_import","gloria")
 source(file.path(gloriawd,"run_imports.R"))
 
-pl<-"curr_p"
+pl<-"cons_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
@@ -65,6 +65,15 @@ if(pl=="curr_p"){
   write.csv(yqd,file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",
                           "edgar_based","currentPrice","FlexXRate",
+                          "ecp_gloria_finaldem_CO2.csv"))
+} else if (pl=="cons_p"){
+  write.csv(zqd,file.path(here::here(),
+                          "_dataset","ecp","industry","ecp_gloria_sectors",
+                          "edgar_based","constantPrice","FixedXRate",
+                          "ecp_gloria_industry_CO2.csv"))
+  write.csv(yqd,file.path(here::here(),
+                          "_dataset","ecp","industry","ecp_gloria_sectors",
+                          "edgar_based","constantPrice","FixedXRate",
                           "ecp_gloria_finaldem_CO2.csv"))
 }
 
