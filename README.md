@@ -4,7 +4,7 @@
 
 The Emissions-weighted Carbon Price (ECP) is an economy-wide average price on CO2 emissions. It is calculated from sector-fuel level data, which is aggregated back to the economy level using the share of each sector-fuel CO2 emissions in total GHG emissions as weights. The full methodology is described in the Resources for the Future Working Paper 22-6 [Emissions-weighted carbon price: Sources and Methods](https://www.rff.org/publications/working-papers/emissions-weighted-carbon-price-sources-and-methods/).
 
-It is calculated for 46 national and 31 subnational jurisdictions (13 Canadian provinces and territories, 11 US states, and 7 Chinese provinces) over 1990–2020. The average World CO2 price is also calculated. For national jurisdictions, the emissions-weighted price accounts for the prices arising from carbon pricing instruments introduced in their respective subnational jurisdictions. For instance, the emissions-weighted price for the United States includes the prices arising from state-level carbon pricing mechanisms.
+It is calculated for 46 national and 31 subnational jurisdictions (13 Canadian provinces and territories, 11 US states, and 7 Chinese provinces) over 1990–2022. The average World CO2 price is also calculated. For national jurisdictions, the emissions-weighted price accounts for the prices arising from carbon pricing instruments introduced in their respective subnational jurisdictions. For instance, the emissions-weighted price for the United States includes the prices arising from state-level carbon pricing mechanisms.
 
 Its calculation requires the combination of information about:
  1. Carbon pricing mechanisms' coverage
@@ -23,7 +23,8 @@ Next to the jurisdiction-level average price, I also calculate sector-level aver
 
 If you use the dataset in scientific publication, we would appreciate a reference to the following paper:
 
-Dolphin, G., Pollitt, M. and Newbery, D. 2020. The political economy of carbon pricing: a panel analysis. Oxford Economic Papers 72(2): 472-500.
+Dolphin, G., Pollitt, M. and Newbery, D. 2020. The political economy of carbon pricing: a panel analysis. Oxford Economic Papers 72(2): 472-500; and
+Dolphin, G., Merkle, M. (forthcoming). Emissions-weighted Carbon Price: Source and Methods. Scientific Data.
 
 # License
 
