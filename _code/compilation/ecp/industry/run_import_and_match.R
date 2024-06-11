@@ -5,10 +5,17 @@ wd<-file.path(here::here(),"_code","compilation","ecp","industry")
 setwd(wd)
 
 ### Import data
-gloriawd<-file.path(wd,"1_import","gloria")
-source(file.path(gloriawd,"run_imports.R"))
+gversion<-"059"
 
-pl<-"cons_p"
+gloriawd<-file.path(wd,"1_import","gloria")
+if(gversion=="059"){
+  source(file.path(gloriawd,"run_imports_v59.R"))
+} else if(gversion=="057"){
+  source(file.path(gloriawd,"run_imports_v57.R"))
+}
+
+
+pl<-"curr_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
@@ -59,20 +66,20 @@ yqd<-do.call("rbind",yql)
 
 if(pl=="curr_p"){
   write.csv(zqd,file.path(here::here(),
-                      "_dataset","ecp","industry","ecp_gloria_sectors",
+                      "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "edgar_based","currentPrice","FlexXRate",
                       "ecp_gloria_industry_CO2.csv"))
   write.csv(yqd,file.path(here::here(),
-                          "_dataset","ecp","industry","ecp_gloria_sectors",
+                          "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "edgar_based","currentPrice","FlexXRate",
                           "ecp_gloria_finaldem_CO2.csv"))
 } else if (pl=="cons_p"){
   write.csv(zqd,file.path(here::here(),
-                          "_dataset","ecp","industry","ecp_gloria_sectors",
+                          "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "edgar_based","constantPrice","FixedXRate",
                           "ecp_gloria_industry_CO2.csv"))
   write.csv(yqd,file.path(here::here(),
-                          "_dataset","ecp","industry","ecp_gloria_sectors",
+                          "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "edgar_based","constantPrice","FixedXRate",
                           "ecp_gloria_finaldem_CO2.csv"))
 }
