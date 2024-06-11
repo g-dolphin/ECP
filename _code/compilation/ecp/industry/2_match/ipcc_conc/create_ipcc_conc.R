@@ -505,7 +505,7 @@ conclist[['Gas extraction']]$`1B2A`[conclist[['Gas extraction']]$Sat_ind == "1B2
 
 ### Pulp and paper
 # here we want to map only 2H1, not 2H2
-conclist[['Pulp and paper']]$`2H2`[conclist[['Sawmill pulp paper']]$Sat_ind == "2H"]<-0
+conclist[['Pulp and paper']]$`2H2`[conclist[['Pulp and paper']]$Sat_ind == "2H"]<-0
 
 ### All the food and bev product industries
 # starting from beef meat (41) down to tobacco products (56)
@@ -516,14 +516,11 @@ for(i in 41:56){
 newcat
 
 # save
-save(conclist,file=file.path(wd,"ipcc_conc.RData"))
+save(conclist,file=file.path(wd,paste0("ipcc_conc_",gversion,".RData")))
 #
 # # clean up
 rm(list = ls())
 #
-
-
-
 
 
 

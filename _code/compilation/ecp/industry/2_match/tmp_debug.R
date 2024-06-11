@@ -1,6 +1,6 @@
 ## step by step
 
-k=20
+k=32
 
 ### Print progress
 print(paste("working on year",yrs[k]))
@@ -15,35 +15,16 @@ zq<-rbind(tqm,NA)
 fcq<-sequential_ind$fcq
 fsq<-sequential_ind$fsq
 
-# fill in for each column
-for(r in 1:ncol(zq)){
-  print(r)
-  tmpc<-fcq[r] # the country
-  tmps<-fsq[r] # the sector
-  # If we have ecp data for the country, we fill in
-  zq[nr,r]<-calculate_ewcp(yr = yrs[k],
-                           ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                           ctry = tmpc,
-                           sect = tmps,
-                           ecp_data = ecp,
-                           gloria_q_data = zq,
-                           concordance = conclist[[tmps]],
-                           type = "z")
-}
 
 
+### check Latvia Basic Metals
+# r 11477:11484
 
-
-
-
-
-
-
-r=5401
-
+r=11495
 
 tmpc<-fcq[r] # the country
 tmps<-fsq[r] # the sector
+
 
 ### now moving into the maytchiing function
 
@@ -97,6 +78,11 @@ if(type=="z"){
 # add to df
 df['emissions']<-zqs
 
+###########################
+df$emissions[df$Sat_ind=="total"]
+sum(df$emissions[-1])
+
+###########################
 
 ### Step 4: Import concordance between ipcc sectors in ECP and in GLORIA
 i_c_p <- concordance %>% pivot_longer(-Sat_ind,names_to="cp_ind",values_to="ident")

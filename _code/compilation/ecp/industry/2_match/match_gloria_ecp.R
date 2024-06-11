@@ -28,7 +28,7 @@ if(pl=="cons_p"){
   ecp<-ecp %>% rename(ecp_all_usd = ecp_all_usd_k)
 } else{}
 
-load(file.path(ecpmwd,"ipcc_conc","ipcc_conc.RData"))
+load(file.path(ecpmwd,"ipcc_conc",paste0("ipcc_conc_",gversion,".RData")))
 
 # define years to run the process for
 yrs<-seq(1990,2022)
@@ -122,7 +122,6 @@ countryconc$c_gloria[countryconc$c_ecp=="Vatican City"]<-"Rest of Europe"
 countryconc$c_gloria[countryconc$c_ecp=="Vietnam"]<-"Viet Nam"
 countryconc$c_gloria[countryconc$c_ecp=="West Bank and Gaza"]<-"Palestine"
 countryconc$c_gloria[countryconc$c_ecp=="Western Sahara"]<-"Rest of Africa"
-
 countryconc<-rbind(countryconc,c("Yemen, Rep.","DR Yemen (Aden)"))
 
 

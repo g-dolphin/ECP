@@ -15,7 +15,7 @@ fpe<-file.path("C:", "Users", "jomerkle",
                "OneDrive - Norwegian University of Life Sciences",
                "data",
                "GLORIA",
-               "057",
+               gversion,
                timestep)
 
 
@@ -53,8 +53,8 @@ rm(full,ones,oz,ser,sec,zeros) # remove objects no longer needed
 tq<-data.table::fread(file = file.path(fpe,
                                        paste0(qcode,
                                               "_120secMother_AllCountries_002_TQ-Results_",
-                                              timestep,
-                                              "_057_Markup001(full).csv")
+                                              timestep,"_",gversion,
+                                              "_Markup001(full).csv")
                                        ),
                                        header = F,
                                        select = cselector)
@@ -64,8 +64,8 @@ tqm<-as.matrix(tq)
 yq<-read.csv(file.path(fpe,
                        paste0(qcode,
                               "_120secMother_AllCountries_002_YQ-Results_",
-                              timestep,
-                              "_057_Markup001(full).csv")
+                              timestep,"_",gversion,
+                              "_Markup001(full).csv")
                        ),
              header = F)
 
@@ -74,13 +74,12 @@ yqm<-as.matrix(yq)
 
 rm(tq,yq) 
 
-
 # import index data
-sector_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Sectors")
-region_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Regions")
-satellites_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Satellites")
-demand_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Value added and final demand")
-sequential_ind <- read_excel(file.path(fpe,"..","GLORIA_ReadMe_057.xlsx"),sheet = "Sequential region-sector labels")
+sector_ind <- read_excel(file.path(fpe,"..",paste0("GLORIA_ReadMe_",gversion,".xlsx")),sheet = "Sectors")
+region_ind <- read_excel(file.path(fpe,"..",paste0("GLORIA_ReadMe_",gversion,".xlsx")),sheet = "Regions")
+satellites_ind <- read_excel(file.path(fpe,"..",paste0("GLORIA_ReadMe_",gversion,".xlsx")),sheet = "Satellites")
+demand_ind <- read_excel(file.path(fpe,"..",paste0("GLORIA_ReadMe_",gversion,".xlsx")),sheet = "Value added and final demand")
+sequential_ind <- read_excel(file.path(fpe,"..",paste0("GLORIA_ReadMe_",gversion,".xlsx")),sheet = "Sequential region-sector labels")
 
 # shorten sequential_ind to reflect the non-product version
 all_c_s<-sequential_ind$Sequential_regionSector_labels
@@ -131,6 +130,6 @@ rm(rindx)
 save(demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind,tqm,yqm,
      file=file.path(gloriawd,"tmpdir",paste0("gloria_",timestep,".Rdata")))
 
-rm(list=ls()[! ls() %in% c("wd","gloriawd")])
+rm(list=ls()[! ls() %in% c("wd","gversion","gloriawd")])
 
 
