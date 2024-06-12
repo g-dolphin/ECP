@@ -15,7 +15,7 @@ if(gversion=="059"){
 }
 
 
-pl<-"curr_p"
+pl<-"cons_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
