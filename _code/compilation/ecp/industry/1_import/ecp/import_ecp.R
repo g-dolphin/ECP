@@ -20,4 +20,4 @@ file.copy(from = file.path(fpe,"ecp_sector_CO2.csv"),
 
 
 ## clean up (remove files)
-rm(list=ls()[! ls() %in% c("wd","pl")])
+rm(list=ls()[! ls() %in% c("wd","pl","gversion")])

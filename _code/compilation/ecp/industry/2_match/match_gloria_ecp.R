@@ -195,5 +195,5 @@ for(k in 1:length(yrs)){
 }
 
 ## clean up 
-rm(list=ls()[! ls() %in% c("wd","pl","sattype","ecpmwd")])
+rm(list=ls()[! ls() %in% c("wd","pl","sattype","gversion","ecpmwd")])
 
