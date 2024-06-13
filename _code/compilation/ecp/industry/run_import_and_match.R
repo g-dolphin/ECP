@@ -21,7 +21,6 @@ source(file.path(ecpwd,"import_ecp.R"))
 
 ### Datamatch
 ecpmwd<-file.path(wd,"2_match")
-sattype<-"EDGAR"
 source(file.path(ecpmwd,"match_gloria_ecp.R"))
 
 
@@ -34,29 +33,58 @@ for(i in 1:length(yrs)){
   load(file.path(ecpmwd,"tmpdir",yrs[i],"ecp_gloria.RData"))
   ## 2. Get industry level data
   zqdf<-as.data.frame(matrix(nrow=nrow(sequential_ind),ncol=6))
-  colnames(zqdf)<-c("year","country_sector","country","sector","ecp","CO2")
+  colnames(zqdf)<-c("year","country_sector","country","sector","ecp_edgar","ecp_oecd")
   zqdf$year<-yrs[i]
   zqdf$country_sector<-sequential_ind$Sequential_regionSector_labels
   zqdf$country<-sequential_ind$fcq
   zqdf$sector<-sequential_ind$fsq
-  # ecp is always in the bottom row
-  zqdf$ecp<-zq[nrow(zq),]
-  # total emissions row is given by satellites_ind
-  zqdf$CO2<-zq[which(grepl(sattype,satellites_ind$Sat_head_indicator) & grepl("total",satellites_ind$Sat_indicator)),]
+  # ecp is always in the bottom rows
+  zqdf$ecp_edgar<-zq[nrow(zq)-1,]
+  zqdf$ecp_oecd<- zq[nrow(zq)  ,]
+  # add emissions columns
+  zqdf['co2_edgar_total']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
+  zqdf['co2_edgar_1a']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_edgar_1b']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_edgar_2']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_edgar_3']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_edgar_4']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_4",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_edgar_5']<-zq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_5",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_oecd_total']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
+  zqdf['co2_oecd_1a']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_oecd_1b']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_oecd_2']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_oecd_3']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_oecd_4']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_4",satellites_ind$Sat_indicator)),] %>% colSums()
+  zqdf['co2_oecd_5']<-zq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_5",satellites_ind$Sat_indicator)),] %>% colSums()
   # move into list element
   zql[[i]]<-zqdf
   rm(zqdf)
-  ## 3. Get industry level data
+  ## 3. Get demand level data
   yqdf<-as.data.frame(matrix(nrow=nrow(sequentiald_ind),ncol=6))
-  colnames(yqdf)<-c("year","country_sector","country","sector","ecp","CO2")
+  colnames(yqdf)<-c("year","country_sector","country","sector","ecp_edgar","ecp_oecd")
   yqdf$year<-yrs[i]
   yqdf$country_sector<-sequentiald_ind$Sequential_finalDemand_labels
   yqdf$country<-sequentiald_ind$fcqd
   yqdf$sector<-sequentiald_ind$demandind
-  # ecp is always in the bottom row
-  yqdf$ecp<-yq[nrow(yq),]
+  # ecp is always in the bottom rows
+  yqdf$ecp_edgar<-yq[nrow(yq)-1,]
+  yqdf$ecp_oecd<-yq[nrow(yq),]
   # total emissions row is given by satellites_ind
-  yqdf$CO2<-yq[which(grepl(sattype,satellites_ind$Sat_head_indicator) & grepl("total",satellites_ind$Sat_indicator)),]
+  # add emissions columns
+  yqdf['co2_edgar_total']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
+  yqdf['co2_edgar_1a']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_1b']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_2']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_3']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_4']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_4",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_5']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_5",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_total']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
+  yqdf['co2_oecd_1a']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_1b']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_2']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_3']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_4']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_4",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_5']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_5",satellites_ind$Sat_indicator)),] %>% colSums()
   # move into list element
   yql[[i]]<-yqdf
   rm(yqdf)
@@ -64,23 +92,25 @@ for(i in 1:length(yrs)){
 zqd<-do.call("rbind",zql)
 yqd<-do.call("rbind",yql)
 
+## MM make adjustment here to save edgar and oecd seperately
+
 if(pl=="curr_p"){
   write.csv(zqd,file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
-                      "edgar_based","currentPrice","FlexXRate",
+                      "currentPrice","FlexXRate",
                       "ecp_gloria_industry_CO2.csv"))
   write.csv(yqd,file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
-                          "edgar_based","currentPrice","FlexXRate",
+                          "currentPrice","FlexXRate",
                           "ecp_gloria_finaldem_CO2.csv"))
 } else if (pl=="cons_p"){
   write.csv(zqd,file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
-                          "edgar_based","constantPrice","FixedXRate",
+                          "constantPrice","FixedXRate",
                           "ecp_gloria_industry_CO2.csv"))
   write.csv(yqd,file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
-                          "edgar_based","constantPrice","FixedXRate",
+                          "constantPrice","FixedXRate",
                           "ecp_gloria_finaldem_CO2.csv"))
 }
 

@@ -55,7 +55,7 @@ calculate_ewcp<-function(yr,
   ### Step 4: Import concordance between ipcc sectors in ECP and in GLORIA
   i_c_p <- concordance %>% pivot_longer(-Sat_ind,names_to="cp_ind",values_to="ident")
   
-  ### Step 5: Map carbon price data from ECP to GLORIA EDGAR categories
+  ### Step 5: Map carbon price data from ECP to GLORIA EDGAR/OECD categories
   # this is an aggregation from 76 categories to 73 categories
   for(i in 2:nrow(df)){
     # extract names of the ECP categories that correspond to GLORIA EDGAR categories
