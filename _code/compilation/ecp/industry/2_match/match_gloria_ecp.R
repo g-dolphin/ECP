@@ -130,6 +130,7 @@ rm(region_ind)
 ################################################################################
 ## Run process #################################################################
 
+
 # for each year
 #
 for(k in 1:length(yrs)){
@@ -143,18 +144,27 @@ for(k in 1:length(yrs)){
   # add row into data (i.e., rows corresponding to author-created indicators are added to the Satellite account matrix)
   print("industrial sectors")
   nr<-nrow(tqm)+1
-  zq<-rbind(tqm,NA)
+  zq<-rbind(tqm,NA,NA)
   fcq<-sequential_ind$fcq
   fsq<-sequential_ind$fsq
   
-  # fill in for each column
+  # fill in for each column (first edgar, and then oecd)
   for(r in 1:ncol(zq)){
     tmpc<-fcq[r] # the country
     tmps<-fsq[r] # the sector
     # If we have ecp data for the country, we fill in
     zq[nr,r]<-calculate_ewcp(yr = yrs[k],
                              ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                             sattype = sattype,
+                             sattype = "EDGAR",
+                             ctry = tmpc,
+                             sect = tmps,
+                             ecp_data = ecp,
+                             gloria_q_data = zq,
+                             concordance = conclist[[tmps]],
+                             type = "z")
+    zq[nr+1,r]<-calculate_ewcp(yr = yrs[k],
+                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                             sattype = "OECD",
                              ctry = tmpc,
                              sect = tmps,
                              ecp_data = ecp,
@@ -167,18 +177,27 @@ for(k in 1:length(yrs)){
   # add row into data
   print("demand sectors")
   nr<-nrow(yqm)+1
-  yq<-rbind(yqm,NA)
+  yq<-rbind(yqm,NA,NA)
   fcq<-sequentiald_ind$fcqd
   fsq<-sequentiald_ind$demandind
   
-  # fill in for each column
+  # fill in for each column (first EDGAR, then OECD)
   for(r in 1:ncol(yq)){
     tmpc<-fcq[r] # the country
     tmps<-fsq[r] # the sector
     # fill in
     yq[nr,r]<-calculate_ewcp(yr = yrs[k],
                              ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                             sattype = sattype,
+                             sattype = "EDGAR",
+                             ctry = tmpc,
+                             sect = tmps,
+                             ecp_data = ecp,
+                             gloria_q_data = yq,
+                             concordance = conclist[['Other services']], # we choose a non-modified concordance here
+                             type = "y")
+    yq[nr+1,r]<-calculate_ewcp(yr = yrs[k],
+                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                             sattype = "OECD",
                              ctry = tmpc,
                              sect = tmps,
                              ecp_data = ecp,
@@ -195,5 +214,5 @@ for(k in 1:length(yrs)){
 }
 
 ## clean up 
-rm(list=ls()[! ls() %in% c("wd","pl","sattype","gversion","ecpmwd")])
+rm(list=ls()[! ls() %in% c("wd","pl","gversion","ecpmwd")])
 
