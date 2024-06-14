@@ -15,7 +15,7 @@ if(gversion=="059"){
 }
 
 
-pl<-"cons_p"
+pl<-"curr_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
@@ -92,26 +92,49 @@ for(i in 1:length(yrs)){
 zqd<-do.call("rbind",zql)
 yqd<-do.call("rbind",yql)
 
-## MM make adjustment here to save edgar and oecd seperately
-
+# we save seperate these files separately due to GitHub restrictions on file size
 if(pl=="curr_p"){
-  write.csv(zqd,file.path(here::here(),
+  write.csv(zqd %>% select(year,country_sector,country,sector,contains("EDGAR")),
+            file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
-                      "ecp_gloria_industry_CO2.csv"))
-  write.csv(yqd,file.path(here::here(),
+                      "ecp_gloria_edgar_industry_CO2.csv"),row.names = F)
+  write.csv(zqd %>% select(year,country_sector,country,sector,contains("OECD")),
+            file.path(here::here(),
+                      "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
+                      "currentPrice","FlexXRate",
+                      "ecp_gloria_oecd_industry_CO2.csv"),row.names = F)
+  write.csv(yqd %>% select(year,country_sector,country,sector,contains("EDGAR")),
+            file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "currentPrice","FlexXRate",
-                          "ecp_gloria_finaldem_CO2.csv"))
+                          "ecp_gloria_edgar_finaldem_CO2.csv"),row.names = F)
+  write.csv(yqd %>% select(year,country_sector,country,sector,contains("OECD")),
+            file.path(here::here(),
+                      "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
+                      "currentPrice","FlexXRate",
+                      "ecp_gloria_oecd_finaldem_CO2.csv"),row.names = F)
 } else if (pl=="cons_p"){
-  write.csv(zqd,file.path(here::here(),
+  write.csv(zqd %>% select(year,country_sector,country,sector,contains("EDGAR")),
+            file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "constantPrice","FixedXRate",
-                          "ecp_gloria_industry_CO2.csv"))
-  write.csv(yqd,file.path(here::here(),
+                          "ecp_gloria_edgar_industry_CO2.csv"),row.names = F)
+  write.csv(zqd %>% select(year,country_sector,country,sector,contains("OECD")),
+            file.path(here::here(),
+                      "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
+                      "constantPrice","FixedXRate",
+                      "ecp_gloria_oecd_industry_CO2.csv"),row.names = F)
+  write.csv(yqd %>% select(year,country_sector,country,sector,contains("EDGAR")),
+            file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "constantPrice","FixedXRate",
-                          "ecp_gloria_finaldem_CO2.csv"))
+                          "ecp_gloria_edgar_finaldem_CO2.csv"),row.names = F)
+  write.csv(yqd %>% select(year,country_sector,country,sector,contains("OECD")),
+            file.path(here::here(),
+                      "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
+                      "constantPrice","FixedXRate",
+                      "ecp_gloria_oecd_finaldem_CO2.csv"),row.names = F)
 }
 
 
