@@ -29,7 +29,7 @@ exec(read_file)
 # Common pre-processing
 # CANADA
 
-can = pd.read_csv(path_ghg+'/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr.csv',
+can = pd.read_csv(path_ghg+'/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2021.csv',
             low_memory=False)
 
 can.rename(columns={"Region":"jurisdiction", "Category":"ipcc_code"}, inplace=True)
