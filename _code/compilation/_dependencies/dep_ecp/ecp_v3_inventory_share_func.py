@@ -68,7 +68,7 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
 # Merge of 'Main_sectors.csv' and 'CAIT_Country_GHG_Emissions_TotEm.csv'. 
 # Merge according to two keys, Country and Year, since the total yearly emissions figure for a given country and year is the same across Flows (sectors) and products (fuels). Output file: 'IEA_Em_share.csv'
     
-def emissions_share_sectors(emissions, sectors_wld_total, gas, jur_level=None):
+def emissions_share_wld_sectors(emissions, sectors_wld_total, gas, jur_level=None):
     if jur_level == "national" and gas == "CO2":
         inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", gas]]
     else:
@@ -82,5 +82,24 @@ def emissions_share_sectors(emissions, sectors_wld_total, gas, jur_level=None):
 
     emissions_sect_share[gas+"_wld_sect_wld"+gas] = emissions_sect_share[gas]/emissions_sect_share[gas+"_wldSect"]
     emissions_sect_share.drop([gas+"_wldSect"], axis=1, inplace=True)
+
+    return emissions_sect_share
+
+# sectors_ctry_total contains total emissions at country-sector level
+
+def emissions_share_ctry_sectors(emissions, sectors_ctry_total, gas, jur_level=None):
+    if jur_level == "national" and gas == "CO2":
+        inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", gas]]
+    else:
+        if jur_level == "subnational":
+            inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", gas]]
+        else:
+            inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", gas]]
+
+    emissions_sect_share = pd.merge(inventory_temp, sectors_ctry_total, how='left', on=['jurisdiction', 'year', 'ipcc_code'])
+    emissions_sect_share.rename(columns={gas+"_x":gas, gas+"_y":gas+"_ctrySect"}, inplace=True)
+
+    emissions_sect_share[gas+"_ctry_sect_ctry"+gas] = emissions_sect_share[gas]/emissions_sect_share[gas+"_ctrySect"]
+    emissions_sect_share.drop([gas+"_ctrySect"], axis=1, inplace=True)
 
     return emissions_sect_share
