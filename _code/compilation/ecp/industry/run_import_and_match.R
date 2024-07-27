@@ -6,16 +6,21 @@ setwd(wd)
 
 ### Import data
 gversion<-"059"
+tmpmat=T
 
 gloriawd<-file.path(wd,"1_import","gloria")
 if(gversion=="059"){
-  source(file.path(gloriawd,"run_imports_v59.R"))
+  if(isTRUE(tmpmat)){
+    source(file.path(gloriawd,"run_imports_v59_mat.R"))
+  } else {
+    source(file.path(gloriawd,"run_imports_v59.R"))
+  }
 } else if(gversion=="057"){
   source(file.path(gloriawd,"run_imports_v57.R"))
 }
 
 
-pl<-"curr_p"
+pl<-"cons_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 

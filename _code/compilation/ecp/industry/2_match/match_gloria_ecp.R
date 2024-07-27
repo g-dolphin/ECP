@@ -23,7 +23,7 @@ resultfp<-file.path(ecpmwd,"tmpdir")
 source(file.path(ecpmwd,"matching_function.R"))
 
 # ECP and sector concordance data
-ecp<-read.csv(file.path(fpe,"ecp_sector_CO2.csv"))
+ecp<-read.csv(file.path(fpe,"ecp_ipcc_CO2.csv"))
 if(pl=="cons_p"){
   ecp<-ecp %>% rename(ecp_all_usd = ecp_all_usd_k)
 } else{}
@@ -130,30 +130,44 @@ rm(region_ind)
 ################################################################################
 ## Run process #################################################################
 
+### prep parallelised loop
 
-# for each year
-#
+
+
+l_tqm<-list()
+l_yqm<-list()
+
+
 for(k in 1:length(yrs)){
-  ### Print progress
-  print(paste("working on year",yrs[k]))
-  
-  ### Step 1: Import data
+  # 1. import
   load(file.path(fpg,paste0("gloria_",yrs[k],".RData")))
+  # 2. tmpsave
+  l_tqm[[k]]<-tqm
+  l_yqm[[k]]<-yqm
+  # 3. rm
+  rm(yqm,tqm,demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind)
+}
+
+load(file.path(fpg,paste0("gloria_",yrs[1],".RData")))
+rm(tqm,yqm)
+
+
+apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind){
   
-  ### Step 2: Run for sectoral satellites
+  ### Step 1: Run for sectoral satellites
   # add row into data (i.e., rows corresponding to author-created indicators are added to the Satellite account matrix)
   print("industrial sectors")
   nr<-nrow(tqm)+1
   zq<-rbind(tqm,NA,NA)
   fcq<-sequential_ind$fcq
   fsq<-sequential_ind$fsq
-  
   # fill in for each column (first edgar, and then oecd)
   for(r in 1:ncol(zq)){
     tmpc<-fcq[r] # the country
     tmps<-fsq[r] # the sector
     # If we have ecp data for the country, we fill in
-    zq[nr,r]<-calculate_ewcp(yr = yrs[k],
+    zq[nr,r]<-calculate_ewcp(yr = yr,
+                             indx=r,
                              ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
                              sattype = "EDGAR",
                              ctry = tmpc,
@@ -162,18 +176,19 @@ for(k in 1:length(yrs)){
                              gloria_q_data = zq,
                              concordance = conclist[[tmps]],
                              type = "z")
-    zq[nr+1,r]<-calculate_ewcp(yr = yrs[k],
-                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                             sattype = "OECD",
-                             ctry = tmpc,
-                             sect = tmps,
-                             ecp_data = ecp,
-                             gloria_q_data = zq,
-                             concordance = conclist[[tmps]],
-                             type = "z")
+    zq[nr+1,r]<-calculate_ewcp(yr = yr,
+                               indx=r,
+                               ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                               sattype = "OECD",
+                               ctry = tmpc,
+                               sect = tmps,
+                               ecp_data = ecp,
+                               gloria_q_data = zq,
+                               concordance = conclist[[tmps]],
+                               type = "z")
   }
   
-  ### Step 3: Run for demand satellites
+  ### Step 2: Run for demand satellites
   # add row into data
   print("demand sectors")
   nr<-nrow(yqm)+1
@@ -186,7 +201,8 @@ for(k in 1:length(yrs)){
     tmpc<-fcq[r] # the country
     tmps<-fsq[r] # the sector
     # fill in
-    yq[nr,r]<-calculate_ewcp(yr = yrs[k],
+    yq[nr,r]<-calculate_ewcp(yr = yr,
+                             indx=r,
                              ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
                              sattype = "EDGAR",
                              ctry = tmpc,
@@ -195,23 +211,88 @@ for(k in 1:length(yrs)){
                              gloria_q_data = yq,
                              concordance = conclist[['Other services']], # we choose a non-modified concordance here
                              type = "y")
-    yq[nr+1,r]<-calculate_ewcp(yr = yrs[k],
-                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                             sattype = "OECD",
-                             ctry = tmpc,
-                             sect = tmps,
-                             ecp_data = ecp,
-                             gloria_q_data = yq,
-                             concordance = conclist[['Other services']], # we choose a non-modified concordance here
-                             type = "y")
+    yq[nr+1,r]<-calculate_ewcp(yr = yr,
+                               indx=r,
+                               ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                               sattype = "OECD",
+                               ctry = tmpc,
+                               sect = tmps,
+                               ecp_data = ecp,
+                               gloria_q_data = yq,
+                               concordance = conclist[['Other services']], # we choose a non-modified concordance here
+                               type = "y")
   }
   
-  ### Step 4: Save data and clean up
+  ### Step 3: Result list and return
+  rl<-list()
+  rl[['zq']]<-zq
+  rl[['yq']]<-yq
+  return(rl)
+}
+
+
+
+library(foreach)
+library(parallel)
+library(doParallel)
+
+
+
+dd<-list()
+
+
+# specify number of cores (all but one)
+parallel::detectCores()
+n.cores <- parallel::detectCores() - 1
+
+#create the cluster
+my.cluster <- parallel::makeCluster(
+  n.cores, 
+  type = "PSOCK"
+)
+
+#check cluster definition
+print(my.cluster)
+
+#register it to be used by %dopar%
+doParallel::registerDoParallel(cl = my.cluster)
+
+#check if it is registered
+foreach::getDoParRegistered()
+
+#how many workers are available?
+foreach::getDoParWorkers()
+
+# then run
+dd <- foreach(w = 1:length(yrs),
+              .packages = c("dplyr", "tidyr")
+) %dopar% {apply_ewcp_calc(yr=yrs[w],
+                           yqm=l_yqm[[w]],
+                           tqm=l_tqm[[w]],
+                           demand_ind=demand_ind,
+                           region_ind=region_ind,
+                           satellites_ind=satellites_ind,
+                           sector_ind=sector_ind,
+                           sequential_ind=sequential_ind,
+                           sequentiald_ind=sequentiald_ind)}
+
+# stop the cluster
+parallel::stopCluster(cl = my.cluster)
+
+# format
+names(dd)<-yrs # name list elements as countries
+
+# save
+for(k in 1:length(yrs)){
+  yq<-dd[[k]][['yq']]
+  zq<-dd[[k]][['zq']]
   dir.create(file.path(resultfp, yrs[k]))
   save(yq,zq,demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind, 
        file = file.path(resultfp,yrs[k],"ecp_gloria.RData"))
-  rm(tqm,yq,yqm,zq)
+  rm(yq,zq)
 }
+
+
 
 ## clean up 
 rm(list=ls()[! ls() %in% c("wd","pl","gversion","ecpmwd")])
