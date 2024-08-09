@@ -1,6 +1,7 @@
 #### Matching function for ecp
 
 calculate_ewcp<-function(yr,
+                         indx,
                          ecp_jur,
                          sattype,
                          ctry,
@@ -44,10 +45,10 @@ calculate_ewcp<-function(yr,
   ### Step 3: Extract gloria satellites data
   # sattype rows, countrysector column
   if(type=="z"){
-    zqs<-zq[which(grepl(sattype,satellites_ind$Sat_head_indicator)),r]
+    zqs<-gloria_q_data[which(grepl(sattype,satellites_ind$Sat_head_indicator)),indx]
   } else if(type=="y"){
     # rename colnames
-    zqs<-yq[which(grepl(sattype,satellites_ind$Sat_head_indicator)),r]
+    zqs<-gloria_q_data[which(grepl(sattype,satellites_ind$Sat_head_indicator)),indx]
   }
   # add to df
   df['emissions']<-zqs
