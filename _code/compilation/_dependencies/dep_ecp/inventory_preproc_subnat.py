@@ -64,7 +64,7 @@ inv_jur_names_chn = pd.read_excel(path_ghg+"/subnational/China/CEADS/CEADS_provi
 inv_jur_names_chn = list(inv_jur_names_chn["Unnamed: 0"])[:-2]
 
 file_list = os.listdir(path_ghg+"/subnational/China/CEADS/CEADS_provincial_emissions/")
-#file_list.remove('.DS_Store')
+file_list.remove('.DS_Store')
 
 china_comb = pd.DataFrame() # df for combustion emissions
 china_proc = pd.DataFrame() # df for process emissions

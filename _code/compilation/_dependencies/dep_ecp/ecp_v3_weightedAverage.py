@@ -145,7 +145,7 @@ def national_from_subnat(df, list_subnat, nat_jur, gas):
     temp_nat = df.loc[df.jurisdiction == nat_jur, :]
 
     temp_nat_subnat = pd.concat([temp_nat, temp])
-    temp_nat_subnat = temp_nat_subnat.groupby(["year"]).sum() # summing country-level coverage from country-level and subnational mechanisms
+    temp_nat_subnat = temp_nat_subnat.groupby(["year"]).sum() # summing country-level ecp from country-level and subnational mechanisms
     temp_nat_subnat.reset_index(inplace=True)
 
     temp_nat_subnat["jurisdiction"] = nat_jur
