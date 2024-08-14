@@ -130,8 +130,8 @@ def national_from_subnat(df, list_subnat, nat_jur, gas):
     temp["jurisdiction"] = nat_jur+"sub"
 
     temp[["ecp_ets_jurGHG_usd_k", "ecp_tax_jurGHG_usd_k", 
-        "ecp_ets_jur"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k", 
-        "ecp_all_jurGHG_usd_k", "ecp_all_jurGHG_usd_k"]] = np.nan
+          "ecp_ets_jur"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k", 
+          "ecp_all_jurGHG_usd_k", "ecp_all_jurGHG_usd_k"]] = np.nan
 
     swap_list = {"ecp_ets_jurGHG_usd_k":"ecp_ets_supraGHG_usd_k", "ecp_tax_jurGHG_usd_k":"ecp_tax_supraGHG_usd_k", 
                 "ecp_ets_jur"+gas+"_usd_k":"ecp_ets_supra"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k":"ecp_tax_supra"+gas+"_usd_k", 
@@ -145,7 +145,7 @@ def national_from_subnat(df, list_subnat, nat_jur, gas):
     temp_nat = df.loc[df.jurisdiction == nat_jur, :]
 
     temp_nat_subnat = pd.concat([temp_nat, temp])
-    temp_nat_subnat = temp_nat_subnat.groupby(["year"]).sum() # summing country-level coverage from country-level and subnational mechanisms
+    temp_nat_subnat = temp_nat_subnat.groupby(["year"]).sum() # summing country-level ecp from country-level and subnational mechanisms
     temp_nat_subnat.reset_index(inplace=True)
 
     temp_nat_subnat["jurisdiction"] = nat_jur
