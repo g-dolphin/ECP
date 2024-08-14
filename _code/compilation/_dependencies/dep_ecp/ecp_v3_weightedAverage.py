@@ -130,8 +130,8 @@ def national_from_subnat(df, list_subnat, nat_jur, gas):
     temp["jurisdiction"] = nat_jur+"sub"
 
     temp[["ecp_ets_jurGHG_usd_k", "ecp_tax_jurGHG_usd_k", 
-        "ecp_ets_jur"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k", 
-        "ecp_all_jurGHG_usd_k", "ecp_all_jurGHG_usd_k"]] = np.nan
+          "ecp_ets_jur"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k", 
+          "ecp_all_jurGHG_usd_k", "ecp_all_jurGHG_usd_k"]] = np.nan
 
     swap_list = {"ecp_ets_jurGHG_usd_k":"ecp_ets_supraGHG_usd_k", "ecp_tax_jurGHG_usd_k":"ecp_tax_supraGHG_usd_k", 
                 "ecp_ets_jur"+gas+"_usd_k":"ecp_ets_supra"+gas+"_usd_k", "ecp_tax_jur"+gas+"_usd_k":"ecp_tax_supra"+gas+"_usd_k", 
