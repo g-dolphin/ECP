@@ -14,12 +14,15 @@ setwd(wd)
 library(dplyr)
 library(tidyr)
 
+# define gloria version
+gversion<-"059"
+
 # Define filepaths
 fpe<-file.path(wd,"..","..","1_import","ecp","tmpdir")
 fpg<-file.path(wd,"..","..","1_import","gloria","tmpdir")
 
 # data
-ecp<-read.csv(file.path(fpe,"ecp_sector_CO2.csv"))
+ecp<-read.csv(file.path(fpe,"ecp_ipcc_CO2.csv"))
 load(file.path(fpg,"gloria_2020.RData"))
 rm(demand_ind,tqm,yqm,region_ind,sequential_ind)
 
@@ -495,6 +498,10 @@ for(i in 1:length(newcat)){
 names(conclist)<-newcat
 newcat
 
+# add extra one for households
+conclist[['households']]<-concdf
+
+
 ### Petroleum extraction
 # here we want to map only 1B2A, not 1B2B
 conclist[['Petroleum extraction']]$`1B2B`[conclist[['Petroleum extraction']]$Sat_ind == "1B2"]<-0
@@ -514,6 +521,43 @@ for(i in 41:56){
   conclist[[i]]$`2H1`[conclist[[i]]$Sat_ind == "2H"]<-0
 }
 newcat
+
+### All agri, forest, fishing sectors
+# here we want to map only 1A4C, not 1A4A and not 1A4B
+for(i in 1:23){
+  conclist[[i]]$`1A4A`[conclist[[i]]$Sat_ind %in% c("1A4","1A4a")]<-0
+  conclist[[i]]$`1A4B`[conclist[[i]]$Sat_ind %in% c("1A4","1A4b")]<-0
+}
+
+### All agri and forestry sectors
+# here we want to map only 1A4ci and 1A4cii, not 1A4ciii
+for(i in 1:21){
+  conclist[[i]]$`1A4C3`[conclist[[i]]$Sat_ind %in% c("1A4","1A4ciii")]<-0
+}
+
+### All fishing sectors
+# here we want to map only 1A4ci and 1A4ciii, not 1A4cii
+for(i in 22:23){
+  conclist[[i]]$`1A4C2`[conclist[[i]]$Sat_ind %in% c("1A4","1A4cii")]<-0
+}
+
+### All commercial/institutional
+# here we want to map only 1A4A, not 1A4B and not 1A4C
+for(i in 24:120){
+  conclist[[i]]$`1A4B`[conclist[[i]]$Sat_ind %in% c("1A4","1A4b")]<-0
+  conclist[[i]]$`1A4C`[conclist[[i]]$Sat_ind %in% c("1A4","1A4ci","1A4cii","1A4ciii")]<-0
+  conclist[[i]]$`1A4C1`[conclist[[i]]$Sat_ind %in% c("1A4","1A4ci")]<-0
+  conclist[[i]]$`1A4C2`[conclist[[i]]$Sat_ind %in% c("1A4","1A4cii")]<-0
+  conclist[[i]]$`1A4C3`[conclist[[i]]$Sat_ind %in% c("1A4","1A4ciii")]<-0
+}
+
+### Households
+# here we want to map only 1A4B, not 1A4A and not 1A4C
+conclist[['households']]$`1A4A`[conclist[['households']]$Sat_ind %in% c("1A4","1A4a")]<-0
+conclist[['households']]$`1A4C`[conclist[['households']]$Sat_ind %in% c("1A4","1A4ci","1A4cii","1A4ciii")]<-0
+conclist[['households']]$`1A4C1`[conclist[['households']]$Sat_ind %in% c("1A4","1A4ci")]<-0
+conclist[['households']]$`1A4C2`[conclist[['households']]$Sat_ind %in% c("1A4","1A4cii")]<-0
+conclist[['households']]$`1A4C3`[conclist[['households']]$Sat_ind %in% c("1A4","1A4ciii")]<-0
 
 # save
 save(conclist,file=file.path(wd,paste0("ipcc_conc_",gversion,".RData")))

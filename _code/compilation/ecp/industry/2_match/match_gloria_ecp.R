@@ -175,7 +175,9 @@ apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector
                              ecp_data = ecp,
                              gloria_q_data = zq,
                              concordance = conclist[[tmps]],
-                             type = "z")
+                             type = "z",
+                             sector_ind = sector_ind,
+                             demand_ind = demand_ind)
     zq[nr+1,r]<-calculate_ewcp(yr = yr,
                                indx=r,
                                ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
@@ -185,7 +187,9 @@ apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector
                                ecp_data = ecp,
                                gloria_q_data = zq,
                                concordance = conclist[[tmps]],
-                               type = "z")
+                               type = "z",
+                               sector_ind = sector_ind,
+                               demand_ind = demand_ind)
   }
   
   ### Step 2: Run for demand satellites
@@ -195,7 +199,7 @@ apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector
   yq<-rbind(yqm,NA,NA)
   fcq<-sequentiald_ind$fcqd
   fsq<-sequentiald_ind$demandind
-  
+
   # fill in for each column (first EDGAR, then OECD)
   for(r in 1:ncol(yq)){
     tmpc<-fcq[r] # the country
@@ -209,8 +213,10 @@ apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector
                              sect = tmps,
                              ecp_data = ecp,
                              gloria_q_data = yq,
-                             concordance = conclist[['Other services']], # we choose a non-modified concordance here
-                             type = "y")
+                             concordance = if(tmps== demand_ind$Final_demand_names[1]) {conclist[['households']]} else {conclist[['Other services']]},
+                             type = "y",
+                             sector_ind = sector_ind,
+                             demand_ind = demand_ind)
     yq[nr+1,r]<-calculate_ewcp(yr = yr,
                                indx=r,
                                ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
@@ -219,8 +225,10 @@ apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector
                                sect = tmps,
                                ecp_data = ecp,
                                gloria_q_data = yq,
-                               concordance = conclist[['Other services']], # we choose a non-modified concordance here
-                               type = "y")
+                               concordance = if(tmps== demand_ind$Final_demand_names[1]) {conclist[['households']]} else {conclist[['Other services']]},
+                               type = "y",
+                               sector_ind = sector_ind,
+                               demand_ind = demand_ind)
   }
   
   ### Step 3: Result list and return
