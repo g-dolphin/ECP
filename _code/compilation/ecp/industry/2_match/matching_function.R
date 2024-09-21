@@ -10,7 +10,9 @@ calculate_ewcp<-function(yr,
                          gloria_q_data,
                          concordance,
                          type,
-                         sourcedat) 
+                         sourcedat,
+                         sector_ind,
+                         demand_ind) 
 {
   # This function is written for easy debugging
   
@@ -83,17 +85,53 @@ calculate_ewcp<-function(yr,
       } else {
         df$cp[i]<-0 # in case there are no emissions, we assume zero (otherwise division by zero generates NA)
       }
-    } else {} # otherwise e.g. in case of 5B, where we have no conc, do nothing
+    } else {
+      df$cp[i]<-0 # in case of no concordance we assume zero price
+    }
   }
   
-  ### Step 6: Rename 5 digit codes
+  ### new Step 6: post-process df for correct 1A4 allocation (GLORIA provides only 1A4 aggregates)
+  # case agri and forest
+  if(sect %in% sector_ind$Sector_names[1:21]){
+    # first find out proportions of how we allocate 1A4C. Do this with IEA data.
+    p1A4ci<-de$CO2[de$ipcc_code %in% c("1A4C1")]/sum(de$CO2[de$ipcc_code %in% c("1A4C1","1A4C2")])
+    p1A4cii<-de$CO2[de$ipcc_code %in% c("1A4C2")]/sum(de$CO2[de$ipcc_code %in% c("1A4C1","1A4C2")])
+    # then allocate the GLORIA 1A4 data accordingly.
+    df$emissions[df$Sat_ind=="1A4ci"]<-df$emissions[df$Sat_ind=="1A4"]*p1A4ci
+    df$emissions[df$Sat_ind=="1A4cii"]<-df$emissions[df$Sat_ind=="1A4"]*p1A4cii
+    df$emissions[df$Sat_ind=="1A4"]<-0
+  } 
+  # case fishing
+  if(sect %in% sector_ind$Sector_names[22:23]){
+    # first find out proportions of how we allocate 1A4C. Do this with IEA data.
+    p1A4ci<-de$CO2[de$ipcc_code %in% c("1A4C1")]/sum(de$CO2[de$ipcc_code %in% c("1A4C1","1A4C3")])
+    p1A4ciii<-de$CO2[de$ipcc_code %in% c("1A4C3")]/sum(de$CO2[de$ipcc_code %in% c("1A4C1","1A4C3")])
+    # then allocate the GLORIA 1A4 data accordingly.
+    df$emissions[df$Sat_ind=="1A4ci"]<-df$emissions[df$Sat_ind=="1A4"]*p1A4ci
+    df$emissions[df$Sat_ind=="1A4ciii"]<-df$emissions[df$Sat_ind=="1A4"]*p1A4ciii
+    df$emissions[df$Sat_ind=="1A4"]<-0
+  } 
+  # case commercial/institutional
+  if(sect %in% c(sector_ind$Sector_names[24:120],demand_ind$Final_demand_names[2:6])){
+    # allocate the GLORIA 1A4 data accordingly.
+    df$emissions[df$Sat_ind=="1A4a"]<-df$emissions[df$Sat_ind=="1A4"]*1
+    df$emissions[df$Sat_ind=="1A4"]<-0
+  } 
+  # case households final
+  if(sect == demand_ind$Final_demand_names[1]){
+    # allocate GLORIA 1A4 data accordingly
+    df$emissions[df$Sat_ind=="1A4b"]<-df$emissions[df$Sat_ind=="1A4"]*1
+    df$emissions[df$Sat_ind=="1A4"]<-0
+  }
+  
+  ### Step 7: Rename 5 digit codes
   df$Sat_ind[df$Sat_ind=="1A1ci"]<-"1A1c1"
   df$Sat_ind[df$Sat_ind=="1A1cii"]<-"1A1c2"
   df$Sat_ind[df$Sat_ind=="1A4ci"]<-"1A4c1"
   df$Sat_ind[df$Sat_ind=="1A4cii"]<-"1A4c2"
   df$Sat_ind[df$Sat_ind=="1A4ciii"]<-"1A4c3"
   
-  ### Step 7: Calculate emissions-weighted average carbon price for missing cases
+  ### Step 8: Calculate emissions-weighted average carbon price for missing cases
   # we identify the applicable carbon price for each category with emissions
   # this step is only there for special cases (1A2, 1A3b, 3C1). If these categories
   # have no price, but subcategories do, then we calculate the emissions-weighted
@@ -117,7 +155,7 @@ calculate_ewcp<-function(yr,
     }
   }
   
-  ### Step 8: Calculate overall emissions-weighted carbon price for the sector
+  ### Step 9: Calculate overall emissions-weighted carbon price for the sector
   # divide categorical emissions by total
   df['relem']<-df$emissions/df$emissions[df$Sat_ind=="total"]
   # if we have zero total emissions this introduces NAs. Change those cases to zero
@@ -128,7 +166,7 @@ calculate_ewcp<-function(yr,
   # result is the sum of all categorical weighted prices
   result<-sum(df$relcc)
   
-  ### Step 9: Return result
+  ### Step 10: Return result
   return(result)
 }
 

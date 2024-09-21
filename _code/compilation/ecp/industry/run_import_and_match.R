@@ -20,7 +20,7 @@ if(gversion=="059"){
 }
 
 
-pl<-"cons_p"
+pl<-"curr_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
@@ -148,7 +148,16 @@ unlink(file.path(wd,"1_import","ecp","tmpdir"),recursive = T)
 unlink(file.path(wd,"1_import","gloria","tmpdir"),recursive = T)
 unlink(file.path(wd,"2_match","tmpdir"),recursive = T)
 
+rm(list=ls()[! ls() %in% c("wd","pl","gversion")])
 
+
+### make checkplots
+cbase<-"edgar"
+source(file.path(wd,"3_checks","checkplots.R"))
+cbase<-"oecd"
+source(file.path(wd,"3_checks","checkplots.R"))
+
+### clean up
 rm(list=ls())
 
 
