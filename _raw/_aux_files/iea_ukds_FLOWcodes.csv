@@ -10,6 +10,7 @@ AUTOCHP,ABFLOW009,Autoproducer CHP plants
 AUTOHEAT,ABFLOW010,Autoproducer heat plants
 OTHEN,ABFLOW011,Other energy industry own use
 TOTIND,ABFLOW012,Manufacturing industries and construction
+MANUFACT,,Manufacturing
 IRONSTL,ABFLOW016,  Iron and steel
 CHEMICAL,ABFLOW017,  Chemical and petrochemical
 NONFERR,ABFLOW018,  Non-ferrous metals

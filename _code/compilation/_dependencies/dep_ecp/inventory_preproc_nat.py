@@ -1,6 +1,6 @@
 
 import pandas as pd
-import csv
+import numpy as np
 import os
 from importlib.machinery import SourceFileLoader
 
@@ -14,63 +14,92 @@ ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_fu
 def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
     # concatenate IEA yearly emissions files
-    ecp_general.concat_iea() 
+    # ecp_general.concat_iea()
+    df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_BIGCO2.TXT',
+                     header=None, names=["Country", "Product", "Time", "Flow", "Value"],
+                     colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 85)])
+
+    df["Value"].replace(to_replace={"..":np.nan, "x":np.nan, "c":np.nan}, 
+                        inplace=True)
+    df["Value"] = df["Value"].astype(float)
     
+    memoAggregates = ['OECDAM', 'OECDAO', 'OECDEUR', 'OECDTOT',
+                      'IEATOT', 'ANNEX2NA', 'ANNEX2EU', 'ANNEX2AO', 'ANNEX2', 'MG7', 'AFRICA',
+                      'UNAFRICA', 'MIDEAST', 'EURASIA', 'LATAMER', 'ASIA', 'CHINAREG', 'NOECDTOT',
+                      'IEAFAMILY', 'WORLDAV', 'WORLDMAR', 'WORLD', 'UNAMERICAS', 'UNASIATOT',
+                      'UNEUROPE', 'UNOCEANIA', 'EU28', 'ANNEX1', 'ANNEX1EIT', 'NONANNEX1', 'ANNEXB',
+                      'MYUGO', 'MFSU15', 'MG8', 'MG20', 'OPEC', 'MASEAN', 'EU27_2020', 'MBURKINAFA',
+                      'MCHAD', 'MMAURITANI', 'MPALESTINE', 'MMALI', 'MGREENLAND']
+
+    df = df.loc[~df.Country.isin(memoAggregates)]
+    df["Country"] = df["Country"].apply(lambda x: x.capitalize())
+
+    df["ProductCat"] = df["Product"].copy()
+
+    for key in productCategories.keys():
+        for product in productCategories[key]:
+            df["ProductCat"].replace(to_replace={product:key}, inplace=True)
+
+    df = df.groupby(["Country", "ProductCat", "Time", "Flow"]).sum().reset_index()
+
+
+    # Country names replacement
+
     # aggregate fuel products to three aggregate categories (coal, oil, natural gas)
-    result = {}
+#    result = {}
 
-    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv', 'r',
-             encoding = 'latin-1') as csvfile:
-        data_reader = csv.reader(csvfile)
-        next(data_reader, None)  # skip the headers
+#    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv', 'r',
+#             encoding = 'latin-1') as csvfile:
+#        data_reader = csv.reader(csvfile)
+#        next(data_reader, None)  # skip the headers
 
-        for row in data_reader:
+#        for row in data_reader:
             #extract column value based on column index
-            year = row[6]
-            location = row[1]
-            product_code = row[2]
-            flow = row[4]
-            sector_name = row[5]
-            value = ecp_general.convert_value(row[8]) #uses the convert_value function created above
+#            year = row[6]
+#            location = row[1]
+#            product_code = row[2]
+#            flow = row[4]
+#            sector_name = row[5]
+#            value = ecp_general.convert_value(row[8]) #uses the convert_value function created above
 
             #'product_code' function defined above; assigns a 'product category' to each of the sub-products based on its product code
-            product_category = ecp_general.get_product_category(product_code)
+#            product_category = ecp_general.get_product_category(product_code)
 
             #initialise container of year key
-            if year not in result:
-                result[year] = {}
+#            if year not in result:
+#                result[year] = {}
 
             #initialise container of location key
-            if location not in result[year]:
-                    result[year][location] = {}
+#            if location not in result[year]:
+#                    result[year][location] = {}
 
             # initialise container of product_category key if not present; that is, if the product category key is NOT already present in result, it will be addded to it
-            if product_category not in result[year][location]:
-                result[year][location][product_category] =  {}
+#            if product_category not in result[year][location]:
+#                result[year][location][product_category] =  {}
 
             #initialise container of flow-sector names if not present
-            if sector_name not in result[year][location][product_category]:
-                result[year][location][product_category][sector_name] = {}
+#            if sector_name not in result[year][location][product_category]:
+#                result[year][location][product_category][sector_name] = {}
 
             # initialise container of flow codes if not present
-            if flow not in result[year][location][product_category][sector_name]:
-                result[year][location][product_category][sector_name][flow] = 0
+#            if flow not in result[year][location][product_category][sector_name]:
+#                result[year][location][product_category][sector_name][flow] = 0
 
             # perform the aggregation (in the present case, for each row, the code adds the value of 'value' to the container)
-            result[year][location][product_category][sector_name][flow] += value
+#            result[year][location][product_category][sector_name][flow] += value
 
-    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv', "w", encoding = 'utf-8') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(('Country','year','Flow','Sector','Product','CO2'))
+#    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv', "w", encoding = 'utf-8') as csv_file:
+#        writer = csv.writer(csv_file)
+#        writer.writerow(('Country','year','Flow','Sector','Product','CO2'))
 
-        for year in result:
-            for location in result[year]:
-                for product_category in result[year][location]:
-                    for sector_name in result[year][location][product_category]:
-                        for flow in result[year][location][product_category][sector_name]:
-                            writer.writerow((location, year, flow, sector_name, product_category, result[year][location][product_category][sector_name][flow]))
+#        for year in result:
+#            for location in result[year]:
+#                for product_category in result[year][location]:
+#                    for sector_name in result[year][location][product_category]:
+#                        for flow in result[year][location][product_category][sector_name]:
+#                            writer.writerow((location, year, flow, sector_name, product_category, result[year][location][product_category][sector_name][flow]))
 
-    os.remove(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv')                
+#    os.remove(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv')                
 
     # standardize country names to WB names
     combustion_nat = pd.read_csv(path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv",
