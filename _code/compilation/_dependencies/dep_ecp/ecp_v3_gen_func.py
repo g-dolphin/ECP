@@ -122,7 +122,8 @@ def concatenate(indir):
 #        return 'Other'
 #    else:
 #        return 'Error'
-    
+
+# Dictionary of product categories
 productCategories = {"Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL', 'SUBCOAL', 
                                 'LIGNITE', 'PATFUEL', 'OVENCOKE', 'GASCOKE', 'COALTAR', 'BKB', 
                                 'GASWKSGS', 'COKEOVGS', 'BLFURGS', 'OGASES', 'PEAT', 'PEATPROD', 'OILSHALE'],
@@ -134,6 +135,47 @@ productCategories = {"Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL
                      "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
                                'BIODIESEL', 'OBIOLIQ', 'RENEWNS', 'CHARCOAL'],
                      "Total":['TOTAL']}
+
+# Country names
+iea_wb_map = {'Australi':'Australia', 
+            'Bosniaherz':'Bosnia and Herzegovina',
+            'Brunei':'Brunei Darussalam', 
+            'Congo':'Congo, Rep.', 
+            'Congorep':'Congo, Dem. Rep.',
+            'Costarica':'Costa Rica',
+            'Coteivoire':"Cote d'Ivoire", 
+            'Czech':'Czech Republic',
+            'Dominicanr':'Dominican Republic',
+            'Egypt':'Egypt, Arab Rep.', 
+            'Elsalvador':'El Salvador',
+            'Eqguinea':'Equatorial Guinea',
+            'Eswatini':'Lesotho', 
+            'Hongkong':'Hong Kong, SAR', 
+            'Iran':'Iran, Islamic, Rep.', 
+            'Korea':'Korea, Rep.', 
+            'Koreadpr':'Korea, Dem. Rep.', 
+            'Kyrgyzstan':'Kyrgyz Republic', 
+            'Lao':'Lao PDR', 
+            'Luxembou':'Luxembourg',
+            'Nethland':'Netherlands',
+            'Northmaced':'North Macedonia',
+            'Nz':'New Zealand',
+            'Philippine':'Philippines',
+            'Russia':'Russian Federation',
+            'Saudiarabi':'Saudi Arabia', 
+            'Slovakia':'Slovak Republic',
+            'Southafric':'South Africa',
+            'Srilanka':'Sri Lanka', 
+            'Ssudan':'South Sudan', 
+            'Switland':'Switzerland', 
+            'Syria':'Syrian Arab Republic', 
+            'Turkmenist':'Turkmenistan',
+            'Uae':'United Arab Emirates',
+            'Uk':'United Kingdom',
+            'Usa':'United States',
+            'Venezuela':'Venezuela, RB',
+            'Yemen':'Yemen, Rep.'}
+
 
 ######Converts missing values to 0######
 def convert_value(value_str):
