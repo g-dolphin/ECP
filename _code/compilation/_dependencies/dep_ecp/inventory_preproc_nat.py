@@ -194,6 +194,12 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
 # OTHER GHGs
 
+df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
+                    header=None, names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value"],
+                    colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 75), (75, 95)])
+
+df = df.loc[~df.gas.isin(["CO2", "TOTAL"])]
+
 def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
     gas_file_name = {"CH4":"EDGAR_CH4_1970-2021.csv", "N2O":"EDGAR_N2O_1970-2021.csv",
