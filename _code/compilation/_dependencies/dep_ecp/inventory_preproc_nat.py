@@ -63,6 +63,8 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
     combustion_nat = df.copy()
     del df
 
+    return combustion_nat
+
     # aggregate fuel products to three aggregate categories (coal, oil, natural gas)
 #    result = {}
 
