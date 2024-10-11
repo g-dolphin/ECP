@@ -193,13 +193,6 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
 
 # OTHER GHGs
-
-df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
-                    header=None, names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value"],
-                    colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 75), (75, 95)])
-
-df = df.loc[~df.gas.isin(["CO2", "TOTAL"])]
-
 def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
     gas_file_name = {"CH4":"EDGAR_CH4_1970-2021.csv", "N2O":"EDGAR_N2O_1970-2021.csv",
@@ -292,4 +285,27 @@ def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
     return inventory_nat
 
+# Other GHGs - iea
+# NB: for fugitive emissions, EDGAR is more granular
+def inventory_non_co2_iea():
+    df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
+                        header=None, names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value"],
+                        colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 75), (75, 95)])
 
+    df = df.loc[~df.gas.isin(["CO2", "TOTAL"])]
+
+    df = df.loc[~df.jurisdiction.isin(memoAggregates)]
+    df["jurisdiction"] = df["jurisdiction"].apply(lambda x: x.capitalize())
+
+    # Country names replacement
+    df["jurisdiction"].replace(to_replace=iea_wb_map, inplace=True)
+
+    # Add Flow codes to dataframe
+    flowCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
+                            usecols=[0,1])
+    df = df.merge(flowCodes, on='FLOWname', how='left')
+
+    # Add ipcc codes
+    ipccCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv',
+                            usecols=[0,3])
+    df = df.merge(ipccCodes, on='FLOW', how='left')
