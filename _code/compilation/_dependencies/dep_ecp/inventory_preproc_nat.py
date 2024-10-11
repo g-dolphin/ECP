@@ -1,6 +1,6 @@
 
 import pandas as pd
-import csv
+import numpy as np
 import os
 from importlib.machinery import SourceFileLoader
 
@@ -14,90 +14,139 @@ ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_fu
 def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
     # concatenate IEA yearly emissions files
-    ecp_general.concat_iea() 
+    # ecp_general.concat_iea()
+    df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_BIGCO2.TXT',
+                     header=None, names=["jurisdiction", "Product", "year", "FLOWname", "CO2"],
+                     colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 85)])
+
+    df["Value"].replace(to_replace={"..":np.nan, "x":np.nan, "c":np.nan}, 
+                        inplace=True)
+    df["Value"] = df["Value"].astype(float)
     
-    # aggregate fuel products to three aggregate categories (coal, oil, natural gas)
-    result = {}
+    memoAggregates = ['OECDAM', 'OECDAO', 'OECDEUR', 'OECDTOT', 'OTHERAFRIC' 'OTHERASIA' 'OTHERLATIN',
+                      'IEATOT', 'ANNEX2NA', 'ANNEX2EU', 'ANNEX2AO', 'ANNEX2', 'MG7', 'AFRICA',
+                      'UNAFRICA', 'MIDEAST', 'EURASIA', 'LATAMER', 'ASIA', 'CHINAREG', 'NOECDTOT',
+                      'IEAFAMILY', 'WORLDAV', 'WORLDMAR', 'WORLD', 'UNAMERICAS', 'UNASIATOT',
+                      'UNEUROPE', 'UNOCEANIA', 'EU28', 'ANNEX1', 'ANNEX1EIT', 'NONANNEX1', 'ANNEXB',
+                      'MYUGO', 'MFSU15', 'MG8', 'MG20', 'OPEC', 'MASEAN', 'EU27_2020', 'MBURKINAFA',
+                      'MCHAD', 'MMAURITANI', 'MPALESTINE', 'MMALI', 'MGREENLAND', 'FSUND']
 
-    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv', 'r',
-             encoding = 'latin-1') as csvfile:
-        data_reader = csv.reader(csvfile)
-        next(data_reader, None)  # skip the headers
+    df = df.loc[~df.jurisdiction.isin(memoAggregates)]
+    df["jurisdiction"] = df["jurisdiction"].apply(lambda x: x.capitalize())
 
-        for row in data_reader:
-            #extract column value based on column index
-            year = row[6]
-            location = row[1]
-            product_code = row[2]
-            flow = row[4]
-            sector_name = row[5]
-            value = ecp_general.convert_value(row[8]) #uses the convert_value function created above
+    df["ProductCat"] = df["Product"].copy()
 
-            #'product_code' function defined above; assigns a 'product category' to each of the sub-products based on its product code
-            product_category = ecp_general.get_product_category(product_code)
+    for key in productCategories.keys():
+        for product in productCategories[key]:
+            df["ProductCat"].replace(to_replace={product:key}, inplace=True)
 
-            #initialise container of year key
-            if year not in result:
-                result[year] = {}
+    df = df.groupby(["jurisdiction", "ProductCat", "year", "FLOWname"]).sum().reset_index()
 
-            #initialise container of location key
-            if location not in result[year]:
-                    result[year][location] = {}
 
-            # initialise container of product_category key if not present; that is, if the product category key is NOT already present in result, it will be addded to it
-            if product_category not in result[year][location]:
-                result[year][location][product_category] =  {}
+    # Country names replacement
+    df["jurisdiction"].replace(to_replace=iea_wb_map, inplace=True)
 
-            #initialise container of flow-sector names if not present
-            if sector_name not in result[year][location][product_category]:
-                result[year][location][product_category][sector_name] = {}
+    # Add Flow codes to dataframe
+    flowCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
+                            usecols=[0,1])
+    df = df.merge(flowCodes, on='FLOWname', how='left')
 
-            # initialise container of flow codes if not present
-            if flow not in result[year][location][product_category][sector_name]:
-                result[year][location][product_category][sector_name][flow] = 0
-
-            # perform the aggregation (in the present case, for each row, the code adds the value of 'value' to the container)
-            result[year][location][product_category][sector_name][flow] += value
-
-    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv', "w", encoding = 'utf-8') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(('Country','year','Flow','Sector','Product','CO2'))
-
-        for year in result:
-            for location in result[year]:
-                for product_category in result[year][location]:
-                    for sector_name in result[year][location][product_category]:
-                        for flow in result[year][location][product_category][sector_name]:
-                            writer.writerow((location, year, flow, sector_name, product_category, result[year][location][product_category][sector_name][flow]))
-
-    os.remove(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv')                
-
-    # standardize country names to WB names
-    combustion_nat = pd.read_csv(path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv",
-                      encoding = "utf-8") #specify encoding
-
-    map_iea_wb = {"CÃ\x83Â´te d'Ivoire": "Cote d'Ivoire", "CÃ´te d'Ivoire": "Cote d'Ivoire",
-                  '"China (P.R. of China and Hong Kong, China)"': 'China (P.R. of China and Hong Kong, China)',
-                  "People's Republic of China": 'China', 'CuraÃ\x83Â§ao/Netherlands Antilles': 'Curacao/Netherlands Antilles',
-                  'CuraÃ§ao': 'Curacao', 'CuraÃ§ao/Netherlands Antilles': 'Curacao/Netherlands Antilles',
-                  'Democratic Republic of Congo': 'Congo, Dem. Rep.', 'Democratic Republic of the Congo': 'Congo, Dem. Rep.',
-                  'Republic of the Congo': 'Congo, Rep.', 'Egypt': 'Egypt, Arab Rep.', 'Hong Kong (China)': 'Hong Kong SAR, China',
-                  'Islamic Republic of Iran': 'Iran, Islamic Rep.', "Democratic People's Republic of Korea": 'Korea, Dem. Rep.',
-                  'Korea': 'Korea, Rep.', 'Kyrgyzstan': 'Kyrgyz Republic', 'Republic of North Macedonia': 'North Macedonia',
-                  'Republic of Moldova':'Moldova', 'Chinese Taipei':'Taiwan, China',
-                  'Venezuela': 'Venezuela, RB', 'Plurinational State of Bolivia':'Bolivia',
-                  'United Republic of Tanzania':'Tanzania',
-                  'Bolivarian Republic of Venezuela': 'Venezuela, RB', 'Viet Nam': 'Vietnam', 'Yemen': 'Yemen, Rep.'}
-
-    combustion_nat['Country'] = combustion_nat['Country'].replace(to_replace=map_iea_wb) 
-
-    combustion_nat.to_csv(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv',index=None)
+    # Add ipcc codes
+    ipccCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv',
+                            usecols=[0,3])
+    df = df.merge(ipccCodes, on='FLOW', how='left')
 
     # dataframe format/labels standardization
-    combustion_nat.rename(columns={"Country":"jurisdiction", "Year":"year", "Flow":"iea_code"}, inplace=True)
-    combustion_nat.drop("Sector", axis=1, inplace=True)
+    df.rename(columns={"FLOW":"iea_code", "ProductCat":'Product'}, inplace=True)
+    df.drop("FLOWname", axis=1, inplace=True)
 
-    combustion_nat = combustion_nat.merge(ipcc_iea_map, on=["iea_code"], how="left")
+    combustion_nat = df.copy()
+    del df
+
+    return combustion_nat
+
+    # aggregate fuel products to three aggregate categories (coal, oil, natural gas)
+#    result = {}
+
+#    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv', 'r',
+#             encoding = 'latin-1') as csvfile:
+#        data_reader = csv.reader(csvfile)
+#        next(data_reader, None)  # skip the headers
+
+#        for row in data_reader:
+            #extract column value based on column index
+#            year = row[6]
+#            location = row[1]
+#            product_code = row[2]
+#            flow = row[4]
+#            sector_name = row[5]
+#            value = ecp_general.convert_value(row[8]) #uses the convert_value function created above
+
+            #'product_code' function defined above; assigns a 'product category' to each of the sub-products based on its product code
+#            product_category = ecp_general.get_product_category(product_code)
+
+            #initialise container of year key
+#            if year not in result:
+#                result[year] = {}
+
+            #initialise container of location key
+#            if location not in result[year]:
+#                    result[year][location] = {}
+
+            # initialise container of product_category key if not present; that is, if the product category key is NOT already present in result, it will be addded to it
+#            if product_category not in result[year][location]:
+#                result[year][location][product_category] =  {}
+
+            #initialise container of flow-sector names if not present
+#            if sector_name not in result[year][location][product_category]:
+#                result[year][location][product_category][sector_name] = {}
+
+            # initialise container of flow codes if not present
+#            if flow not in result[year][location][product_category][sector_name]:
+#                result[year][location][product_category][sector_name][flow] = 0
+
+            # perform the aggregation (in the present case, for each row, the code adds the value of 'value' to the container)
+#            result[year][location][product_category][sector_name][flow] += value
+
+#    with open(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv', "w", encoding = 'utf-8') as csv_file:
+#        writer = csv.writer(csv_file)
+#        writer.writerow(('Country','year','Flow','Sector','Product','CO2'))
+
+#        for year in result:
+#            for location in result[year]:
+#                for product_category in result[year][location]:
+#                    for sector_name in result[year][location][product_category]:
+#                        for flow in result[year][location][product_category][sector_name]:
+#                            writer.writerow((location, year, flow, sector_name, product_category, result[year][location][product_category][sector_name][flow]))
+
+#    os.remove(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/emissions_allyears/iea_CO2em_ally.csv')                
+
+    # standardize country names to WB names
+#    combustion_nat = pd.read_csv(path_ghg+"/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv",
+#                      encoding = "utf-8") #specify encoding
+
+#    map_iea_wb = {"CÃ\x83Â´te d'Ivoire": "Cote d'Ivoire", "CÃ´te d'Ivoire": "Cote d'Ivoire",
+#                  '"China (P.R. of China and Hong Kong, China)"': 'China (P.R. of China and Hong Kong, China)',
+#                  "People's Republic of China": 'China', 'CuraÃ\x83Â§ao/Netherlands Antilles': 'Curacao/Netherlands Antilles',
+#                  'CuraÃ§ao': 'Curacao', 'CuraÃ§ao/Netherlands Antilles': 'Curacao/Netherlands Antilles',
+#                  'Republic of the Congo': 'Congo, Rep.', 'Egypt': 'Egypt, Arab Rep.', 'Hong Kong (China)': 'Hong Kong SAR, China',
+#                  'Democratic Republic of Congo': 'Congo, Dem. Rep.', 'Democratic Republic of the Congo': 'Congo, Dem. Rep.',
+#                  'Islamic Republic of Iran': 'Iran, Islamic Rep.', "Democratic People's Republic of Korea": 'Korea, Dem. Rep.',
+#                  'Korea': 'Korea, Rep.', 'Kyrgyzstan': 'Kyrgyz Republic', 'Republic of North Macedonia': 'North Macedonia',
+#                  'Republic of Moldova':'Moldova', 'Chinese Taipei':'Taiwan, China',
+#                  'Venezuela': 'Venezuela, RB', 'Plurinational State of Bolivia':'Bolivia',
+#                  'United Republic of Tanzania':'Tanzania',
+#                  'Bolivarian Republic of Venezuela': 'Venezuela, RB', 'Viet Nam': 'Vietnam', 'Yemen': 'Yemen, Rep.'}
+
+#    combustion_nat['Country'] = combustion_nat['Country'].replace(to_replace=map_iea_wb) 
+
+#    combustion_nat.to_csv(path_ghg+'/national/IEA/iea_energy_co2_emissions/detailed_figures/agg_product/iea_aggprod.csv',index=None)
+
+    # dataframe format/labels standardization
+#    combustion_nat.rename(columns={"Country":"jurisdiction", "Year":"year", "Flow":"iea_code"}, inplace=True)
+#    combustion_nat.drop("Sector", axis=1, inplace=True)
+
+#    combustion_nat = combustion_nat.merge(ipcc_iea_map, on=["iea_code"], how="left")
 
     # Data from EDGAR database
 
@@ -146,7 +195,6 @@ def inventory_co2(wcpd_df, ipcc_iea_map, jur_names, edgar_wb_map):
 
 
 # OTHER GHGs
-
 def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
     gas_file_name = {"CH4":"EDGAR_CH4_1970-2021.csv", "N2O":"EDGAR_N2O_1970-2021.csv",
@@ -239,4 +287,27 @@ def inventory_non_co2(wcpd_df, jur_names, gas, edgar_wb_map, ipcc_gwp_list):
 
     return inventory_nat
 
+# Other GHGs - iea
+# NB: for fugitive emissions, EDGAR is more granular
+def inventory_non_co2_iea():
+    df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
+                        header=None, names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value"],
+                        colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 75), (75, 95)])
 
+    df = df.loc[~df.gas.isin(["CO2", "TOTAL"])]
+
+    df = df.loc[~df.jurisdiction.isin(memoAggregates)]
+    df["jurisdiction"] = df["jurisdiction"].apply(lambda x: x.capitalize())
+
+    # Country names replacement
+    df["jurisdiction"].replace(to_replace=iea_wb_map, inplace=True)
+
+    # Add Flow codes to dataframe
+    flowCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
+                            usecols=[0,1])
+    df = df.merge(flowCodes, on='FLOWname', how='left')
+
+    # Add ipcc codes
+    ipccCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv',
+                            usecols=[0,3])
+    df = df.merge(ipccCodes, on='FLOW', how='left')

@@ -1,4 +1,4 @@
-IPCC_CODE,CODENAME,FULLNAME,IEA_CODE,lowest_level
+ipcc_code,CODENAME,FULLNAME,FLOW,lowest_level
 0,NationalTotal,Total emissions,,0
 1,Energy,Energy,,0
 1A,FuelCombustionActivities,Fuel Combustion Activities (Sectoral Approach),ABFLOW001,0

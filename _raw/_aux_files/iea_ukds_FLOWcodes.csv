@@ -10,6 +10,7 @@ AUTOCHP,ABFLOW009,Autoproducer CHP plants
 AUTOHEAT,ABFLOW010,Autoproducer heat plants
 OTHEN,ABFLOW011,Other energy industry own use
 TOTIND,ABFLOW012,Manufacturing industries and construction
+MANUFACT,,Manufacturing
 IRONSTL,ABFLOW016,  Iron and steel
 CHEMICAL,ABFLOW017,  Chemical and petrochemical
 NONFERR,ABFLOW018,  Non-ferrous metals
@@ -38,3 +39,13 @@ ONONSPEC,ABFLOW038,Final consumption not elsewhere specified
 MARBUNK,ABFLOW039,Memo: International marine bunkers
 AVBUNK,ABFLOW040,Memo: International aviation bunkers
 CO2FCOMB,ABFLOW001,CO2 fuel combustion
+GHGFCOMB,ABFLOW001,
+TFC,ABFLOW041,
+ELECHEAT,ABFLOW042,
+GHGENERGY,,
+GHGFUGITI,,
+FUGPRODUC,ABFLOW043,
+FUGFLARED,ABFLOW044,
+FUGVENTED,ABFLOW045,
+FUGTRADIS,ABFLOW046,
+FUGDISLOS,ABFLOW047,
