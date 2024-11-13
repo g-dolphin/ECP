@@ -25,8 +25,7 @@ Next to the jurisdiction-level average price, I also calculate sector-level aver
 
 If you use the dataset in scientific publication, we would appreciate a reference to the following paper:
 
-Dolphin, G., Pollitt, M. and Newbery, D. 2020. The political economy of carbon pricing: a panel analysis. Oxford Economic Papers 72(2): 472-500; and
-Dolphin, G., Merkle, M. (forthcoming). Emissions-weighted Carbon Price: Source and Methods. Scientific Data.
+[Dolphin, G., Merkle, M. (2024). Emissions-weighted Carbon Price: Source and Methods. Scientific Data.](https://www.nature.com/articles/s41597-024-03121-6)
 
 # License
 
