@@ -69,11 +69,11 @@ def inventoryShare(category, jurGroup, gas, level):
 
     # remove unused columns
     inventory = inventory[['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', gas]]
-    inventory = inventory.loc[inventory.year<=2018, :]
+    inventory = inventory.loc[inventory.year<=2020, :]
 
-    for yr in range(2019, 2023):
-        temp = inventory.loc[inventory.year==2018, :].copy()
-        temp["year"].replace(to_replace={2018:yr}, inplace=True)
+    for yr in range(2021, 2023):
+        temp = inventory.loc[inventory.year==2020, :].copy()
+        temp["year"].replace(to_replace={2020:yr}, inplace=True)
 
         inventory = pd.concat([inventory, temp])
 

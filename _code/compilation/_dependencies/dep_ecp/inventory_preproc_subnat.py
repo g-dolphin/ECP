@@ -133,11 +133,11 @@ chn = chn[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', 'CO2', 'CH4', 'N2O'
 
 usa = pd.DataFrame()
 
-os.chdir(path_ghg+'/subnational/United_States/Rhodium/')
+os.chdir(path_ghg+'/subnational/United_States/Rhodium/2024')
 file_list = glob.glob('*.csv')
 
 for file in file_list:
-    temp = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/'+file, decimal=',')
+    temp = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/2024/'+file, decimal=',')
     #extract US state name from file name
     state_name = file[len("DetailedGHGinventory_"):-4].replace("_", " ").title()
     #add state name as key column
@@ -147,7 +147,7 @@ for file in file_list:
     #concat
     usa = pd.concat([usa, temp])
 
-sub_ind = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/industry/TS2022_central_subind_ghg.csv')
+sub_ind = pd.read_csv(path_ghg+'/subnational/United_States/Rhodium/2022/industry/TS2022_central_subind_ghg.csv')
 sub_ind.rename(columns={"StateName":"jurisdiction", "Industry":"Subsector"}, inplace=True)
 sub_ind = sub_ind.loc[sub_ind.Gas=="CO2 (combustion)"] # keeping only the more detailed data for CO2 combustion
 
