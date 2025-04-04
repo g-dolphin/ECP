@@ -1,0 +1,26 @@
+IPCC Code,Category,2019 Refinement Enhancements
+1A1,Energy Industries,Updated emission factors for coal and natural gas combustion.
+1B1a,"Fugitive Emissions: Solid Fuels (e.g., coal mining)",Refined methane emission factors by mining technique.
+1B2a,Fugitive Emissions: Oil,"Enhanced guidance on flaring, venting, and fugitives."
+1B2b,Fugitive Emissions: Natural Gas,"New guidance on unconventional gas, coal seam gas."
+1B2c,Other Emissions from Energy Production,Specific additions for processing losses in gas pipelines.
+2B2,Nitric Acid Production,Revised default N₂O emission factors and abatement accounting.
+2B3,Adipic Acid Production,Updated emission factors for N₂O.
+2C,Metal Industry,"More granular treatment (e.g., ferroalloy types, aluminum)."
+2E1-2E6,Fluorochemical Production and Use,"Inclusion of unsaturated HFCs/HFOs (e.g., HFO-1234yf)."
+2F,Electronics Industry,"New coverage of NF₃, SF₆, and F-gases in chip production."
+2G,Other Product Manufacture and Use,Expanded scope including chemical and non-chemical uses of F-gases.
+3A,Enteric Fermentation,Updated CH₄ emission factors for more animal types.
+3B,Manure Management,"Enhanced species-specific emissions, N₂O accounting."
+3C,Rice Cultivation,Added intermittent flooding scenarios.
+3D,Agricultural Soils,More detail on synthetic and organic fertilizer emissions.
+3E,Prescribed Burning of Savannas,Minor clarifications and factor updates.
+3F,Field Burning of Agricultural Residues,Adjusted emission factors.
+3A–3C,Livestock (general),Better representation of intensification and feed systems.
+4A–4D,Land Categories,"Improved soil C stock change, peatland accounting, wetland rewetting."
+4(Any),Land converted to/from Wetlands,"Now explicitly covered, with new default emissions/removals."
+5A,Solid Waste Disposal,New methane generation factors by climate and waste type.
+5B,Biological Treatment of Solid Waste,Improved methods for composting and anaerobic digestion.
+5C,Incineration and Open Burning of Waste,Explicit treatment of open burning (previously limited).
+5D,Wastewater Treatment and Discharge,"Added guidance on industrial wastewater, sludge handling."
+Cross-cutting,Multiple sectors,"Time series consistency, uncertainty estimation, expanded default factors."
