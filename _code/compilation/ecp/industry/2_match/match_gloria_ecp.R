@@ -1,5 +1,5 @@
 ################################################################################
-####### Script to match GLORIA 057 with ECP ####################################
+####### Script to match GLORIA with ECP ########################################
 ################################################################################
 
 
@@ -25,8 +25,22 @@ source(file.path(ecpmwd,"matching_function.R"))
 # ECP and sector concordance data
 ecp<-read.csv(file.path(fpe,"ecp_ipcc_CO2.csv"))
 if(pl=="cons_p"){
-  ecp<-ecp %>% rename(ecp_all_usd = ecp_all_usd_k)
-} else{}
+  ecp<-ecp %>% 
+    select(-c(ecp_ets2_coal_usd_k,ecp_ets2_natgas_usd_k,ecp_ets2_oil_usd_k)) %>% 
+    rename(ecp_all_usd = ecp_all_usd_k,
+           ecp_ets_usd = ecp_ets_usd_k,
+           ecp_tax_usd = ecp_tax_usd_k,
+           ecp_ets_coal_usd = ecp_ets_coal_usd_k,
+           ecp_tax_coal_usd = ecp_tax_coal_usd_k,
+           ecp_ets_natgas_usd = ecp_ets_natgas_usd_k,
+           ecp_tax_natgas_usd = ecp_tax_natgas_usd_k,
+           ecp_ets_oil_usd = ecp_ets_oil_usd_k,
+           ecp_tax_oil_usd = ecp_tax_oil_usd_k)
+} else if (pl == "curr_p"){
+  ecp<-ecp %>% 
+    select(-c(ecp_ets2_coal_usd,ecp_ets2_natgas_usd,ecp_ets2_oil_usd)) 
+}
+
 
 load(file.path(ecpmwd,"ipcc_conc",paste0("ipcc_conc_",gversion,".RData")))
 
@@ -132,12 +146,10 @@ rm(region_ind)
 
 ### prep parallelised loop
 
-
-
 l_tqm<-list()
 l_yqm<-list()
 
-
+# import GLORIA CO2 data
 for(k in 1:length(yrs)){
   # 1. import
   load(file.path(fpg,paste0("gloria_",yrs[k],".RData")))
@@ -151,87 +163,118 @@ for(k in 1:length(yrs)){
 load(file.path(fpg,paste0("gloria_",yrs[1],".RData")))
 rm(tqm,yqm)
 
+# define carbon price accounts we want
+# list elements are ordered as sattype (EDGAR or OECD), cptype (ecp, ets or tax), etype (emissions category), ftype (fuel)
+cpal<-list()
+# EDGAR based satellites
+cpal[[1]]<-list("EDGAR","ecp","all","all")
+cpal[[2]]<-list("EDGAR","ecp","1a","all")
+cpal[[3]]<-list("EDGAR","ecp","non1a","all")
+cpal[[4]]<-list("EDGAR","ets","all","all")
+cpal[[5]]<-list("EDGAR","ets","1a","all")
+cpal[[6]]<-list("EDGAR","ets","1a","coal")
+cpal[[7]]<-list("EDGAR","ets","1a","natgas")
+cpal[[8]]<-list("EDGAR","ets","1a","oil")
+cpal[[9]]<-list("EDGAR","ets","non1a","all")
+cpal[[10]]<-list("EDGAR","tax","all","all")
+cpal[[11]]<-list("EDGAR","tax","1a","all")
+cpal[[12]]<-list("EDGAR","tax","1a","coal")
+cpal[[13]]<-list("EDGAR","tax","1a","natgas")
+cpal[[14]]<-list("EDGAR","tax","1a","oil")
+cpal[[15]]<-list("EDGAR","tax","non1a","all")
+# OECD based satellites
+cpal[[16]]<-list("OECD","ecp","all","all")
+cpal[[17]]<-list("OECD","ecp","1a","all")
+cpal[[18]]<-list("OECD","ecp","non1a","all")
+cpal[[19]]<-list("OECD","ets","all","all")
+cpal[[20]]<-list("OECD","ets","1a","all")
+cpal[[21]]<-list("OECD","ets","1a","coal")
+cpal[[22]]<-list("OECD","ets","1a","natgas")
+cpal[[23]]<-list("OECD","ets","1a","oil")
+cpal[[24]]<-list("OECD","ets","non1a","all")
+cpal[[25]]<-list("OECD","tax","all","all")
+cpal[[26]]<-list("OECD","tax","1a","all")
+cpal[[27]]<-list("OECD","tax","1a","coal")
+cpal[[28]]<-list("OECD","tax","1a","natgas")
+cpal[[29]]<-list("OECD","tax","1a","oil")
+cpal[[30]]<-list("OECD","tax","non1a","all")
 
-apply_ewcp_calc<-function(yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind){
+
+# make wrapper function to run the matching
+apply_ewcp_calc<-function(ecp,countryconc,yr,yqm,tqm,demand_ind,region_ind,satellites_ind,sector_ind,sequential_ind,sequentiald_ind,cpal){
   
-  ### Step 1: Run for sectoral satellites
-  # add row into data (i.e., rows corresponding to author-created indicators are added to the Satellite account matrix)
-  print("industrial sectors")
-  nr<-nrow(tqm)+1
-  zq<-rbind(tqm,NA,NA)
+  ### Step 1: Identify countries for which we run the matching (those with any carbon price)
+  anycp_c<- ecp %>% filter(year==yr,ecp_all_usd>0) %>% select(jurisdiction) %>% unique()
+  anycp_g<-countryconc$c_gloria[countryconc$c_ecp %in% anycp_c$jurisdiction]
+  
+  ### Step 2: Run for sectoral satellites
+  # identify countries and sectors
   fcq<-sequential_ind$fcq
   fsq<-sequential_ind$fsq
-  # fill in for each column (first edgar, and then oecd)
-  for(r in 1:ncol(zq)){
+  cpc_id<-which(fcq %in% anycp_g)
+  # add row into data (i.e., rows corresponding to author-created indicators are added to the Satellite account matrix)
+  nr<-nrow(tqm)
+  zq <- rbind(tqm,matrix(data=NA,nrow=length(cpal),ncol=ncol(tqm))) # we add empty rows to the satellite data
+  # fill in for each relevant column (country-sector)
+  for(r in cpc_id){
+    # idenify country
     tmpc<-fcq[r] # the country
+    # identify sector
     tmps<-fsq[r] # the sector
-    # If we have ecp data for the country, we fill in
-    zq[nr,r]<-calculate_ewcp(yr = yr,
-                             indx=r,
-                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                             sattype = "EDGAR",
-                             ctry = tmpc,
-                             sect = tmps,
-                             ecp_data = ecp,
-                             gloria_q_data = zq,
-                             concordance = conclist[[tmps]],
-                             type = "z",
-                             sector_ind = sector_ind,
-                             demand_ind = demand_ind)
-    zq[nr+1,r]<-calculate_ewcp(yr = yr,
-                               indx=r,
-                               ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                               sattype = "OECD",
-                               ctry = tmpc,
-                               sect = tmps,
-                               ecp_data = ecp,
-                               gloria_q_data = zq,
-                               concordance = conclist[[tmps]],
-                               type = "z",
-                               sector_ind = sector_ind,
-                               demand_ind = demand_ind)
+    # then run
+    for(j in 1:length(cpal)){ # loop across carbon price accounts defined in cpal
+      zq[nr+j,r]<-calculate_ewcp(yr = yr,
+                                 indx=r,
+                                 ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                                 sattype = cpal[[j]][[1]],
+                                 cptype = cpal[[j]][[2]],
+                                 etype = cpal[[j]][[3]],
+                                 ftype = cpal[[j]][[4]],
+                                 ctry = tmpc,
+                                 sect = tmps,
+                                 ecp_data = ecp,
+                                 gloria_q_data = zq,
+                                 concordance = conclist[[tmps]],
+                                 type = "z",
+                                 sector_ind = sector_ind,
+                                 demand_ind = demand_ind)
+    }
   }
+  rm(cpc_id)
   
-  ### Step 2: Run for demand satellites
-  # add row into data
-  print("demand sectors")
-  nr<-nrow(yqm)+1
-  yq<-rbind(yqm,NA,NA)
+  ### Step 3: Run for demand satellites
+  # identify countries and sectors
   fcq<-sequentiald_ind$fcqd
   fsq<-sequentiald_ind$demandind
-
-  # fill in for each column (first EDGAR, then OECD)
-  for(r in 1:ncol(yq)){
+  cpc_id<-which(fcq %in% anycp_g)
+  # add row into data
+  nr<-nrow(yqm)
+  yq<-rbind(yqm,matrix(data=NA,nrow=length(cpal),ncol=ncol(yqm))) # we add empty rows to the satellite data
+  # fill in for each column (country-demand)
+  for(r in cpc_id){
     tmpc<-fcq[r] # the country
-    tmps<-fsq[r] # the sector
-    # fill in
-    yq[nr,r]<-calculate_ewcp(yr = yr,
-                             indx=r,
-                             ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                             sattype = "EDGAR",
-                             ctry = tmpc,
-                             sect = tmps,
-                             ecp_data = ecp,
-                             gloria_q_data = yq,
-                             concordance = if(tmps== demand_ind$Final_demand_names[1]) {conclist[['households']]} else {conclist[['Other services']]},
-                             type = "y",
-                             sector_ind = sector_ind,
-                             demand_ind = demand_ind)
-    yq[nr+1,r]<-calculate_ewcp(yr = yr,
-                               indx=r,
-                               ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
-                               sattype = "OECD",
-                               ctry = tmpc,
-                               sect = tmps,
-                               ecp_data = ecp,
-                               gloria_q_data = yq,
-                               concordance = if(tmps== demand_ind$Final_demand_names[1]) {conclist[['households']]} else {conclist[['Other services']]},
-                               type = "y",
-                               sector_ind = sector_ind,
-                               demand_ind = demand_ind)
+    tmps<-fsq[r] # the demand
+    # then run
+    for(j in 1:length(cpal)){ # loop across carbon price accounts defined in cpal
+      yq[nr+j,r]<-calculate_ewcp(yr = yr,
+                                 indx=r,
+                                 ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc],
+                                 sattype = cpal[[j]][[1]],
+                                 cptype = cpal[[j]][[2]],
+                                 etype = cpal[[j]][[3]],
+                                 ftype = cpal[[j]][[4]],
+                                 ctry = tmpc,
+                                 sect = tmps,
+                                 ecp_data = ecp,
+                                 gloria_q_data = yq,
+                                 concordance = if(tmps== demand_ind$Final_demand_names[1]) {conclist[['households']]} else {conclist[['Other services']]},
+                                 type = "y",
+                                 sector_ind = sector_ind,
+                                 demand_ind = demand_ind)
+    }
   }
-  
-  ### Step 3: Result list and return
+  rm(cpc_id)
+  ### Step 4: Result list and return
   rl<-list()
   rl[['zq']]<-zq
   rl[['yq']]<-yq
@@ -251,7 +294,7 @@ dd<-list()
 
 # specify number of cores (all but one)
 parallel::detectCores()
-n.cores <- parallel::detectCores() - 1
+n.cores <- parallel::detectCores() - 2
 
 #create the cluster
 my.cluster <- parallel::makeCluster(
@@ -274,7 +317,9 @@ foreach::getDoParWorkers()
 # then run
 dd <- foreach(w = 1:length(yrs),
               .packages = c("dplyr", "tidyr")
-) %dopar% {apply_ewcp_calc(yr=yrs[w],
+) %dopar% {apply_ewcp_calc(ecp=ecp,
+                           countryconc=countryconc,
+                           yr=yrs[w],
                            yqm=l_yqm[[w]],
                            tqm=l_tqm[[w]],
                            demand_ind=demand_ind,
@@ -282,7 +327,8 @@ dd <- foreach(w = 1:length(yrs),
                            satellites_ind=satellites_ind,
                            sector_ind=sector_ind,
                            sequential_ind=sequential_ind,
-                           sequentiald_ind=sequentiald_ind)}
+                           sequentiald_ind=sequentiald_ind,
+                           cpal=cpal)}
 
 # stop the cluster
 parallel::stopCluster(cl = my.cluster)
@@ -303,5 +349,5 @@ for(k in 1:length(yrs)){
 
 
 ## clean up 
-rm(list=ls()[! ls() %in% c("wd","pl","gversion","ecpmwd")])
+rm(list=ls()[! ls() %in% c("wd","pl","gversion","ecpmwd","cpal")])
 
