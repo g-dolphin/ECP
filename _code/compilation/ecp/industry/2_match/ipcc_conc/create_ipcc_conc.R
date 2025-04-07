@@ -524,9 +524,27 @@ newcat
 
 ### All agri, forest, fishing sectors
 # here we want to map only 1A4C, not 1A4A and not 1A4B
+# we also do not want to map 1A2 and subcats (tmp wrong allocations in GLORIA)
 for(i in 1:23){
   conclist[[i]]$`1A4A`[conclist[[i]]$Sat_ind %in% c("1A4","1A4a")]<-0
   conclist[[i]]$`1A4B`[conclist[[i]]$Sat_ind %in% c("1A4","1A4b")]<-0
+  conclist[[i]]$`1A2`[conclist[[i]]$Sat_ind %in% c("1A2","1A2a","1A2b","1A2c",
+                                                   "1A2d","1A2e","1A2f","1A2g",
+                                                   "1A2h","1A2i","1A2j","1A2k",
+                                                   "1A2l","1A2m")]<-0
+  conclist[[i]]$`1A2A`[conclist[[i]]$Sat_ind %in% c("1A2","1A2a")]<-0
+  conclist[[i]]$`1A2B`[conclist[[i]]$Sat_ind %in% c("1A2","1A2b")]<-0
+  conclist[[i]]$`1A2C`[conclist[[i]]$Sat_ind %in% c("1A2","1A2c")]<-0
+  conclist[[i]]$`1A2D`[conclist[[i]]$Sat_ind %in% c("1A2","1A2d")]<-0
+  conclist[[i]]$`1A2E`[conclist[[i]]$Sat_ind %in% c("1A2","1A2e")]<-0
+  conclist[[i]]$`1A2F`[conclist[[i]]$Sat_ind %in% c("1A2","1A2f")]<-0
+  conclist[[i]]$`1A2G`[conclist[[i]]$Sat_ind %in% c("1A2","1A2g")]<-0
+  conclist[[i]]$`1A2H`[conclist[[i]]$Sat_ind %in% c("1A2","1A2h")]<-0
+  conclist[[i]]$`1A2I`[conclist[[i]]$Sat_ind %in% c("1A2","1A2i")]<-0
+  conclist[[i]]$`1A2J`[conclist[[i]]$Sat_ind %in% c("1A2","1A2j")]<-0
+  conclist[[i]]$`1A2K`[conclist[[i]]$Sat_ind %in% c("1A2","1A2k")]<-0
+  conclist[[i]]$`1A2L`[conclist[[i]]$Sat_ind %in% c("1A2","1A2l")]<-0
+  conclist[[i]]$`1A2M`[conclist[[i]]$Sat_ind %in% c("1A2","1A2m")]<-0
 }
 
 ### All agri and forestry sectors
@@ -558,6 +576,15 @@ conclist[['households']]$`1A4C`[conclist[['households']]$Sat_ind %in% c("1A4","1
 conclist[['households']]$`1A4C1`[conclist[['households']]$Sat_ind %in% c("1A4","1A4ci")]<-0
 conclist[['households']]$`1A4C2`[conclist[['households']]$Sat_ind %in% c("1A4","1A4cii")]<-0
 conclist[['households']]$`1A4C3`[conclist[['households']]$Sat_ind %in% c("1A4","1A4ciii")]<-0
+
+### Rail transort
+# here we want to map only 1A3C, not 1A3B (wrong allocation in GLORIA)
+conclist[['Rail transport']]$`1A3B`[conclist[['Rail transport']]$Sat_ind %in% c("1A3b","1A3b_noRES","1A3b_RES")]<-0
+
+### Electric power
+# here we want to map only 1A1A, not 2B (wrong allocation in GLORIA)
+conclist[['Electric power generation, transmission and distribution']]$`2B`[conclist[['Electric power generation, transmission and distribution']]$Sat_ind == "2B"]<-0
+
 
 # save
 save(conclist,file=file.path(wd,paste0("ipcc_conc_",gversion,".RData")))

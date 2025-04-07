@@ -184,7 +184,7 @@ rm(tqm,yqm)
 ### year
 
 ## define here
-w<-which(yrs==2021)
+w<-which(yrs==2020)
 
 yr=yrs[w]
 yqm=l_yqm[[w]]
@@ -203,8 +203,13 @@ zq<-rbind(tqm,NA,NA)
 fcq<-sequential_ind$fcq
 fsq<-sequential_ind$fsq
 
+##
+unique(fcq)
+unique(fsq)
+##
+
 # define here
-r<-intersect(which(fcq=="Sweden"),which(fsq=="Nitrogenous fertilizers"))
+r<-intersect(which(fcq=="Germany"),which(fsq=="Electric power generation, transmission and distribution"))
 
 tmpc<-fcq[r] # the country
 tmps<-fsq[r] # the sector
