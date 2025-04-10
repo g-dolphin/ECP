@@ -13,8 +13,9 @@ git_repo_path = "/ECP"
 
 output_dir = ""
 
-df_prices_econ = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/price/ecp_economy/ecp_CO2.csv")
+df_prices_econ = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
 
+# OECD
 oecd = ["United States", "Mexico", "Japan", "Germany", "Turkey", "France",
         "United Kingdom", "Italy", "Korea, Rep.", "Spain", "Poland", "Canada",
         "Australia", "Chile", "Netherlands", "Belgium", "Greece", "Czech Republic",
@@ -22,10 +23,60 @@ oecd = ["United States", "Mexico", "Japan", "Germany", "Turkey", "France",
         "Denmark", "Finland", "Slovak Republic", "Norway", "Ireland", "New Zealand",
         "Lithuania", "Slovenia", "Latvia", "Estonia", "Luxembourg", "Iceland"]
 
+# European Union - 27_2020
 eu27 = ['Austria', 'Belgium', 'Bulgaria', 'Cyprus', 'Czech Republic', 'Germany', 'Denmark', 
          'Estonia', 'Greece', 'Greece', 'Spain', 'Finland', 'France', 'Croatia', 'Hungary', 
          'Ireland', 'Ireland', 'Italy', 'Lithuania', 'Luxembourg', 'Latvia', 'Malta', 'Netherlands', 
          'Poland', 'Portugal', 'Romania', 'Sweden', 'Slovenia', 'Slovakia']
+
+# Asia pacific (IMF)
+imf_apac = [
+    "Afghanistan",
+    "Australia",
+    "Bangladesh",
+    "Bhutan",
+    "Brunei Darussalam",
+    "Cambodia",
+    "China",
+    "Fiji",
+    "India",
+    "Indonesia",
+    "Japan",
+    "Kazakhstan",
+    "Kiribati",
+    "Korea, Republic of",
+    "Kyrgyz Republic",
+    "Lao People's Democratic Republic",
+    "Malaysia",
+    "Maldives",
+    "Marshall Islands",
+    "Micronesia, Federated States of",
+    "Mongolia",
+    "Myanmar",
+    "Nauru",
+    "Nepal",
+    "New Zealand",
+    "Pakistan",
+    "Palau",
+    "Papua New Guinea",
+    "Philippines",
+    "Samoa",
+    "Singapore",
+    "Solomon Islands",
+    "Sri Lanka",
+    "Tajikistan",
+    "Thailand",
+    "Timor-Leste",
+    "Tonga",
+    "Turkmenistan",
+    "Tuvalu",
+    "Uzbekistan",
+    "Vanuatu",
+    "Vietnam"
+]
+
+# Latin America
+latam = []
 
 oecd_subnat = [] #list of US states and Canadian provinces
 
@@ -57,36 +108,42 @@ sum_stat = df_prices_econ.ecp_all_jurCO2_usd_k.describe()
 
 # Country group simple average
 
-avg_oecd = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(oecd)) & (df_prices_econ.year==2021), "ecp_all_jurCO2_usd_k"].mean()
-avg_midinc = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(middle_income)) & (df_prices_econ.year==2021), "ecp_all_jurCO2_usd_k"].mean()
-avg_eu27 = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(eu27)) & (df_prices_econ.year==2021), "ecp_all_jurCO2_usd_k"].mean()
+avg_oecd = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(oecd)) & (df_prices_econ.year==2022), "ecp_all_jurCO2_usd_k"].mean()
+avg_midinc = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(middle_income)) & (df_prices_econ.year==2022), "ecp_all_jurCO2_usd_k"].mean()
+avg_eu27 = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(eu27)) & (df_prices_econ.year==2022), "ecp_all_jurCO2_usd_k"].mean()
 
 # Country group emissions-weighted average prices
 
-tot_emissions = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/national/ClimateWatch/CAIT/CAIT_2021/CAIT_country_tot_2021_WBnames.csv")
+tot_emissions = pd.read_csv("/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/processed/ghg_national_total.csv")
  
-ctryGroups = {"oecd":oecd, "MiddleIncome":middle_income, "eu27":eu27}
+ctryGroups = {
+    "oecd":oecd, 
+    "MiddleIncome":middle_income, 
+    "eu27":eu27, 
+    "AsiaPacific":imf_apac}
 
-averageCtryGroup = {}
+averageCtryGroup = pd.DataFrame()
 
 for ctryGroup in ctryGroups.keys():
     
-    df = tot_emissions.loc[tot_emissions.jurisdiction.isin(ctryGroups[ctryGroup]), :]
+    df = tot_emissions.loc[tot_emissions.jurisdiction.isin(ctryGroups[ctryGroup]), ["jurisdiction", "year", "CO2", "all_GHG"]]
     
     emissionsCtryGroup = df.groupby(["year"]).sum()
     df = df.merge(emissionsCtryGroup, on=["year"], how='left')
     
-    df["share_CO2_"+ctryGroup] = df.Total_CO2_Emissions_Excluding_LUCF_MtCO2e_x/df.Total_CO2_Emissions_Excluding_LUCF_MtCO2e_y
-    df["share_GHG_"+ctryGroup] = df.Total_GHG_Emissions_Excluding_LUCF_MtCO2e_x/df.Total_GHG_Emissions_Excluding_LUCF_MtCO2e_y
+    df["share_CO2_"+ctryGroup] = df.CO2_x/df.CO2_y
+    df["share_GHG_"+ctryGroup] = df.all_GHG_x/df.all_GHG_y
     
     average = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(ctryGroups[ctryGroup])), ["jurisdiction", "year", "ecp_all_jurCO2_usd_k"]].merge(df, on=["jurisdiction", "year"], how='left').fillna(method='ffill')
     average = average[["jurisdiction", "year", "ecp_all_jurCO2_usd_k", "share_CO2_"+ctryGroup]]
-    average["price_"+ctryGroup+"_weighted"] = average.ecp_all_jurCO2_usd_k*average["share_CO2_"+ctryGroup]
+    average["CO2_price"] = average.ecp_all_jurCO2_usd_k*average["share_CO2_"+ctryGroup]
     
-    average = average.groupby(["year"])["price_"+ctryGroup+"_weighted"].sum()
+    average = average.groupby(["year"])["CO2_price"].sum().reset_index()
+    average["region"] = ctryGroup
 
-    averageCtryGroup[ctryGroup] = average
+    averageCtryGroup = pd.concat([averageCtryGroup, average], axis=0)
 
+averageCtryGroup.to_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_economy/ecp_CO2_regional.csv")
 
 # Share of emissions covered by mechanisms implemented by year [yyyy]
 
