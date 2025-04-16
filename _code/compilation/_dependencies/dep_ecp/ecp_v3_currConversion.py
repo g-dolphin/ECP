@@ -77,7 +77,7 @@ def cur_conv(wcpd_all, gas,
 
     # GDP deflator
     gdp_dfl = ecp_general.wb_series("GDP deflator: linked series (base year varies by country)", "gdp_dfl")
-    gdp_dfl = gdp_dfl.loc[(gdp_dfl.year>=1985) & (gdp_dfl.year<=2021),:]
+    gdp_dfl = gdp_dfl.loc[(gdp_dfl.year>=1985) & (gdp_dfl.year<=2023),:]
     gdp_dfl.to_csv(path_git_data+'/wb_rates/gdp_dfl.csv', index=None)
 
     gdp_dfl_ii = pd.DataFrame()
@@ -120,11 +120,11 @@ def cur_conv(wcpd_all, gas,
         
         gdp_dfl = pd.concat([gdp_dfl, temp_df])
 
-    # temp fix for year 2022
-    gdp_dfl_2022 = gdp_dfl.loc[gdp_dfl.year==2021]
-    gdp_dfl_2022["year"] = 2022
+    # temp fix for year 2024
+    gdp_dfl_2024 = gdp_dfl.loc[gdp_dfl.year==2023]
+    gdp_dfl_2024["year"] = 2024
 
-    gdp_dfl = pd.concat([gdp_dfl, gdp_dfl_2022])
+    gdp_dfl = pd.concat([gdp_dfl, gdp_dfl_2024])
 
     gdp_dfl.to_csv(path_git_data+'/wb_rates/gdp_dfl_ratio.csv', index=None)
 
