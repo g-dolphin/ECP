@@ -11,7 +11,7 @@ ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_fu
 
 # CO2
 
-def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg, edgar_wb_map):
+def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
 
     # Dictionary of product categories
     productCategories = {"Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL', 'SUBCOAL', 
@@ -66,6 +66,7 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg, edgar_wb_map):
     # Add ipcc codes
     ipccCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv',
                             usecols=[0,3])
+    ipccCodes = ipccCodes[~ipccCodes.FLOW.isna()] # remove rows with NA entries; otherwise 'NA' entries in 'FLOW' column get merged with the multiple 'NA' entries in ipccCodes
     df = df.merge(ipccCodes, on='FLOW', how='left')
 
     # dataframe format/labels standardization
@@ -76,13 +77,8 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg, edgar_wb_map):
     del df
 
     # Data from EDGAR database (IPPU)
-    # format ipcc_code and year columns
-    edgar_ghg["ipcc_code"] = edgar_ghg["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
-    edgar_ghg["ipcc_code"] = edgar_ghg["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
-
     # select sectors
-    ippu_fug_nat = edgar_ghg.loc[edgar_ghg.ipcc_code.str.match("1B|2"), :]
-
+    ippu_fug_nat = edgar_ghg_df.loc[edgar_ghg_df.ipcc_code.str.match("1B|2"), :]
     ippu_fug_nat["jurisdiction"].replace(to_replace=edgar_wb_map, inplace=True)
 
     # dataframe standardization
@@ -97,7 +93,7 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg, edgar_wb_map):
     inventory_nat = wcpd_df.loc[wcpd_df.jurisdiction.isin(jur_names), ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]]
     inventory_nat[["iea_code", "Product"]] = inventory_nat[["iea_code", "Product"]].fillna("NA")
 
-    combined_nat = pd.concat([combustion_nat, ippu_fug_nat])
+    combined_nat = pd.concat([combustion_nat, ippu_fug_nat], axis=0)
 
     inventory_nat = inventory_nat.merge(combined_nat, on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"], how="left")
     

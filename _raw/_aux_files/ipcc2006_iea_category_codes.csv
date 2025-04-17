@@ -131,11 +131,11 @@ ipcc_code,CODENAME,FULLNAME,FLOW,lowest_level
 2D3,SolventUse,Solvent Use,,1
 2D4,Other,Other (please specify),,1
 2E,ElectronicsIndustry,Electronics Industry,,0
-20,IntegratedCircuitOrSemiconductor,Integrated Circuit or Semiconductor,,1
-200,TFTFlatPanelDisplay,TFT Flat Panel Display,,1
-2000,Photovoltaics,Photovoltaics,,1
-20000,HeatTransferFluid,Heat Transfer Fluid,,1
-200000,Other,Other (please specify),,1
+2E1,IntegratedCircuitOrSemiconductor,Integrated Circuit or Semiconductor,,1
+2E2,TFTFlatPanelDisplay,TFT Flat Panel Display,,1
+2E3,Photovoltaics,Photovoltaics,,1
+2E4,HeatTransferFluid,Heat Transfer Fluid,,1
+2E5,Other,Other (please specify),,1
 2F,ProductUsesAsSubstitutesForOzoneDepletingSubstances,Product uses as Substitutes for Ozone Depleting Substances,,0
 2F1,RefrigerationAndAirConditioning,Refrigeration and Air Conditioning,,1
 2F2,FoamBlowingAgents,Foam Blowing Agents,,1
