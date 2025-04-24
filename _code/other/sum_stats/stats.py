@@ -13,7 +13,8 @@ git_repo_path = "/ECP"
 
 output_dir = ""
 
-df_prices_econ = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
+# df_prices_econ = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
+df_prices_econ = pd.read_csv(r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv")
 
 # OECD
 oecd = ["United States", "Mexico", "Japan", "Germany", "Turkey", "France",
@@ -108,9 +109,9 @@ sum_stat = df_prices_econ.ecp_all_jurCO2_usd_k.describe()
 
 # Country group simple average
 
-avg_oecd = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(oecd)) & (df_prices_econ.year==2022), "ecp_all_jurCO2_usd_k"].mean()
-avg_midinc = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(middle_income)) & (df_prices_econ.year==2022), "ecp_all_jurCO2_usd_k"].mean()
-avg_eu27 = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(eu27)) & (df_prices_econ.year==2022), "ecp_all_jurCO2_usd_k"].mean()
+avg_oecd = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(oecd)) & (df_prices_econ.year==2024), "ecp_all_jurCO2_usd_k"].mean()
+avg_midinc = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(middle_income)) & (df_prices_econ.year==2024), "ecp_all_jurCO2_usd_k"].mean()
+avg_eu27 = df_prices_econ.loc[(df_prices_econ.jurisdiction.isin(eu27)) & (df_prices_econ.year==2024), "ecp_all_jurCO2_usd_k"].mean()
 
 # Country group emissions-weighted average prices
 

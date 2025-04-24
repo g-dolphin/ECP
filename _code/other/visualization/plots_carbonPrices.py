@@ -19,7 +19,7 @@ from pathlib import Path
 ## PATHS
 
 prices_economy = pd.read_csv(r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv")
-prices_usd_max = pd.read_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max.csv")
+prices_usd_max = pd.read_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max_2024.csv")
 #coverage = pd.read_csv(path_input+r"/carbonPrices_coverage.csv")
 
 # CHART-SPECIFIC PLOT FEATURES
@@ -33,6 +33,7 @@ wld_avg = prices_economy.loc[(prices_economy.jurisdiction=="World") & (prices_ec
 # Sort the data by ecp_all_jurCO2_usd_k
 sorted_data = prices_usd_max.sort_values(by="ecp_all_jurCO2_usd_k", ascending=True)
 sorted_data = sorted_data[sorted_data.ecp_all_jurCO2_usd_k!=0]
+sorted_data = sorted_data[sorted_data.jurisdiction!='Malta']
 
 # Extract sorted values
 labels = sorted_data['jurisdiction']  # Or whatever column you're using for labels
