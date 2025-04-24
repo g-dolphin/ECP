@@ -15,12 +15,10 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-directory = os.getcwd() + '\\OneDrive - International Monetary Fund (PRD)\\ClimatePolicyMonitor'
-#directory = os.getcwd() + '\\OneDrive - International Monetary Fund (PRD)\\projects\\Analytical\\ClimatePolicyMonitor'
 
 ## PATHS
 
-prices_economy = ecp.copy()
+prices_economy = pd.read_csv(r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv")
 prices_usd_max = pd.read_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max.csv")
 #coverage = pd.read_csv(path_input+r"/carbonPrices_coverage.csv")
 
@@ -29,44 +27,35 @@ prices_usd_max = pd.read_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrice
 #colors = plt.cm.viridis(np.linspace(0, 0.5, len(prices_usd_max)))
 color_bars = ["lightsteelblue"]
 
-y_pos = np.arange(len(prices_usd_max.jurisdiction.unique()))
-labels = list(prices_usd_max.jurisdiction.unique())
-
 # PLOTS
-wld_avg = prices_economy.loc[(prices_economy.jurisdiction=="World") & (prices_economy.year==2022)]["ecp_all_jurCO2_usd_k"].item()
+wld_avg = prices_economy.loc[(prices_economy.jurisdiction=="World") & (prices_economy.year==2024)]["ecp_all_jurCO2_usd_k"].item()
 
-plt.figure(figsize=(16, 10))
+# Sort the data by ecp_all_jurCO2_usd_k
+sorted_data = prices_usd_max.sort_values(by="ecp_all_jurCO2_usd_k", ascending=True)
+sorted_data = sorted_data[sorted_data.ecp_all_jurCO2_usd_k!=0]
 
-ax1 = plt.bar(y_pos, prices_usd_max.ecp_all_jurCO2_usd_k,
-               color=color_bars, label="Average (emissions-weighted)")
+# Extract sorted values
+labels = sorted_data['jurisdiction']  # Or whatever column you're using for labels
+y_pos = range(len(labels))  # New positions
+prices = sorted_data['ecp_all_jurCO2_usd_k']
+max_prices = sorted_data['max_price']
 
-ax2 = plt.bar(y_pos, prices_usd_max.max_price, 
-                  linewidth=1.5, facecolor=(1,1,1,0), edgecolor=".2", label="Maximum price")
+plt.figure(figsize=(10, 16))  # Adjusted for vertical layout
 
-ax3 = plt.axhline(x=wld_avg, color="firebrick", linestyle='--', label="World average")
+# Plot horizontal bars
+ax1 = plt.barh(y_pos, prices, color=color_bars, label="Average (emissions-weighted)")
+ax2 = plt.barh(y_pos, max_prices, height=0.6, facecolor=(1,1,1,0), edgecolor=".2", linewidth=1.5, label="Maximum price")
 
-#for p in ax2.patches:
-#    ax2.annotate(format(p.get_height(), '.1f'), 
-#                   (p.get_x() + p.get_width() / 2., p.get_height()), 
-#                   ha = 'center', va = 'center', 
-#                   xytext = (0, 9), 
-#                   textcoords = 'offset points')
+# World average line
+plt.axvline(x=wld_avg, color="firebrick", linestyle='--', label="World average")
 
-#plt.title("CO$_2$ prices in Europe (2021)",
-#          size=22)
-plt.yticks(size=18, color="gray")
-plt.xticks(ticks=y_pos, 
-           labels=labels, 
-           size=18, 
-           color="gray",
-           rotation=90) #na_jur
-
-plt.ylabel("2021USD/tCO$_2$", size=18, color="gray")
-plt.legend(loc="upper right", fontsize=16)
+plt.xticks(size=18, color="gray")
+plt.yticks(ticks=y_pos, labels=labels, size=18, color="gray")
+plt.xlabel("2021USD/tCO$_2$", size=18, color="gray")
+plt.legend(loc="lower right", fontsize=16)
 
 plt.tight_layout()
-
-plt.savefig(r"/Users/gd/GitHub/ECP/_figures/plots/max_price_ecp.png")
+plt.savefig(r"/Users/gd/GitHub/ECP/_figures/plots/max_price_ecp_2024.png")
 plt.close()
 
 #------------------------------------ Time series:ecp, economy-wide, CO2 ------------------------------------#

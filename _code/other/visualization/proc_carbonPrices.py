@@ -140,9 +140,13 @@ def concatenate(indir):
     #    concatDf.to_csv(outfile,index=None)
     return concatDf
 
-indir = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/"
-pathECP = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv"
-pathCoverage = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv"
+#indir = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/"
+#pathECP = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv"
+#pathCoverage = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv"
+
+indir = r"/Users/gd/GitHub/ECP/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/"
+pathECP = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv"
+pathCoverage = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/jurisdictions/tot_coverage_jurisdiction_CO2_Apr-24-2025.csv"
 
 prices_usd = concatenate(indir)
 ecp = pd.read_csv(pathECP)
@@ -161,7 +165,7 @@ prices_usd["ISO-a3"] = prices_usd["ISO-a3"].replace(to_replace=NametoISOa3NameMa
 
 coverage = coverage.loc[coverage["ISO-a3"].isin(ctrySel+["World"])]
 
-year = 2022
+year = 2024
 
 #-------------------END OF INPUTS---------------------------
 
@@ -187,7 +191,7 @@ prices_usd_max = prices_usd_max.groupby(["jurisdiction", "year"]).max()
 prices_usd_max.drop(["ipcc_code", "Product"], axis=1, inplace=True)
 prices_usd_max.reset_index(inplace=True)
 
-world_row = pd.DataFrame({"jurisdiction":"World", "year":2022, "max_price":max(prices_usd_max.max_price)}, index=[0])
+world_row = pd.DataFrame({"jurisdiction":"World", "year":2024, "max_price":prices_usd_max.max_price.max()}, index=[0])
 prices_usd_max = pd.concat([prices_usd_max, world_row], ignore_index=True)
 
 # filling 'max_price' column with 0
@@ -202,12 +206,12 @@ prices_usd_max = prices_usd_max.merge(ecp[["jurisdiction", "year", "ecp_all_jurC
 
 prices_usd_max["pct_difference"] = 1-(prices_usd_max.ecp_all_jurCO2_usd_k/prices_usd_max.max_price)
 
-wld_avg = ecp.loc[(ecp.jurisdiction=="World") & (ecp.year==2022), "ecp_all_jurCO2_usd_k"].item()
+wld_avg = ecp.loc[(ecp.jurisdiction=="World") & (ecp.year==2024), "ecp_all_jurCO2_usd_k"].item()
 
 # SAVE INPUT & OUTPUT FILES
 #prices_usd.to_csv(path_input+r"_usd.csv", index = False)
 #ecp.to_csv(path_input+r"_ecp.csv", index = False)
 #coverage.to_csv(path_input+r"_coverage.csv", index = False)
 
-prices_usd_max.to_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max.csv", index = False)
+prices_usd_max.to_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max_"+year+".csv", index = False)
 #prices_economy.to_csv(path_output+r"_economy.csv", index = False)
