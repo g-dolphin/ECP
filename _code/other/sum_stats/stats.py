@@ -125,7 +125,7 @@ ctryGroups = {
 
 averageCtryGroup = pd.DataFrame()
 
-for ctryGroup in ctryGroups.keys():
+for ctryGroup in ['eu27']:#ctryGroups.keys():
     
     df = tot_emissions.loc[tot_emissions.jurisdiction.isin(ctryGroups[ctryGroup]), ["jurisdiction", "year", "CO2", "all_GHG"]]
     
