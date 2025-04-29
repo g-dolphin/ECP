@@ -19,9 +19,9 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
                                     'GASWKSGS', 'COKEOVGS', 'BLFURGS', 'OGASES', 'PEAT', 'PEATPROD', 'OILSHALE'],
                         "Natural gas":['NATGAS'],
                         "Oil":['CRNGFEED', 'CRUDEOIL', 'NGL', 'REFFEEDS', 'ADDITIVE', 'ORIMUL', 
-                                'NONCRUDE', 'REFINGAS', 'ETHANE', 'LPG', 'NONBIOGAS', 'AVGAS', 
-                                'JETGAS', 'OTHKE', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
-                                'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJET'],
+                                'NONCRUDE', 'REFINGAS', 'ETHANE', 'LPG', 'NONBIOGASO', 'AVGAS', 
+                                'JETGAS', 'OTHKERO', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
+                                'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJETK', 'NONBIODIES'],
                         "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
                                 'BIODIESEL', 'OBIOLIQ', 'RENEWNS', 'CHARCOAL'],
                         "Total":['TOTAL']}
