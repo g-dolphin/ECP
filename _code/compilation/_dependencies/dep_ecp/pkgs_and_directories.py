@@ -17,9 +17,9 @@ from importlib.machinery import SourceFileLoader
 from zipfile import ZipFile
 from io import BytesIO, StringIO
 
-path_wcpd = '/Users/gd/GitHub/WorldCarbonPricingDatabase/_dataset/data'
-path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
-path_aux_data = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset'
+path_wcpd = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/WorldCarbonPricingDatabase/_dataset/data'
+path_ghg = '/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/raw'
+path_aux_data = '/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset'
 
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 ecp_cov_fac = SourceFileLoader('coverage_factors', path_dependencies+'/ecp_v3_coverageFactors.py').load_module()

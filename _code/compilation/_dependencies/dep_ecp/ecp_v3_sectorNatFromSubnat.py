@@ -11,7 +11,9 @@ colList = {"ets_price_usd_k":"ecp_ets_supraSec_CO2_usd_k",
 
 def secNat_from_secSubnat(prices, dfSecPriceNat, gas):
 
-   inventories_subnat_ctrySect = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/processed/subnational/"+gas+"/sector_level/inventory_"+gas+".csv")
+# changing file paths for EJ use 
+
+   inventories_subnat_ctrySect = pd.read_csv("/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/processed/subnational/"+gas+"/sector_level/inventory_"+gas+".csv")
 
    # 1. get subnational sector-level ecp (wcpd_usd.csv)
    # ==> done; in dataframe `cfWprices_usd`

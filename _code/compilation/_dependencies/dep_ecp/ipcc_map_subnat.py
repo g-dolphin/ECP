@@ -2,7 +2,7 @@
 
 # Canada
 
-category_names_ipcc_can = pd.read_csv("/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/ipcc_code_name_map_can.csv")
+category_names_ipcc_can = pd.read_csv("/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/ipcc_code_name_map_can.csv")
 category_names_ipcc_can_map = dict(zip(category_names_ipcc_can.category, category_names_ipcc_can.ipcc_code))
 
 # China

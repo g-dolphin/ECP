@@ -8,20 +8,20 @@ import pandas as pd
 import numpy as np
 
 # path to GHG data
-path_ghg = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw"
+path_ghg = "/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/raw"
 
 # load (subnat) jurisdictions lists
-stream = open("/Users/gd/GitHub/WorldCarbonPricingDatabase/_code/_compilation/_dependencies/jurisdictions.py")
+stream = open("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/WorldCarbonPricingDatabase/_code/_compilation/_dependencies/jurisdictions.py")
 read_file = stream.read()
 exec(read_file)
 
 # load inventory sector names to IPCC 
-stream = open("/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp/ipcc_map_subnat.py")
+stream = open("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_code/compilation/_dependencies/dep_ecp/ipcc_map_subnat.py")
 read_file = stream.read()
 exec(read_file)
 
 # jur names mapping
-stream = open("/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp/jur_names_concordances.py")
+stream = open("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_code/compilation/_dependencies/dep_ecp/jur_names_concordances.py")
 read_file = stream.read()
 exec(read_file)
 
@@ -64,7 +64,10 @@ inv_jur_names_chn = pd.read_excel(path_ghg+"/subnational/China/CEADS/CEADS_provi
 inv_jur_names_chn = list(inv_jur_names_chn["Unnamed: 0"])[:-2]
 
 file_list = os.listdir(path_ghg+"/subnational/China/CEADS/CEADS_provincial_emissions/")
-file_list.remove('.DS_Store')
+
+# file location does not have file type 
+
+#file_list.remove('.DS_Store')
 
 china_comb = pd.DataFrame() # df for combustion emissions
 china_proc = pd.DataFrame() # df for process emissions

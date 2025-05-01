@@ -11,7 +11,7 @@ import pandas as pd
 import glob
 import numpy as np
 
-path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
+path_ghg = '/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/raw'
 
 #---------------------FUNCTIONS-------------------------------------
 
@@ -199,7 +199,7 @@ def convert_value_II(na_str):
     
     
 def wb_series(series_name, new_name):
-    wdi_series = pd.read_csv('/Users/gd/GitHub/ECP/_raw/wb_rates/wb_rates.csv', low_memory=False)
+    wdi_series = pd.read_csv('/Users/ejoiner/OneDrive - rff/RFF Organization/Research Documents/WCPD/ECP/_raw/wb_rates/wb_rates.csv', low_memory=False)
     
     series = wdi_series[wdi_series["Series Name"]==series_name]
     series = series.drop(["Country Code", "Series Code", "Series Name"], axis=1)

@@ -8,7 +8,9 @@ Created on Wed Mar 23 10:05:24 2022
 
 from importlib.machinery import SourceFileLoader
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
+# edited for EJ file paths 
+
+path_dependencies = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_code/compilation/_dependencies/dep_ecp'
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
 def coverageFactors(inst_df, gas):
@@ -17,7 +19,7 @@ def coverageFactors(inst_df, gas):
     ets_id_cols = [x for x in inst_df.columns if x.startswith("ets_") and x.endswith("_id")]
     
     ## LOAD COVERAGE FACTORS FILES 
-    coverageFactor = ecp_general.concatenate("/Users/gd/GitHub/WorldCarbonPricingDatabase/_raw/coverageFactor")
+    coverageFactor = ecp_general.concatenate("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/WorldCarbonPricingDatabase/_raw/coverageFactor")
     coverageFactor = coverageFactor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas]]
     
 

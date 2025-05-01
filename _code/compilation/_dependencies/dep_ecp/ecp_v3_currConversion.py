@@ -13,10 +13,10 @@ import re
 
 from importlib.machinery import SourceFileLoader
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
+path_dependencies = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_code/compilation/_dependencies/dep_ecp'
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
-path_git_data = "/Users/gd/GitHub/ECP/_raw"
+path_git_data = "/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw"
 
 ## Emissions prices and rates conversion
 
@@ -26,7 +26,7 @@ def cur_conv(wcpd_all, gas,
              baseYear=None):    
     
     #Loading and formatting x-rate dataframe
-    x_rate = pd.read_csv("/Users/gd/GitHub/ECP/_raw/wb_rates/xRate_bis.csv")
+    x_rate = pd.read_csv("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/wb_rates/xRate_bis.csv")
 
 #    iso3_wb_map={
 #        'Antigua And Barbuda':'Antigua and Barbuda',
