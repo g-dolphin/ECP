@@ -14,7 +14,7 @@ git_repo_path = "/ECP"
 output_dir = ""
 
 # df_prices_econ = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
-df_prices_econ = pd.read_csv(r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv")
+df_prices_econ = pd.read_csv(r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-29-2025.csv")
 
 # OECD
 oecd = ["United States", "Mexico", "Japan", "Germany", "Turkey", "France",
@@ -125,7 +125,7 @@ ctryGroups = {
 
 averageCtryGroup = pd.DataFrame()
 
-for ctryGroup in ['eu27']:#ctryGroups.keys():
+for ctryGroup in ctryGroups.keys():
     
     df = tot_emissions.loc[tot_emissions.jurisdiction.isin(ctryGroups[ctryGroup]), ["jurisdiction", "year", "CO2", "all_GHG"]]
     

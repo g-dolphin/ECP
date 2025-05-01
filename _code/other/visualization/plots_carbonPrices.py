@@ -18,7 +18,6 @@ from pathlib import Path
 
 ## PATHS
 
-prices_economy = pd.read_csv(r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv")
 prices_usd_max = pd.read_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max_2024.csv")
 #coverage = pd.read_csv(path_input+r"/carbonPrices_coverage.csv")
 
@@ -28,7 +27,7 @@ prices_usd_max = pd.read_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrice
 color_bars = ["lightsteelblue"]
 
 # PLOTS
-wld_avg = prices_economy.loc[(prices_economy.jurisdiction=="World") & (prices_economy.year==2024)]["ecp_all_jurCO2_usd_k"].item()
+wld_avg = prices_usd_max.loc[(prices_usd_max.jurisdiction=="World") & (prices_usd_max.year==2024)]["ecp_all_jurCO2_usd_k"].item()
 
 # Sort the data by ecp_all_jurCO2_usd_k
 sorted_data = prices_usd_max.sort_values(by="ecp_all_jurCO2_usd_k", ascending=True)

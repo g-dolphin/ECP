@@ -145,7 +145,7 @@ def concatenate(indir):
 #pathCoverage = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv"
 
 indir = r"/Users/gd/GitHub/ECP/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/"
-pathECP = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-24-2025.csv"
+pathECP = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-29-2025.csv"
 pathCoverage = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/jurisdictions/tot_coverage_jurisdiction_CO2_Apr-24-2025.csv"
 
 prices_usd = concatenate(indir)
@@ -213,5 +213,5 @@ wld_avg = ecp.loc[(ecp.jurisdiction=="World") & (ecp.year==2024), "ecp_all_jurCO
 #ecp.to_csv(path_input+r"_ecp.csv", index = False)
 #coverage.to_csv(path_input+r"_coverage.csv", index = False)
 
-prices_usd_max.to_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max_"+year+".csv", index = False)
+prices_usd_max.to_csv(r"/Users/gd/GitHub/ECP/_figures/dataFig/carbonPrices_usd_max_"+str(year)+".csv", index = False)
 #prices_economy.to_csv(path_output+r"_economy.csv", index = False)
