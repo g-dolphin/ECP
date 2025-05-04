@@ -145,8 +145,8 @@ def concatenate(indir):
 #pathCoverage = r"https://raw.githubusercontent.com/g-dolphin/ECP/master/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv"
 
 indir = r"/Users/gd/GitHub/ECP/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/"
-pathECP = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_Apr-29-2025.csv"
-pathCoverage = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/jurisdictions/tot_coverage_jurisdiction_CO2_Apr-24-2025.csv"
+pathECP = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/ecp/ecp_economy/ecp_vw/ecp_tv_CO2_May-02-2025.csv"
+pathCoverage = r"/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/data/coverage/jurisdictions/tot_coverage_jurisdiction_CO2_May-02-2025.csv"
 
 prices_usd = concatenate(indir)
 ecp = pd.read_csv(pathECP)
