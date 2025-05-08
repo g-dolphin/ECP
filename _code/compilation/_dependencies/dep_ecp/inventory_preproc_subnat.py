@@ -170,5 +170,3 @@ def build_inventory_subnat(wcpd_df, subnat_names, mapping_ipcc_iea, gas, can, ch
     return inventory.merge(combined, on=["supra_jur", "jurisdiction", "year", "ipcc_code", "iea_code"], how="left")[[
         "supra_jur", "jurisdiction", "year", "ipcc_code", "iea_code", gas
     ]]
-
-test = 
