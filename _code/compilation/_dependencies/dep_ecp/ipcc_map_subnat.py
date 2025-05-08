@@ -14,7 +14,7 @@ mappings = {
     "usa": load_ipcc_mapping_from_json(os.path.join(mapping_dir, "ipcc_mapping_usa.json"))
 }
 
-# Access mappings like this
+# Access mappings
 category_names_ipcc_can_map = mappings["canada"]
 category_names_ipcc_chn_map = mappings["china"]
 category_names_ipcc_usa_map = mappings["usa"]
