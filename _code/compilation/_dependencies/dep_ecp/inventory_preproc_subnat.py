@@ -30,12 +30,12 @@ def load_canada_data(path):
     df = pd.read_csv(f"{path}/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2021.csv")
     df = df[df.Region != "Canada"]
 
+    df.drop(columns=["Rollup", "CategoryID", "CH4", "N2O", "Unit"], errors="ignore", inplace=True)
     df.rename(columns={
         "Region": "jurisdiction", "Category": "ipcc_code", "Year": "year",
         "CH4 (CO2eq)": "CH4", "N2O (CO2eq)": "N2O", "CO2eq": "all_GHG"
     }, inplace=True)
 
-    df.drop(columns=["Rollup", "CategoryID", "CH4", "N2O", "Unit"], errors="ignore", inplace=True)
     df = df[~df.ipcc_code.isna()]
     df.ipcc_code.replace(category_names_ipcc_can_map, inplace=True)
 
@@ -94,7 +94,8 @@ def load_usa_data(path):
 
     df_list = []
     for file in file_list:
-        temp = pd.read_csv(file, decimal=",")
+        temp = pd.read_csv(file, decimal=".")
+        temp["Year"] = temp["Year"].apply(lambda x: x.replace(',','')).astype(int)
         state_name = os.path.basename(file)[len("DetailedGHGinventory_"):-4].replace("_", " ").title()
         temp["jurisdiction"] = state_name
         temp.drop(columns=["Ranking", "Sector"], inplace=True)
@@ -102,15 +103,17 @@ def load_usa_data(path):
 
     df = pd.concat(df_list)
     sub_ind = pd.read_csv(f"{path}/subnational/United_States/Rhodium/2022/industry/TS2022_central_subind_ghg.csv")
-    sub_ind = sub_ind[sub_ind.Gas == "CO2 (combustion)"]
-    sub_ind.rename(columns={"StateName": "jurisdiction", "Industry": "Subsector"}, inplace=True)
+    sub_ind = sub_ind[sub_ind.Gas == "CO2 (combustion)"] # keeping only the more detailed data for CO2 combustion
+    sub_ind.rename(columns={"StateName": "jurisdiction", "Industry": "Subsector"}, inplace=True) # excluding this category because we have disaggregated data for the sub-industries
 
     df = df[df.Subsector != "Industry - All combustion"]
     df = pd.concat([df, sub_ind])
     df["ipcc_code"] = df["Subsector"].replace(category_names_ipcc_usa_map)
 
-    excl = ["Transport - Natural gas pipeline", "Carbon Dioxide Consumption", ...]  # Truncated for brevity
-    df = df[~df.ipcc_code.isin(excl)]
+    excl = ['Transport - Natural gas pipeline', 'Carbon Dioxide Consumption', 'Abandoned Oil and Gas Wells', 'Phosphoric Acid Production',
+            'Natural Gas Systems', 'Petroleum Systems', 'Urea Consumption for Non-Agricultural Purposes', 
+            "LULUCF CH4 Emissions", "LULUCF Carbon Stock Change", "LULUCF N2O Emissions", "Balance of Manufacturing", "LNG Export", "MVAC"]
+    df = df[~df.ipcc_code.isin(excl)] # excluding LULUCF emissions because we want totals that exclude those
 
     df["Gas"].replace({"CO2 (combustion)": "CO2", "CO2 (non-combustion)": "CO2"}, inplace=True)
     df.rename(columns={"Year": "year"}, inplace=True)
