@@ -28,7 +28,7 @@ CONVERT_COLUMNS = ["CO2", "CH4", "N2O", "F-GASES", "all_GHG"]
 # --- Load and clean Canada inventory ---
 def load_canada_data(path):
     df = pd.read_csv(f"{path}/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2021.csv")
-    df = df[df.Region != "Canada"]
+    df = df[~df.Region.str.lower().eq("canada")]
 
     df.drop(columns=["Rollup", "CategoryID", "CH4", "N2O", "Unit"], errors="ignore", inplace=True)
     df.rename(columns={
