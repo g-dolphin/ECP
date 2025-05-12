@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 import os
@@ -12,29 +11,38 @@ ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_fu
 # CO2
 
 def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
-
-    # Dictionary of product categories
-    productCategories = {"Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL', 'SUBCOAL', 
-                                    'LIGNITE', 'PATFUEL', 'OVENCOKE', 'GASCOKE', 'COALTAR', 'BKB', 
-                                    'GASWKSGS', 'COKEOVGS', 'BLFURGS', 'OGASES', 'PEAT', 'PEATPROD', 'OILSHALE'],
-                        "Natural gas":['NATGA'],
-                        "Oil":['CRNGFEED', 'CRUDEOIL', 'NGL', 'REFFEEDS', 'ADDITIVE', 'ORIMUL', 
+    # Define product categories as a flat map for fast lookup
+    product_map = {}
+    productCategories = {
+        "Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL', 'SUBCOAL', 
+                'LIGNITE', 'PATFUEL', 'OVENCOKE', 'GASCOKE', 'COALTAR', 'BKB', 
+                'GASWKSGS', 'COKEOVGS', 'BLFURGS', 'OGASES', 'PEAT', 'PEATPROD', 'OILSHALE'],
+        "Natural gas":['NATGAS'],
+        "Oil":['CRNGFEED', 'CRUDEOIL', 'NGL', 'REFFEEDS', 'ADDITIVE', 'ORIMUL', 
                                 'NONCRUDE', 'REFINGAS', 'ETHANE', 'LPG', 'NONBIOGAS', 'AVGAS', 
-                                'JETGAS', 'OTHKE', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
-                                'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJET'],
-                        "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
+                                'JETGAS', 'OTHKERO', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
+                                'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJETK', 'NONBIODIE'],
+        "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
                                 'BIODIESEL', 'OBIOLIQ', 'RENEWNS', 'CHARCOAL'],
-                        "Total":['TOTAL']}
+        "Total":['TOTAL']
+        }
+    for category, products in productCategories.items():
+        product_map.update({p: category for p in products})
 
-    # concatenate IEA yearly emissions files
-    df = pd.read_fwf(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_BIGCO2.TXT',
-                     header=None, names=["jurisdiction", "Product", "year", "FLOWname", "CO2"],
-                     colspecs=[(0,12), (15, 25), (30, 38), (40,58), (58, 85)])
+    # Load IEA data
+    iea_path = path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_BIGCO2.TXT'
+    df = pd.read_fwf(
+        iea_path,
+        header=None,
+        names=["jurisdiction", "Product", "year", "FLOWname", "CO2"],
+        colspecs=[(0, 12), (15, 25), (30, 38), (40, 58), (58, 85)]
+    )
 
-    df["CO2"].replace(to_replace={"..":np.nan, "x":np.nan, "c":np.nan}, 
-                        inplace=True)
-    df["CO2"] = df["CO2"].astype(float)
-    
+    # Clean and convert
+    df["CO2"].replace({"..": np.nan, "x": np.nan, "c": np.nan}, inplace=True)
+    df["CO2"] = pd.to_numeric(df["CO2"], errors="coerce")
+
+    # Filter out memo items (aggregates)
     memoAggregates = ['OECDAM', 'OECDAO', 'OECDEUR', 'OECDTOT', 'OTHERAFRIC' 'OTHERASIA' 'OTHERLATIN',
                       'IEATOT', 'ANNEX2NA', 'ANNEX2EU', 'ANNEX2AO', 'ANNEX2', 'MG7', 'AFRICA',
                       'UNAFRICA', 'MIDEAST', 'EURASIA', 'LATAMER', 'ASIA', 'CHINAREG', 'NOECDTOT',
@@ -43,84 +51,78 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
                       'MYUGO', 'MFSU15', 'MG8', 'MG20', 'OPEC', 'MASEAN', 'EU27_2020', 'MBURKINAFA',
                       'MCHAD', 'MMAURITANI', 'MPALESTINE', 'MMALI', 'MGREENLAND', 'FSUND']
 
-    df = df.loc[~df.jurisdiction.isin(memoAggregates)]
-    df["jurisdiction"] = df["jurisdiction"].apply(lambda x: x.capitalize())
+    df = df[~df.jurisdiction.isin(memoAggregates)]
+    df["jurisdiction"] = df["jurisdiction"].str.capitalize()
 
-    df["ProductCat"] = df["Product"].copy()
+    # Map product categories
+    df["Product"] = df["Product"].map(product_map).fillna("Unknown")
 
-    for key in productCategories.keys():
-        for product in productCategories[key]:
-            df["ProductCat"].replace(to_replace={product:key}, inplace=True)
+    # Aggregate
+    df = df.groupby(["jurisdiction", "Product", "year", "FLOWname"], as_index=False).sum()
 
-    df = df.groupby(["jurisdiction", "ProductCat", "year", "FLOWname"]).sum().reset_index()
+    # Replace jurisdiction names
+    df["jurisdiction"].replace(iea_wb_map, inplace=True)
 
+    # Merge flow codes
+    flowCodes_path = '/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv'
+    flowCodes = pd.read_csv(flowCodes_path, usecols=[0, 1])
+    df = df.merge(flowCodes, on="FLOWname", how="left")
 
-    # Country names replacement
-    df["jurisdiction"].replace(to_replace=iea_wb_map, inplace=True)
+    # Merge IPCC codes
+    ipcc_path = '/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv'
+    ipccCodes = pd.read_csv(ipcc_path, usecols=[0, 3])
+    ipccCodes = ipccCodes[ipccCodes["FLOW"].notna()]
+    df = df.merge(ipccCodes, on="FLOW", how="left")
 
-    # Add Flow codes to dataframe
-    flowCodes = pd.read_csv('/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
-                            usecols=[0,1])
-    df = df.merge(flowCodes, on='FLOWname', how='left')
+    # Standardize column names
+    df.rename(columns={"FLOW": "iea_code"}, inplace=True)
+    df.drop(columns="FLOWname", inplace=True)
 
-    # Add ipcc codes
-    ipccCodes = pd.read_csv('/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv',
-                            usecols=[0,3])
-    ipccCodes = ipccCodes[~ipccCodes.FLOW.isna()] # remove rows with NA entries; otherwise 'NA' entries in 'FLOW' column get merged with the multiple 'NA' entries in ipccCodes
-    df = df.merge(ipccCodes, on='FLOW', how='left')
+    # Process EDGAR data (IPPU + fugitive)
+    ippu_fug_nat = edgar_ghg_df[edgar_ghg_df["ipcc_code"].str.match("1B|2")]
+    ippu_fug_nat["jurisdiction"].replace(edgar_wb_map, inplace=True)
 
-    # dataframe format/labels standardization
-    df.rename(columns={"FLOW":"iea_code", "ProductCat":'Product'}, inplace=True)
-    df.drop("FLOWname", axis=1, inplace=True)
-
-    combustion_nat = df.copy()
-    del df
-
-    # Data from EDGAR database (IPPU)
-    # select sectors
-    ippu_fug_nat = edgar_ghg_df.loc[edgar_ghg_df.ipcc_code.str.match("1B|2"), :]
-    ippu_fug_nat["jurisdiction"].replace(to_replace=edgar_wb_map, inplace=True)
-
-    # dataframe standardization
-    ippu_fug_nat = ippu_fug_nat[["jurisdiction", "year", "ipcc_code", "CO2"]]
-    ippu_fug_nat["year"] = ippu_fug_nat["year"].astype(int)
+    ippu_fug_nat = ippu_fug_nat[["jurisdiction", "year", "ipcc_code", "CO2"]].copy()
     ippu_fug_nat["iea_code"] = "NA"
     ippu_fug_nat["Product"] = "NA"
+    ippu_fug_nat["year"] = ippu_fug_nat["year"].astype(int)
 
+    # Combine IEA + EDGAR
+    combined_nat = pd.concat([df, ippu_fug_nat], ignore_index=True)
 
-    # COMBINED INVENTORY
-
-    inventory_nat = wcpd_df.loc[wcpd_df.jurisdiction.isin(jur_names), ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]]
+    # Prepare structure from WCPD
+    inventory_nat = wcpd_df[wcpd_df["jurisdiction"].isin(jur_names)][
+        ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]
+    ].copy()
     inventory_nat[["iea_code", "Product"]] = inventory_nat[["iea_code", "Product"]].fillna("NA")
 
-    combined_nat = pd.concat([combustion_nat, ippu_fug_nat], axis=0)
+    # Merge CO2 values into inventory structure
+    inventory_nat = inventory_nat.merge(
+        combined_nat,
+        on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"],
+        how="left"
+    )
 
-    inventory_nat = inventory_nat.merge(combined_nat, on=["jurisdiction", "year", "ipcc_code", "iea_code", "Product"], how="left")
-    
     return inventory_nat
 
-
 # OTHER GHGs
-def inventory_non_co2(gas, edgar_ghg):
 
-    # format ipcc_code and year columns
-    edgar_ghg["ipcc_code"] = edgar_ghg["ipcc_code"].apply(lambda x: x.replace('.', '').upper())
-    edgar_ghg["ipcc_code"] = edgar_ghg["ipcc_code"].apply(lambda x: x.replace('_NORES', '').upper())
 
-    df = edgar_ghg[["jurisdiction", "year", "ipcc_code", gas]]
-
-    return df
-
-# Other GHGs - iea
-# NB: for fugitive emissions, EDGAR is more granular
-def inventory_non_co2_iea(iea_wb_map):
+def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
+    
+    # IEA NON-CO2 DATA, ENERGY USE 
+    # step 1 of combined NAT 
+    
     df = pd.read_table(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
-                        sep = " ", names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value", "add_drop"])
-    
-    df.drop(columns = "add_drop", inplace = True)
-    
-    df = df.loc[~df.gas.isin(["CO2", "TOTAL"])]
+                            sep = " ", names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value", "add_drop"])
+        # restrict to gas
+    df = df[df['gas'] == gas]
         
+    df.rename(columns= {"Value": gas}, inplace = True)
+        
+    df.drop(columns = ["add_drop", "gas"], inplace = True)
+        
+        # Filter out memo items (aggregates)
     memoAggregates = ['OECDAM', 'OECDAO', 'OECDEUR', 'OECDTOT', 'OTHERAFRIC' 'OTHERASIA' 'OTHERLATIN',
                         'IEATOT', 'ANNEX2NA', 'ANNEX2EU', 'ANNEX2AO', 'ANNEX2', 'MG7', 'AFRICA',
                         'UNAFRICA', 'MIDEAST', 'EURASIA', 'LATAMER', 'ASIA', 'CHINAREG', 'NOECDTOT',
@@ -128,22 +130,70 @@ def inventory_non_co2_iea(iea_wb_map):
                         'UNEUROPE', 'UNOCEANIA', 'EU28', 'ANNEX1', 'ANNEX1EIT', 'NONANNEX1', 'ANNEXB',
                         'MYUGO', 'MFSU15', 'MG8', 'MG20', 'OPEC', 'MASEAN', 'EU27_2020', 'MBURKINAFA',
                         'MCHAD', 'MMAURITANI', 'MPALESTINE', 'MMALI', 'MGREENLAND', 'FSUND']
-        
-    df = df.loc[~df.jurisdiction.isin(memoAggregates)]
-    df["jurisdiction"] = df["jurisdiction"].apply(lambda x: x.capitalize())
 
-        # Country names replacement
+    df = df[~df.jurisdiction.isin(memoAggregates)]
+    df["jurisdiction"] = df["jurisdiction"].str.capitalize()
+
+            # Country names replacement
     df["jurisdiction"].replace(to_replace=iea_wb_map, inplace=True)
 
-        # Add Flow codes to dataframe
+
+            # Add Flow codes to dataframe
     flowCodes = pd.read_csv('/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
-                                usecols=[0,1])
+                                    usecols=[0,1])
     df = df.merge(flowCodes, on='FLOWname', how='left')
 
-        # Add ipcc codes
+    # Add ipcc codes
     ipccCodes = pd.read_csv('/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/ipcc2006_iea_code_update.csv')
     ipccCodes.rename(columns={"Product ": "Product"}, inplace=True)
 
     df = df.merge(ipccCodes, on=["Product", "FLOWname"], how='left')
+
+    df.rename(columns= {"IPCC_CODE": "ipcc_code", "IPCC_CODE2 ": "ipcc_code2", "IPCC_CODE3": "ipcc_code3"}, inplace = True)
+    df["Source"] = "IEA"
+    df = df.replace({"Product": {"TOTAL": "Total", "OIL": "Oil", "COAL": "Coal", "NATGAS": "Natural gas", "BIOPROD": "Bioprod", "OTHER": "Other"},
+                    gas: {"..": "0", "x": "0", "c": "0"}})
+    df[gas] = df[gas].astype(str)
+        
+    #EDGAR DATA 
     
-    return df
+    # format ipcc_code and year columns
+    edgar_ghg = pd.read_csv('/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/processed/ghg_national_total_ipcc.csv')
+
+    edgar_ghg = edgar_ghg[["jurisdiction", "year", "ipcc_code", gas]]
+    edgar_ghg["jurisdiction"].replace(edgar_wb_map, inplace=True)
+    edgar_ghg["Source"] = "EDGAR"
+    
+    ## remove all energy related values, as those are covered by the IEA data
+    edgar_ghg = edgar_ghg[~edgar_ghg['ipcc_code'].astype(str).str.startswith('1')]
+    edgar_ghg[gas] = edgar_ghg[gas].astype(str)
+    
+    # Aggregate
+    # df = df.groupby(["jurisdiction", "Product", "year", "FLOWname"], as_index=False).sum()
+    inventory_gas_nat = wcpd_df[wcpd_df["jurisdiction"].isin(jur_names)][
+            ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]].copy()
+
+    inventory_gas_nat[["iea_code", "Product"]] = inventory_gas_nat[["iea_code", "Product"]].fillna("NA")
+
+    # MERGE IEA DATA TO WCPD FRAME 
+    inventory_gas_nat = inventory_gas_nat.merge(
+            df,
+            on=["jurisdiction", "year", "ipcc_code", "Product"],
+            how="left"
+        )
+
+    # MERGE EDGAR DATA TO WCPD FRAME  
+    inventory_gas_nat = inventory_gas_nat.merge(
+            edgar_ghg,
+            on=["jurisdiction", "year", "ipcc_code"],
+            how="left"
+        )
+    
+    left = gas + "_x"
+    right = gas +"_y"
+    
+    inventory_gas_nat[gas] = inventory_gas_nat[left].fillna("")  + inventory_gas_nat[right].fillna("") 
+    inventory_gas_nat["Source"] = inventory_gas_nat["Source_x"].fillna("") + inventory_gas_nat["Source_y"].fillna("")
+    inventory_gas_nat = inventory_gas_nat.drop(columns = [left, right,"Source_x", "Source_y"])
+
+    return inventory_gas_nat
