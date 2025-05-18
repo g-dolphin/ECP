@@ -69,17 +69,17 @@ def inventoryShare(category, jurGroup, gas, level):
 
     # remove unused columns
     inventory = inventory[['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', gas]]
-    inventory = inventory.loc[inventory.year<=2020, :]
+    inventory = inventory.loc[inventory.year<=2022, :]
 
-    for yr in range(2021, 2023):
-        temp = inventory.loc[inventory.year==2020, :].copy()
-        temp["year"].replace(to_replace={2020:yr}, inplace=True)
+    for yr in range(2023, 2025):
+        temp = inventory.loc[inventory.year==2022, :].copy()
+        temp["year"].replace(to_replace={2022:yr}, inplace=True)
 
         inventory = pd.concat([inventory, temp])
 
     # inventory subset
     ## creating parent-child category dictionary to include child categories in inventory subset
-    ipccList = list(ipccCodes.IPCC_CODE.unique())
+    ipccList = list(ipccCodes.ipcc_code.unique())
     ipccDict = {}
     ipccDict[category] = [x for x in ipccList if (x.startswith(category)) if (len(x)==len(category)+1)]
     
