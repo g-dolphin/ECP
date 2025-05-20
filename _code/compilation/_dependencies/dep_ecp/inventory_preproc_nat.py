@@ -110,8 +110,7 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
 
 def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
     
-    # IEA NON-CO2 DATA, ENERGY USE 
-    # step 1 of combined NAT 
+    # IEA NON-CO2 DATA, ENERGY USE ONLY 
     
     df = pd.read_table(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
                             sep = " ", names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value", "add_drop"])
@@ -152,7 +151,7 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
     df.rename(columns= {"IPCC_CODE": "ipcc_code", "IPCC_CODE2 ": "ipcc_code2", "IPCC_CODE3": "ipcc_code3"}, inplace = True)
     df["Source"] = "IEA"
     df = df.replace({"Product": {"TOTAL": "Total", "OIL": "Oil", "COAL": "Coal", "NATGAS": "Natural gas", "BIOPROD": "Bioprod", "OTHER": "Other"},
-                    gas: {"..": "0", "x": "0", "c": "0"}})
+                    gas: {"..": "", "x": "", "c": ""}})
     df[gas] = df[gas].astype(str)
         
     #EDGAR DATA 
@@ -162,6 +161,7 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
 
     edgar_ghg = edgar_ghg[["jurisdiction", "year", "ipcc_code", gas]]
     edgar_ghg["jurisdiction"].replace(edgar_wb_map, inplace=True)
+    edgar_ghg["Product"] = "NA"
     edgar_ghg["Source"] = "EDGAR"
     
     ## remove all energy related values, as those are covered by the IEA data
@@ -185,7 +185,7 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
     # MERGE EDGAR DATA TO WCPD FRAME  
     inventory_gas_nat = inventory_gas_nat.merge(
             edgar_ghg,
-            on=["jurisdiction", "year", "ipcc_code"],
+            on=["jurisdiction", "year", "ipcc_code", "Product"],
             how="left"
         )
     
