@@ -83,13 +83,39 @@ ndf<-read.csv(file.path(fpa,"nace_code.csv"))
 # join together and keep only what we need
 adf<-merge(cdf,idf,by.x="installation_id",by.y="id") %>% 
   select(installation_id,year,allocatedFree,allocatedTotal,allocated10c,
-         verified,surrendered,surrenderedCummulative,
+         verified,verifiedCummulative,surrendered,surrenderedCummulative,
          registry_id,nace15_id,nace20_id,nace_id)
 
+# how many installations?
+length(unique(adf$installation_id))
+
+# how many verified emissions in 2019
+sum(adf$verified[adf$year==2019],na.rm=T)
+# how many allocated free permits in 2019
+sum(adf$allocatedFree[adf$year==2019],na.rm=T)
+# how many allocated total permits in 2019
+sum(adf$allocatedTotal[adf$year==2019],na.rm=T)
+# how many surrendered permits in 2019
+sum(adf$surrendered[adf$year==2019],na.rm=T)
+# how many surrenderedCummulative permits in 2019
+sum(adf$surrenderedCummulative[adf$year==2019],na.rm=T)
+# how many verifiedCummulative permits in 2019
+sum(adf$verifiedCummulative[adf$year==2019],na.rm=T)
+
+
+# check unique years and industries
 unique(adf$year)
 unique(adf$nace15_id)
 unique(adf$nace20_id)
 unique(adf$nace_id)
+
+# take a look at which ones are NA.
+dft<-adf %>% filter(is.na(nace_id))
+unique(dft$installation_id)
+# quite a few!
+# how many?
+n.instal.nid.nace<-length(unique(dft$installation_id))
+rm(dft)
 
 # we have got NA's here. Remove those cases. Undefined installations.
 adf <- adf %>% filter(!is.na(nace_id))
@@ -97,16 +123,82 @@ unique(adf$nace15_id)
 unique(adf$nace20_id)
 unique(adf$nace_id) 
 # no NAs in nace_id, so use that one.
+length(unique(adf$installation_id))
 
-# remove years after 2023
-adf <- adf %>% filter(year %in% seq(2005,2023))
+
+# any installations that are only part of years after 2023?
+dft<-adf %>% filter(year>2023)
+setdiff(dft$installation_id,adf$installation_id)
+# no, they are all the same.
+rm(dft)
+
+# remove years after 2024
+adf <- adf %>% filter(year %in% seq(2005,2024))
 
 summary(adf$allocatedFree)
 summary(adf$allocatedTotal)
 summary(adf$allocated10c)
 summary(adf$verified)
 summary(adf$surrendered)
-# we have quite a few NAs here. Will treat those as zero.
+# we have quite a few NAs here. Let's test the cases
+
+# allocatedTotal is never NA. So that's already good.
+dft <- adf %>% filter(is.na(allocatedFree))
+length(unique(dft$installation_id))
+unique(dft$nace_id)
+summary(dft$allocatedTotal)
+# ok I see! All of these have zero allocated total
+summary(dft$verified)
+summary(dft$surrendered)
+hist(dft$year)
+rm(dft)
+
+# ok so let's remove the rows with NA under allocatedFree
+adf <- adf %>% filter(!is.na(allocatedFree))
+length(unique(adf$installation_id))
+# so now we have 15,548 installations in the dataset. This means that we have filtered out some years for some installations.
+hist(adf$year)
+
+# now let's check the allocated10c one
+dft <- adf %>% filter(is.na(allocated10c))
+unique(dft$nace_id)
+# all industries represented
+summary(dft$allocatedTotal)
+summary(dft$verified)
+summary(dft$surrendered)
+length(unique(dft$installation_id))
+hist(dft$year)
+# not sure with these NA cases
+rm(dft)
+
+# let's check the verified 
+dft <- adf %>% filter(is.na(verified))
+hist(dft$year)
+# ok so most of those cases are of course in 2024, but some are also earlier.
+summary(dft$allocatedFree) # most (but not all) of these have zero allocated free
+summary(dft$allocatedTotal) # most (but not all) have zero allocated total
+unique(dft$nace_id) # all industries are represented
+length(unique(dft$installation_id[dft$year==2024]))
+rm(dft)
+
+# remove cases with NA in verified
+adf <- adf %>% filter(!is.na(verified))
+length(unique(adf$installation_id))
+
+# now let's check surrendered
+summary(adf$surrendered)
+dft <- adf %>% filter(is.na(surrendered))
+hist(dft$year)
+summary(dft$allocatedFree)
+summary(dft$allocatedTotal)
+summary(dft$verified)
+summary(dft$allocatedTotal-dft$allocatedFree)
+length(unique(dft$installation_id))
+
+# remove cases with NA in surrendered
+adf <- adf %>% filter(!is.na(surrendered))
+length(unique(adf$installation_id))
+unique(adf$nace_id)
 
 # summarise for each nace sector, year and country (treating all NAs as zeros)
 adf<-adf %>% group_by(year,registry_id,nace_id) %>%
@@ -177,38 +269,39 @@ unique(adf$gloria_sector)
 countryconc<-data.frame(matrix(nrow=length(unique(adf$registry_id)),ncol=2))
 colnames(countryconc)<-c("eu2dig","country")
 countryconc$eu2dig<-unique(adf$registry_id)
-countryconc$country[1]<-"Austria"
-countryconc$country[2]<-"Belgium"
-countryconc$country[3]<-"Bulgaria"
-countryconc$country[4]<-"Cyprus"
-countryconc$country[5]<-"CSSR/Czech Republic (1990/1991)"
-countryconc$country[6]<-"Germany"
-countryconc$country[7]<-"Denmark"
-countryconc$country[8]<-"Estonia"
-countryconc$country[9]<-"Spain"
-countryconc$country[10]<-"Finland"
-countryconc$country[11]<-"France"
-countryconc$country[12]<-"United Kingdom"
-countryconc$country[13]<-"Greece"
-countryconc$country[14]<-"Croatia"
-countryconc$country[15]<-"Hungary"
-countryconc$country[16]<-"Ireland"
-countryconc$country[17]<-"Iceland"
-countryconc$country[18]<-"Italy"
-countryconc$country[19]<-"Liechtenstein"
-countryconc$country[20]<-"Lithuania"
-countryconc$country[21]<-"Luxembourg"
-countryconc$country[22]<-"Latvia"
-countryconc$country[23]<-"Malta"
-countryconc$country[24]<-"Netherlands"
-countryconc$country[25]<-"Norway"
-countryconc$country[26]<-"Poland"
-countryconc$country[27]<-"Portugal"
-countryconc$country[28]<-"Romania"
-countryconc$country[29]<-"Sweden"
-countryconc$country[30]<-"Slovenia"
-countryconc$country[31]<-"Slovakia"
-countryconc$country[32]<-"United Kingdom"
+countryconc$country[countryconc$eu2dig=="AT"]<-"Austria"
+countryconc$country[countryconc$eu2dig=="BE"]<-"Belgium"
+countryconc$country[countryconc$eu2dig=="BG"]<-"Bulgaria"
+countryconc$country[countryconc$eu2dig=="CY"]<-"Cyprus"
+countryconc$country[countryconc$eu2dig=="CZ"]<-"CSSR/Czech Republic (1990/1991)"
+countryconc$country[countryconc$eu2dig=="DE"]<-"Germany"
+countryconc$country[countryconc$eu2dig=="DK"]<-"Denmark"
+countryconc$country[countryconc$eu2dig=="EE"]<-"Estonia"
+countryconc$country[countryconc$eu2dig=="ES"]<-"Spain"
+countryconc$country[countryconc$eu2dig=="FI"]<-"Finland"
+countryconc$country[countryconc$eu2dig=="FR"]<-"France"
+countryconc$country[countryconc$eu2dig=="GB"]<-"United Kingdom"
+countryconc$country[countryconc$eu2dig=="GR"]<-"Greece"
+countryconc$country[countryconc$eu2dig=="HR"]<-"Croatia"
+countryconc$country[countryconc$eu2dig=="HU"]<-"Hungary"
+countryconc$country[countryconc$eu2dig=="IE"]<-"Ireland"
+countryconc$country[countryconc$eu2dig=="IS"]<-"Iceland"
+countryconc$country[countryconc$eu2dig=="IT"]<-"Italy"
+countryconc$country[countryconc$eu2dig=="LI"]<-"Liechtenstein"
+countryconc$country[countryconc$eu2dig=="LT"]<-"Lithuania"
+countryconc$country[countryconc$eu2dig=="LU"]<-"Luxembourg"
+countryconc$country[countryconc$eu2dig=="LV"]<-"Latvia"
+countryconc$country[countryconc$eu2dig=="MT"]<-"Malta"
+countryconc$country[countryconc$eu2dig=="NL"]<-"Netherlands"
+countryconc$country[countryconc$eu2dig=="NO"]<-"Norway"
+countryconc$country[countryconc$eu2dig=="PL"]<-"Poland"
+countryconc$country[countryconc$eu2dig=="PT"]<-"Portugal"
+countryconc$country[countryconc$eu2dig=="RO"]<-"Romania"
+countryconc$country[countryconc$eu2dig=="SE"]<-"Sweden"
+countryconc$country[countryconc$eu2dig=="SI"]<-"Slovenia"
+countryconc$country[countryconc$eu2dig=="SK"]<-"Slovakia"
+countryconc$country[countryconc$eu2dig=="XI"]<-"United Kingdom"
+
 
 # add to dataframe
 adf<-merge(adf,countryconc,by.x="registry_id",by.y="eu2dig")
