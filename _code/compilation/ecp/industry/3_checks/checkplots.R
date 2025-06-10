@@ -74,6 +74,15 @@ if(cbase=="edgar" & pl=="cons_p"){
   dfy <- dfy %>% filter(sector == "Household final consumption P.3h")
 }
 
+# remove the extra co2 columns not needed here
+if(cbase=="edgar"){
+  dfy <- dfy %>% select(-c(co2_edgar_1a3b,co2_edgar_1a4))
+} else if (cbase=="oecd"){
+  dfy <- dfy %>% select(-c(co2_oecd_1a3b,co2_oecd_1a4))
+}
+
+
+
 df<-rbind(dfz,dfy)
 df <- df %>% select(year,country,sector,ecp,co2_total)
 rm(dfz,dfy)
