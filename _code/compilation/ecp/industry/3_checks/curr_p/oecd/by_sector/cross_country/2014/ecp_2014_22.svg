@@ -48,13 +48,13 @@
 <polyline points='518.30,293.53 518.30,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='593.77,293.53 593.77,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='669.24,293.53 669.24,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='182.46' y='179.43' width='67.92' height='102.53' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<rect x='257.93' y='179.43' width='67.92' height='102.53' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='31.52' y='50.43' width='67.92' height='231.53' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
-<rect x='257.93' y='201.72' width='67.92' height='80.24' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
-<rect x='408.87' y='252.94' width='67.92' height='29.02' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<rect x='182.46' y='174.97' width='67.92' height='106.99' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<rect x='408.87' y='243.27' width='67.92' height='38.69' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='484.34' y='271.26' width='67.92' height='10.70' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='559.81' y='271.97' width='67.92' height='9.98' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
-<rect x='333.40' y='224.19' width='67.92' height='57.77' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<rect x='333.40' y='204.93' width='67.92' height='77.03' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='106.99' y='139.09' width='67.92' height='142.87' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='635.28' y='281.89' width='67.92' height='0.066' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='20.20' y='38.85' width='694.32' height='254.68' style='stroke-width: 1.07; stroke: #333333;' />
@@ -81,8 +81,8 @@
 <polyline points='669.24,296.27 669.24,293.53 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <text transform='translate(69.94,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='28.86px' lengthAdjust='spacingAndGlyphs'>Finland</text>
 <text transform='translate(145.41,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='31.80px' lengthAdjust='spacingAndGlyphs'>Sweden</text>
-<text transform='translate(220.88,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='35.70px' lengthAdjust='spacingAndGlyphs'>Denmark</text>
-<text transform='translate(296.35,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='26.91px' lengthAdjust='spacingAndGlyphs'>Ireland</text>
+<text transform='translate(220.88,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='26.91px' lengthAdjust='spacingAndGlyphs'>Ireland</text>
+<text transform='translate(296.35,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='35.70px' lengthAdjust='spacingAndGlyphs'>Denmark</text>
 <text transform='translate(371.82,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='33.75px' lengthAdjust='spacingAndGlyphs'>Slovenia</text>
 <text transform='translate(447.29,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='28.38px' lengthAdjust='spacingAndGlyphs'>Iceland</text>
 <text transform='translate(522.76,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='27.87px' lengthAdjust='spacingAndGlyphs'>Mexico</text>
@@ -90,6 +90,6 @@
 <text transform='translate(673.69,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='30.32px' lengthAdjust='spacingAndGlyphs'>Ukraine</text>
 <text x='20.20' y='31.05' style='font-size: 11.00px; font-family: "Arial";' textLength='86.21px' lengthAdjust='spacingAndGlyphs'>USD/tCO2 curr_p</text>
 <text x='20.20' y='14.93' style='font-size: 13.20px; font-family: "Arial";' textLength='220.69px' lengthAdjust='spacingAndGlyphs'>Post-match industry ecp Fishing 2014</text>
-<text x='714.52' y='352.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-04-07</text>
+<text x='714.52' y='352.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-06-10</text>
 </g>
 </svg>

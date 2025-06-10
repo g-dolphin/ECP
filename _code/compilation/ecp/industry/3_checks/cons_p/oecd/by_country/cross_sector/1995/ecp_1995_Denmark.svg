@@ -30,9 +30,9 @@
 </defs>
 <g clip-path='url(#cpMjIyLjIxfDcxNC41MnwzOC44NXw2ODcuODE=)'>
 <rect x='222.21' y='38.85' width='492.31' height='648.96' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<polyline points='314.95,687.81 314.95,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='455.66,687.81 455.66,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='596.37,687.81 596.37,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='314.34,687.81 314.34,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='453.83,687.81 453.83,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='593.32,687.81 593.32,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='222.21,684.60 714.52,684.60 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='222.21,679.24 714.52,679.24 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='222.21,673.89 714.52,673.89 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -155,9 +155,9 @@
 <polyline points='222.21,47.42 714.52,47.42 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='222.21,42.06 714.52,42.06 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='244.59,687.81 244.59,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='385.30,687.81 385.30,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='526.01,687.81 526.01,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='666.72,687.81 666.72,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='384.08,687.81 384.08,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='523.58,687.81 523.58,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='663.07,687.81 663.07,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='244.59' y='39.66' width='0.00' height='4.82' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='244.59' y='45.01' width='0.00' height='4.82' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='244.59' y='50.36' width='0.00' height='4.82' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
@@ -526,15 +526,15 @@
 <polyline points='219.47,47.42 222.21,47.42 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='219.47,42.06 222.21,42.06 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='244.59,690.55 244.59,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='385.30,690.55 385.30,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='526.01,690.55 526.01,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='666.72,690.55 666.72,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='384.08,690.55 384.08,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='523.58,690.55 523.58,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='663.07,690.55 663.07,687.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <text x='244.59' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='4.90px' lengthAdjust='spacingAndGlyphs'>0</text>
-<text x='385.30' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='4.90px' lengthAdjust='spacingAndGlyphs'>5</text>
-<text x='526.01' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>10</text>
-<text x='666.72' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>15</text>
-<text x='222.21' y='31.05' style='font-size: 11.00px; font-family: "Arial";' textLength='182.27px' lengthAdjust='spacingAndGlyphs'>National ecp: 3.72 USD/tCO2 cons_p</text>
+<text x='384.08' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='4.90px' lengthAdjust='spacingAndGlyphs'>5</text>
+<text x='523.58' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>10</text>
+<text x='663.07' y='699.04' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>15</text>
+<text x='222.21' y='31.05' style='font-size: 11.00px; font-family: "Arial";' textLength='182.27px' lengthAdjust='spacingAndGlyphs'>National ecp: 3.76 USD/tCO2 cons_p</text>
 <text x='222.21' y='14.93' style='font-size: 13.20px; font-family: "Arial";' textLength='231.68px' lengthAdjust='spacingAndGlyphs'>Post-match industry ecp Denmark 1995</text>
-<text x='714.52' y='712.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-04-06</text>
+<text x='714.52' y='712.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-06-09</text>
 </g>
 </svg>

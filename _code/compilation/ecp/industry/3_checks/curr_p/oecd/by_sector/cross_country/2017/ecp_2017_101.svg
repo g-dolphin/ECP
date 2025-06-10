@@ -51,7 +51,7 @@
 <polyline points='636.84,293.53 636.84,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='685.39,293.53 685.39,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='566.44' y='281.92' width='43.70' height='0.035' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
-<rect x='226.58' y='230.11' width='43.70' height='51.84' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<rect x='226.58' y='236.58' width='43.70' height='45.38' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='80.93' y='166.14' width='43.70' height='115.82' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='178.03' y='221.94' width='43.70' height='60.02' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='275.14' y='242.62' width='43.70' height='39.34' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
@@ -103,6 +103,6 @@
 <text transform='translate(689.84,302.92) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='48.94px' lengthAdjust='spacingAndGlyphs'>South Korea</text>
 <text x='25.10' y='31.05' style='font-size: 11.00px; font-family: "Arial";' textLength='86.21px' lengthAdjust='spacingAndGlyphs'>USD/tCO2 curr_p</text>
 <text x='25.10' y='14.93' style='font-size: 13.20px; font-family: "Arial";' textLength='265.43px' lengthAdjust='spacingAndGlyphs'>Post-match industry ecp Road transport 2017</text>
-<text x='714.52' y='352.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-04-07</text>
+<text x='714.52' y='352.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-06-10</text>
 </g>
 </svg>

@@ -39,8 +39,10 @@
 <polyline points='27.55,177.20 714.52,177.20 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='27.55,119.37 714.52,119.37 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='27.55,61.55 714.52,61.55 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='371.03,304.95 371.03,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='113.42' y='50.95' width='515.23' height='241.91' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<polyline points='214.90,304.95 214.90,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='527.16,304.95 527.16,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<rect x='74.39' y='50.95' width='281.03' height='241.91' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
+<rect x='386.65' y='288.65' width='281.03' height='4.21' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #104E8B;' />
 <rect x='27.55' y='38.85' width='686.97' height='266.10' style='stroke-width: 1.07; stroke: #333333;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHwzNjAuMDA=)'>
@@ -54,10 +56,12 @@
 <polyline points='24.81,177.20 27.55,177.20 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='24.81,119.37 27.55,119.37 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='24.81,61.55 27.55,61.55 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='371.03,307.69 371.03,304.95 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<text transform='translate(375.49,314.34) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='35.70px' lengthAdjust='spacingAndGlyphs'>Denmark</text>
+<polyline points='214.90,307.69 214.90,304.95 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='527.16,307.69 527.16,304.95 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<text transform='translate(219.36,314.34) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='35.70px' lengthAdjust='spacingAndGlyphs'>Denmark</text>
+<text transform='translate(531.62,314.34) rotate(-45)' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='27.40px' lengthAdjust='spacingAndGlyphs'>Poland</text>
 <text x='27.55' y='31.05' style='font-size: 11.00px; font-family: "Arial";' textLength='86.21px' lengthAdjust='spacingAndGlyphs'>USD/tCO2 curr_p</text>
 <text x='27.55' y='14.93' style='font-size: 13.20px; font-family: "Arial";' textLength='298.41px' lengthAdjust='spacingAndGlyphs'>Post-match industry ecp Electric power gener 1993</text>
-<text x='714.52' y='352.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-04-07</text>
+<text x='714.52' y='352.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='219.68px' lengthAdjust='spacingAndGlyphs'>Emissions-weighted carbon prices database 2025-06-10</text>
 </g>
 </svg>

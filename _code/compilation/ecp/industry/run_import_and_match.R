@@ -19,6 +19,7 @@ if(gversion=="059"){
   source(file.path(gloriawd,"run_imports_v57.R"))
 }
 
+ecpv<-"250606"
 pl<-"curr_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
@@ -35,7 +36,7 @@ for(j in 1:length(cpal)){
 cpinds<-unlist(cpal)
 rm(cpal)
 
-yrs<-seq(1990,2022)
+yrs<-seq(1990,2024)
 zql<-list()
 yql<-list()
 
@@ -92,6 +93,8 @@ for(i in 1:length(yrs)){
   # add emissions columns
   yqdf['co2_edgar_total']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
   yqdf['co2_edgar_1a']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_1a3b']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A3b",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_1a4']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A4",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_edgar_1b']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_edgar_2']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_edgar_3']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
@@ -99,6 +102,8 @@ for(i in 1:length(yrs)){
   yqdf['co2_edgar_5']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_5",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_total']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
   yqdf['co2_oecd_1a']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_1a3b']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A3b",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_1a4']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A4",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_1b']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_2']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_3']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()

@@ -11,9 +11,13 @@ dir.create(file.path(ecpwd, "tmpdir"))
 
 ## specify source filepath here
 if(pl=="curr_p"){
-  fpe<-file.path(here::here(),"_dataset","ecp","ipcc","ecp_ipcc","currentPrices","FlexXRate")
+  fpe<-file.path("C:","Users","jomerkle",
+                 "OneDrive - Norwegian University of Life Sciences","data",
+                 "ECP_RESTRICTEDACCESS",ecpv,"currentPrices","FlexXRate")
 } else if(pl=="cons_p"){
-  fpe<-file.path(here::here(),"_dataset","ecp","ipcc","ecp_ipcc","constantPrices","FixedXRate")
+  fpe<-file.path("C:","Users","jomerkle",
+                 "OneDrive - Norwegian University of Life Sciences","data",
+                 "ECP_RESTRICTEDACCESS",ecpv,"constantPrices","FixedXRate")
 }
 
 ## copy data

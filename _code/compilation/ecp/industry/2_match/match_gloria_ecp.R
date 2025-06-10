@@ -45,7 +45,7 @@ if(pl=="cons_p"){
 load(file.path(ecpmwd,"ipcc_conc",paste0("ipcc_conc_",gversion,".RData")))
 
 # define years to run the process for
-yrs<-seq(1990,2022)
+yrs<-seq(1990,2024)
 
 
 ################################################################################

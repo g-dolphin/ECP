@@ -581,11 +581,6 @@ conclist[['households']]$`1A4C3`[conclist[['households']]$Sat_ind %in% c("1A4","
 # here we want to map only 1A3C, not 1A3B (wrong allocation in GLORIA)
 conclist[['Rail transport']]$`1A3B`[conclist[['Rail transport']]$Sat_ind %in% c("1A3b","1A3b_noRES","1A3b_RES")]<-0
 
-### Electric power
-# here we want to map only 1A1A, not 2B (wrong allocation in GLORIA)
-conclist[['Electric power generation, transmission and distribution']]$`2B`[conclist[['Electric power generation, transmission and distribution']]$Sat_ind == "2B"]<-0
-
-
 # save
 save(conclist,file=file.path(wd,paste0("ipcc_conc_",gversion,".RData")))
 #
