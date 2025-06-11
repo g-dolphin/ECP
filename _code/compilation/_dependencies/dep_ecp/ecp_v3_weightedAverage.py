@@ -3,89 +3,98 @@ import numpy as np
 import re
 
 
+import re
+import pandas as pd
 
-def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year=None, sectors=bool):
+
+def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year=None, sectors=False):
     
-    global ecp_variables_map 
-    
+    # 1. Merge keys & filtered price data
     if jur_level == "national":
         merge_keys = ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]
         prices_temp = prices.copy()
-        
-    if jur_level == "subnational":
+    elif jur_level == "subnational":
         merge_keys = ["jurisdiction", "year", "ipcc_code", "iea_code"]
-        prices_temp = prices.loc[prices.Product=="Natural gas", :].copy() # currently taking "Natural gas" price for all sector emissions. Not an issue since virtually all subnational prices are the same across fuels.
-        prices_temp.drop(["Product"], axis=1, inplace=True)
-              
-    if weight_type=="time_varying":
+        prices_temp = prices.loc[prices.Product == "Natural gas"].copy()
+        prices_temp.drop(columns=["Product"], inplace=True)
+    else:
+        raise ValueError(f"Invalid jurisdiction level: {jur_level}")
+
+    # 2. Merge price data into coverage dataframe
+    if weight_type == "time_varying":
         temp_df = coverage_df.copy()
         temp_df = temp_df.merge(prices_temp, on=merge_keys, how="left")
-        
-    elif weight_type=="fixed":
-        temp_df = coverage_df.loc[coverage_df.year==weight_year, :]
-        temp_df.drop(["year"], axis=1, inplace=True)
-        fw_merge_keys = merge_keys.copy()
-        fw_merge_keys.remove("year")
-        
-        # merging on `prices_temp` keys in this case because this is the dataframe with all years
-        temp_df = temp_df.merge(prices_temp, on=fw_merge_keys, how="right")
+    elif weight_type == "fixed":
+        temp_df = coverage_df[coverage_df.year == weight_year].drop(columns=["year"])
+        merge_keys_fw = [k for k in merge_keys if k != "year"]
+        temp_df = temp_df.merge(prices_temp, on=merge_keys_fw, how="right")
+    else:
+        raise ValueError(f"Invalid weight_type: {weight_type}")
+    
+    # 3. Define variable mapping (pattern-based)
+    def get_cols(patterns):
+        return [col for col in temp_df.columns if any(re.search(pat, col) for pat in patterns)]
 
-    ecp_variables_map = {"ecp_ets_jurGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jurGHG"), x))==True], 
-                         "ecp_ets_jur"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+jur"+gas), x))==True], 
-                         "ecp_ets_wldGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+wldGHG"), x))==True],
-                         "ecp_ets_wld"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+wld"+gas), x))==True],
-                         "ecp_tax_jurGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+jurGHG"), x))==True], 
-                         "ecp_tax_jur"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+jur"+gas), x))==True], 
-                         "ecp_tax_wldGHG_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+wldGHG"), x))==True], 
-                         "ecp_tax_wld"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+wld"+gas), x))==True]}
+    ecp_variables_map = {
+        f"ecp_ets_jurGHG_usd_k": get_cols([r"ets.*price", r"cov_ets.*jurGHG"]),
+        f"ecp_ets_jur{gas}_usd_k": get_cols([r"ets.*price", fr"cov_ets.*jur{gas}"]),
+        f"ecp_ets_wldGHG_usd_k": get_cols([r"ets.*price", r"cov_ets.*wldGHG"]),
+        f"ecp_ets_wld{gas}_usd_k": get_cols([r"ets.*price", fr"cov_ets.*wld{gas}"]),
+        f"ecp_tax_jurGHG_usd_k": get_cols([r"tax.*rate", r"cov_tax.*jurGHG"]),
+        f"ecp_tax_jur{gas}_usd_k": get_cols([r"tax.*rate", fr"cov_tax.*jur{gas}"]),
+        f"ecp_tax_wldGHG_usd_k": get_cols([r"tax.*rate", r"cov_tax.*wldGHG"]),
+        f"ecp_tax_wld{gas}_usd_k": get_cols([r"tax.*rate", fr"cov_tax.*wld{gas}"]),
+    }
 
-    ecp_variables_map_sect = {"ecp_ets_sect"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+_share"), x))==True], 
-                              "ecp_tax_sect"+gas+"_usd_k":[x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+_share"), x))==True]}
-    
-    
-    if jur_level == "subnational" and sectors == False:
-        ecp_variables_map["ecp_ets_supraGHG_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+supraGHG"), x))==True]
-        ecp_variables_map["ecp_ets_supra"+gas+"_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("ets.+price+."), x))==True or bool(re.match(re.compile("cov_ets.+supra"+gas), x))==True]
-        ecp_variables_map["ecp_tax_supraGHG_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+supraGHG"), x))==True]
-        ecp_variables_map["ecp_tax_supra"+gas+"_usd_k"] = [x for x in list(temp_df.columns) if bool(re.match(re.compile("tax.+rate+."), x))==True or bool(re.match(re.compile("cov_tax.+supra"+gas), x))==True]
+    ecp_variables_map_sect = {
+        f"ecp_ets_sect{gas}_usd_k": get_cols([r"ets.*price", fr"cov_ets.*wld{gas}"]),
+        f"ecp_tax_sect{gas}_usd_k": get_cols([r"tax.*rate", fr"cov_tax.*wld{gas}"]),
+    }
 
-    if sectors == False:
-        ecp_mapping = ecp_variables_map
-    elif sectors == True:
-        ecp_mapping = ecp_variables_map_sect
-    
-    for key in ecp_mapping.keys():
-        temp_df[key] = 0
-        length = int(len(ecp_mapping[key])/2)
-        
-        for i in range(0, length):
-            cols = ecp_mapping[key]
-            cols.sort()
-            
-            temp_df[key] = temp_df[cols[i]]*temp_df[cols[i+length]] #+ #nan values need to be replaced with 0 otherwise the sum won't work
-        
-        temp_df[key] = temp_df[key].astype(float)
-    
-    temp_df = temp_df[merge_keys+list(ecp_mapping.keys())] 
-    
-    
-    temp_df = temp_df.fillna(0) # CHECK WHY "NA" VALUES ARE PRODUCED IN THE FIRST PLACE
+    if jur_level == "subnational" and not sectors:
+        ecp_variables_map.update({
+            f"ecp_ets_supraGHG_usd_k": get_cols([r"ets.*price", r"cov_ets.*supraGHG"]),
+            f"ecp_ets_supra{gas}_usd_k": get_cols([r"ets.*price", fr"cov_ets.*supra{gas}"]),
+            f"ecp_tax_supraGHG_usd_k": get_cols([r"tax.*rate", r"cov_tax.*supraGHG"]),
+            f"ecp_tax_supra{gas}_usd_k": get_cols([r"tax.*rate", fr"cov_tax.*supra{gas}"]),
+        })
 
-    
-    if sectors == False:
-        temp_df["ecp_all_jurGHG_usd_k"] = temp_df["ecp_tax_jurGHG_usd_k"]+temp_df["ecp_ets_jurGHG_usd_k"]
-        temp_df["ecp_all_jur"+gas+"_usd_k"] = temp_df["ecp_tax_jur"+gas+"_usd_k"]+temp_df["ecp_ets_jur"+gas+"_usd_k"]
-        temp_df["ecp_all_wldGHG_usd_k"] = temp_df["ecp_tax_wldGHG_usd_k"]+temp_df["ecp_ets_wldGHG_usd_k"]
-        temp_df["ecp_all_wld"+gas+"_usd_k"] = temp_df["ecp_tax_wld"+gas+"_usd_k"]+temp_df["ecp_ets_wld"+gas+"_usd_k"]
+    # 4. Choose correct mapping
+    ecp_mapping = ecp_variables_map_sect if sectors else ecp_variables_map
 
-    elif sectors == True:
-        temp_df["ecp_all_sect"+gas+"_usd_k"] = temp_df["ecp_tax_sect"+gas+"_usd_k"]+temp_df["ecp_ets_sect"+gas+"_usd_k"]
+    # 5. Compute effective carbon prices
+    print("\nSector ECP mapping:")
+    for key, cols in ecp_mapping.items():
+        print(f"{key}: {len(cols)} columns → {cols}")
+
+        if len(cols) % 2 != 0:
+            raise ValueError(f"Expected pairs of price and coverage columns for {key}, got odd number of columns.")
         
-    if jur_level == "subnational" and sectors == False:
-        temp_df["ecp_all_supraGHG_usd_k"] = temp_df["ecp_tax_supraGHG_usd_k"]+temp_df["ecp_ets_supraGHG_usd_k"]
-        temp_df["ecp_all_supra"+gas+"_usd_k"] = temp_df["ecp_tax_supra"+gas+"_usd_k"]+temp_df["ecp_ets_supra"+gas+"_usd_k"]
+        temp_df[key] = 0.0
+        cols = sorted(cols)
+        half = len(cols) // 2
         
-    temp_df = temp_df.loc[~temp_df.ipcc_code.isin(flow_excl), :] # exclude aggregate sectors to avoid double counting
+        for i in range(half):
+            temp_df[key] += temp_df[cols[i]].fillna(0) * temp_df[cols[i + half]].fillna(0)
+
+    # 6. Build total ECP columns
+    if not sectors:
+        temp_df["ecp_all_jurGHG_usd_k"] = temp_df["ecp_tax_jurGHG_usd_k"] + temp_df["ecp_ets_jurGHG_usd_k"]
+        temp_df[f"ecp_all_jur{gas}_usd_k"] = temp_df[f"ecp_tax_jur{gas}_usd_k"] + temp_df[f"ecp_ets_jur{gas}_usd_k"]
+        temp_df["ecp_all_wldGHG_usd_k"] = temp_df["ecp_tax_wldGHG_usd_k"] + temp_df["ecp_ets_wldGHG_usd_k"]
+        temp_df[f"ecp_all_wld{gas}_usd_k"] = temp_df[f"ecp_tax_wld{gas}_usd_k"] + temp_df[f"ecp_ets_wld{gas}_usd_k"]
+    
+    if sectors==True:
+        temp_df[f"ecp_all_sect{gas}_usd_k"] = temp_df[f"ecp_tax_sect{gas}_usd_k"] + temp_df[f"ecp_ets_sect{gas}_usd_k"]
+
+    if jur_level == "subnational" and not sectors:
+        temp_df["ecp_all_supraGHG_usd_k"] = temp_df["ecp_tax_supraGHG_usd_k"] + temp_df["ecp_ets_supraGHG_usd_k"]
+        temp_df[f"ecp_all_supra{gas}_usd_k"] = temp_df[f"ecp_tax_supra{gas}_usd_k"] + temp_df[f"ecp_ets_supra{gas}_usd_k"]
+
+    # 7. Final cleanup
+    ecp_total_keys = [col for col in temp_df.columns if col.startswith("ecp_all_")]
+    output_cols = merge_keys + list(ecp_mapping.keys()) + ecp_total_keys
+    temp_df = temp_df[output_cols].fillna(0)
     
     return temp_df
     
