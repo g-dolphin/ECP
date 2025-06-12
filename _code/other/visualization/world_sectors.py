@@ -20,7 +20,7 @@ sector_map = {
     "1A2I": "Mining and Quarrying",
     "1A2J": "Wood and Wood Products",
     "1A2L": "Textile and Leather",
-#     "1A3A1": "International Aviation",
+    "1A3A1": "International Aviation",
     "1A3B": "Road Transport",
     "1A4A": "Buildings - Commercial and Institutional",
     "1A4B": "Buildings - Residential",
