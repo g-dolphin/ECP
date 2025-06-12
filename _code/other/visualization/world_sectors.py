@@ -20,7 +20,7 @@ sector_map = {
     "1A2I": "Mining and Quarrying",
     "1A2J": "Wood and Wood Products",
     "1A2L": "Textile and Leather",
-    "1A3A1": "International Aviation",
+#     "1A3A1": "International Aviation",
     "1A3B": "Road Transport",
     "1A4A": "Buildings - Commercial and Institutional",
     "1A4B": "Buildings - Residential",
@@ -75,7 +75,9 @@ ax.scatter([1.05] * len(combined_df), combined_df.index, s=100, c="black", zorde
 
 # CO₂ price labels
 for i, (index, row) in enumerate(combined_df.iterrows()):
-    ax.text(1.08, i, f'{row["Average CO₂ price (USD/t)"]:.0f} USD/tCO$_2$',
+    price = row["Average CO₂ price (USD/t)"]
+    label = "<1 USD/tCO$_2$" if price < 1 else f"{price:.0f} USD/tCO$_2$"
+    ax.text(1.08, i, label,
             va='center', ha='left', fontsize=10, fontweight='bold', color="black")
 
 # Axes style
@@ -96,4 +98,6 @@ ax.spines["right"].set_visible(False)
 ax.legend(loc="lower left", bbox_to_anchor=(0.08, 0.02), frameon=False)
 
 plt.tight_layout()
+plt.savefig(r"/Users/gd/GitHub/ECP/_figures/plots/world_sectors_ecp.svg")
+plt.savefig(r"/Users/gd/GitHub/ECP/_figures/plots/world_sectors_ecp.png")
 plt.show()
