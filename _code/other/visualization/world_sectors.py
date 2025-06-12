@@ -1,9 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load uploaded data
-coverage_df = pd.read_csv("/mnt/data/tot_coverage_world_sectors_CO2.csv")
-price_df = pd.read_csv("/mnt/data/world_sectoral_ecp_CO2.csv")
+# Load data
+coverage_df = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/coverage/tot_coverage_world_sectors_CO2.csv")
+price_df = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_world_sectors/world_sectoral_ecp_CO2.csv")
 
 # Define sector mapping
 sector_map = {
@@ -22,72 +22,78 @@ sector_map = {
     "1A2L": "Textile and Leather",
     "1A3A1": "International Aviation",
     "1A3B": "Road Transport",
-    "1A4A": "Commercial and Institutional",
-    "1A4B": "Residential",
+    "1A4A": "Buildings - Commercial and Institutional",
+    "1A4B": "Buildings - Residential",
     "1A4C": "Agriculture, Forestry, Fishing"
 }
 
-# Filter data for 2024 and map sectors
+# Prepare 2024 data
 coverage_df_2024 = coverage_df[coverage_df["year"] == 2024].copy()
 price_df_2024 = price_df[price_df["year"] == 2024].copy()
 
+# Map sector names
 coverage_df_2024["sector_name"] = coverage_df_2024["ipcc_code"].map(sector_map)
 price_df_2024["sector_name"] = price_df_2024["ipcc_code"].map(sector_map)
 
-# Aggregate by sector
-coverage_sector = (
-    coverage_df_2024.groupby(["sector_name", "instrument"])
-    .agg({"coverage_share": "sum"})
-    .unstack(fill_value=0)
-)
+# Select and rename columns
+coverage_df_2024 = coverage_df_2024[["sector_name", "cov_ets_CO2_WldSectCO2", "cov_tax_CO2_WldSectCO2"]]
+coverage_df_2024.rename(columns={
+    "cov_ets_CO2_WldSectCO2": "ETS",
+    "cov_tax_CO2_WldSectCO2": "Carbon tax"
+}, inplace=True)
 
-price_sector = (
-    price_df_2024.groupby("sector_name")
-    .agg({"ecp_usd_tCO2": "mean"})
-)
+price_df_2024["Average CO₂ price (USD/t)"] = price_df_2024["ecp_all_sectCO2_usd_k"]
+price_df_2024 = price_df_2024[["sector_name", "Average CO₂ price (USD/t)"]]
 
-# Merge coverage and price data
-combined_df = coverage_sector.join(price_sector, how="outer").fillna(0)
-combined_df.columns = ["Carbon tax", "ETS", "Average CO₂ price (USD/t)"]
-combined_df = combined_df[["ETS", "Carbon tax", "Average CO₂ price (USD/t)"]]
+# Merge and sort
+combined_df = coverage_df_2024.merge(price_df_2024, on="sector_name", how="outer").dropna()
+combined_df.set_index("sector_name", inplace=True)
 combined_df = combined_df.sort_values(by=["ETS", "Carbon tax"], ascending=False)
 
-
-# Re-plot with the legend correctly positioned just above the x-axis (below title, above x-label)
+# Plot
 fig, ax = plt.subplots(figsize=(10, 6))
 
-# Bar segments
-bars_ets = ax.barh(refined_df.index, refined_df["ETS"], color="navy", label="ETS")
-bars_tax = ax.barh(refined_df.index, refined_df["Carbon tax"], left=refined_df["ETS"], color="red", label="Carbon tax")
+# Stacked bars
+bars_ets = ax.barh(combined_df.index, combined_df["ETS"], color="navy", label="ETS")
+bars_tax = ax.barh(combined_df.index, combined_df["Carbon tax"], left=combined_df["ETS"], color="red", label="Carbon tax")
 
-# Add percentage labels inside bars
+# Bar labels
 for bar in bars_ets:
     width = bar.get_width()
     if width > 0.03:
-        ax.text(width / 2, bar.get_y() + bar.get_height() / 2, f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
+        ax.text(width / 2, bar.get_y() + bar.get_height() / 2,
+                f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
 
 for bar in bars_tax:
     width = bar.get_width()
     if width > 0.03:
-        ax.text(bar.get_x() + width / 2, bar.get_y() + bar.get_height() / 2, f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
+        ax.text(bar.get_x() + width / 2, bar.get_y() + bar.get_height() / 2,
+                f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
 
-# Add dots for average CO2 prices
-ax.scatter([1.05] * len(refined_df), refined_df.index, 
-           s=100, c="black", zorder=5, marker='o', label="Average price")
+# CO₂ price dots
+ax.scatter([1.05] * len(combined_df), combined_df.index, s=100, c="black", zorder=5, marker='o', label="Average price")
 
-# Annotate prices with larger, bold font
-for i, (index, row) in enumerate(refined_df.iterrows()):
-    ax.text(1.08, i, f'{row["Average CO₂ price (USD/t)"]:.0f} USD/tCO$_2$', 
+# CO₂ price labels
+for i, (index, row) in enumerate(combined_df.iterrows()):
+    ax.text(1.08, i, f'{row["Average CO₂ price (USD/t)"]:.0f} USD/tCO$_2$',
             va='center', ha='left', fontsize=10, fontweight='bold', color="black")
 
-# Style
+# Axes style
+ax.set_xlim(0, 1.25)
 ax.set_xlabel("Share of sector GHG emissions covered")
 ax.set_title("Share of sectors' global GHG emissions covered by an ETS or Carbon Tax (2024)")
-ax.set_xlim(0, 1.25)
 ax.invert_yaxis()
 
-# Legend correctly placed above x-axis (below title, above x-label)
-ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.08), ncol=3, frameon=False)
+# Dotted grid
+ax.xaxis.grid(True, linestyle=":", color="gray", alpha=0.6)
+ax.set_axisbelow(True)
+
+# Remove top and right spines
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+# Legend inside figure, bottom left corner (avoids overlap)
+ax.legend(loc="lower left", bbox_to_anchor=(0.08, 0.02), frameon=False)
 
 plt.tight_layout()
 plt.show()
