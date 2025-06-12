@@ -22,7 +22,7 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
         "Oil":['CRNGFEED', 'CRUDEOIL', 'NGL', 'REFFEEDS', 'ADDITIVE', 'ORIMUL', 
                                 'NONCRUDE', 'REFINGAS', 'ETHANE', 'LPG', 'NONBIOGAS', 'AVGAS', 
                                 'JETGAS', 'OTHKERO', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
-                                'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJETK', 'NONBIODIE'],
+                                'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOJET', 'NONBIODIE'],
         "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
                                 'BIODIESEL', 'OBIOLIQ', 'RENEWNS', 'CHARCOAL'],
         "Total":['TOTAL']

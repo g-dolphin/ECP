@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 coverage_df = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/coverage/tot_coverage_world_sectors_CO2.csv")
 price_df = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_world_sectors/world_sectoral_ecp_CO2.csv")
 
+# US GDP deflator
+gdp_def = 124.16/107.59
+
 # Define sector mapping
 sector_map = {
     "1A1A1": "Electricity Generation",
@@ -13,14 +16,14 @@ sector_map = {
     "1A2B": "Non-Ferrous Metals",
     "1A2C": "Chemicals",
     "1A2D": "Pulp, Paper, Print",
-    "1A2E": "Food Processing",
+#    "1A2E": "Food Processing",
     "1A2F": "Non-Metallic Minerals",
-    "1A2G": "Transport Equipment",
-    "1A2H": "Machinery",
+#    "1A2G": "Transport Equipment",
+#    "1A2H": "Machinery",
     "1A2I": "Mining and Quarrying",
     "1A2J": "Wood and Wood Products",
     "1A2L": "Textile and Leather",
-#     "1A3A1": "International Aviation",
+    "1A3A1": "International Aviation",
     "1A3B": "Road Transport",
     "1A4A": "Buildings - Commercial and Institutional",
     "1A4B": "Buildings - Residential",
@@ -71,19 +74,19 @@ for bar in bars_tax:
                 f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
 
 # CO₂ price dots
-ax.scatter([1.05] * len(combined_df), combined_df.index, s=100, c="black", zorder=5, marker='o', label="Average price")
+ax.scatter([1.05] * len(combined_df), combined_df.index, s=100, c="black", zorder=5, marker='o', label="Global average price")
 
 # CO₂ price labels
 for i, (index, row) in enumerate(combined_df.iterrows()):
-    price = row["Average CO₂ price (USD/t)"]
+    price = row["Average CO₂ price (USD/t)"]*gdp_def
     label = "<1 USD/tCO$_2$" if price < 1 else f"{price:.0f} USD/tCO$_2$"
     ax.text(1.08, i, label,
             va='center', ha='left', fontsize=10, fontweight='bold', color="black")
 
 # Axes style
 ax.set_xlim(0, 1.25)
-ax.set_xlabel("Share of sector GHG emissions covered")
-ax.set_title("Share of sectors' global GHG emissions covered by an ETS or Carbon Tax (2024)")
+ax.set_xlabel("Share of sector CO$_2$ emissions covered")
+ax.set_title("Share of sectors' global CO$_2$ emissions covered by an ETS or Carbon Tax (2024)")
 ax.invert_yaxis()
 
 # Dotted grid
@@ -95,7 +98,7 @@ ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 # Legend inside figure, bottom left corner (avoids overlap)
-ax.legend(loc="lower left", bbox_to_anchor=(0.08, 0.02), frameon=False)
+ax.legend(loc="lower left", bbox_to_anchor=(0.32, 0.02), frameon=False)
 
 plt.tight_layout()
 plt.savefig(r"/Users/gd/GitHub/ECP/_figures/plots/world_sectors_ecp.svg")
