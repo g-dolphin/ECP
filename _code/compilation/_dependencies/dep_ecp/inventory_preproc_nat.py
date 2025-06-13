@@ -43,11 +43,11 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
     df["CO2"].replace({"..": np.nan, "x": np.nan, "c": np.nan}, inplace=True)
     df["CO2"] = pd.to_numeric(df["CO2"], errors="coerce")
 
-    # Filter out memo items (aggregates)
+    # Filter out memo items (aggregates) - leaving in 'WORLDAV', 'WORLDMAR' at this stage, separating later
     memoAggregates = ['OECDAM', 'OECDAO', 'OECDEUR', 'OECDTOT', 'OTHERAFRIC' 'OTHERASIA' 'OTHERLATIN',
                       'IEATOT', 'ANNEX2NA', 'ANNEX2EU', 'ANNEX2AO', 'ANNEX2', 'MG7', 'AFRICA',
                       'UNAFRICA', 'MIDEAST', 'EURASIA', 'LATAMER', 'ASIA', 'CHINAREG', 'NOECDTOT',
-                      'IEAFAMILY', 'WORLDAV', 'WORLDMAR', 'WORLD', 'UNAMERICAS', 'UNASIATOT',
+                      'IEAFAMILY', 'WORLD', 'UNAMERICAS', 'UNASIATOT',
                       'UNEUROPE', 'UNOCEANIA', 'EU28', 'ANNEX1', 'ANNEX1EIT', 'NONANNEX1', 'ANNEXB',
                       'MYUGO', 'MFSU15', 'MG8', 'MG20', 'OPEC', 'MASEAN', 'EU27_2020', 'MBURKINAFA',
                       'MCHAD', 'MMAURITANI', 'MPALESTINE', 'MMALI', 'MGREENLAND', 'FSUND']
@@ -75,9 +75,18 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
     ipccCodes = ipccCodes[ipccCodes["FLOW"].notna()]
     df = df.merge(ipccCodes, on="FLOW", how="left")
 
+    df_int_bunkers = df[df.jurisdiction.isin(['Worldav', 'Worldmar']) & (df.Product=="Oil") & (df.FLOW=="ABFLOW041")]
+    df = df[~df.jurisdiction.isin(['Worldav', 'Worldmar'])]
+
+    df_int_bunkers.loc[df_int_bunkers.jurisdiction=="Worldav", "ipcc_code"] = "1A3A1"
+    df_int_bunkers.loc[df_int_bunkers.jurisdiction=="Worldmar", "ipcc_code"] = "1A3D1"
+
     # Standardize column names
     df.rename(columns={"FLOW": "iea_code"}, inplace=True)
     df.drop(columns="FLOWname", inplace=True)
+
+    df_int_bunkers.rename(columns={"FLOW": "iea_code"}, inplace=True)
+    df_int_bunkers.drop(columns="FLOWname", inplace=True)
 
     # Process EDGAR data (IPPU + fugitive)
     ippu_fug_nat = edgar_ghg_df[edgar_ghg_df["ipcc_code"].str.match("1B|2")]
@@ -104,7 +113,7 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
         how="left"
     )
 
-    return inventory_nat
+    return inventory_nat, df_int_bunkers
 
 
 # OTHER GHGs
