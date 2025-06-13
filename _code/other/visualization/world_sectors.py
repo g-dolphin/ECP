@@ -74,17 +74,17 @@ for bar in bars_tax:
                 f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
 
 # CO₂ price dots
-ax.scatter([1.05] * len(combined_df), combined_df.index, s=100, c="black", zorder=5, marker='o', label="Global average price")
+ax.scatter([0.95] * len(combined_df), combined_df.index, s=100, c="black", zorder=5, marker='o', label="Global average price")
 
 # CO₂ price labels
 for i, (index, row) in enumerate(combined_df.iterrows()):
     price = row["Average CO₂ price (USD/t)"]*gdp_def
     label = "<1 USD/tCO$_2$" if price < 1 else f"{price:.0f} USD/tCO$_2$"
-    ax.text(1.08, i, label,
+    ax.text(0.98, i, label,
             va='center', ha='left', fontsize=10, fontweight='bold', color="black")
 
 # Axes style
-ax.set_xlim(0, 1.25)
+ax.set_xlim(0, 1)
 ax.set_xlabel("Share of sector CO$_2$ emissions covered")
 ax.set_title("Share of sectors' global CO$_2$ emissions covered by an ETS or Carbon Tax (2024)")
 ax.invert_yaxis()
