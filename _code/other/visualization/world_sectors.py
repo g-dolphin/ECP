@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 # Load data
 coverage_df = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/coverage/tot_coverage_world_sectors_CO2.csv")
 price_df = pd.read_csv("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_world_sectors/world_sectoral_ecp_CO2.csv")
+price_covered_df = pd.read_excel("/Users/gd/GitHub/ECP/_dataset/ecp/ipcc/ecp_world_sectors/world_sectoral_ecp_covered_CO2.xlsx")
 
 # US GDP deflator
 gdp_def = 124.16/107.59
@@ -33,10 +34,12 @@ sector_map = {
 # Prepare 2024 data
 coverage_df_2024 = coverage_df[coverage_df["year"] == 2024].copy()
 price_df_2024 = price_df[price_df["year"] == 2024].copy()
+price_covered_df_2024 = price_covered_df[price_covered_df["year"] == 2024].copy()
 
 # Map sector names
 coverage_df_2024["sector_name"] = coverage_df_2024["ipcc_code"].map(sector_map)
 price_df_2024["sector_name"] = price_df_2024["ipcc_code"].map(sector_map)
+price_covered_df_2024["sector_name"] = price_covered_df_2024["ipcc_code"].map(sector_map)
 
 # Select and rename columns
 coverage_df_2024 = coverage_df_2024[["sector_name", "cov_ets_CO2_WldSectCO2", "cov_tax_CO2_WldSectCO2"]]
@@ -48,8 +51,12 @@ coverage_df_2024.rename(columns={
 price_df_2024["Average CO₂ price (USD/t)"] = price_df_2024["ecp_all_sectCO2_usd_k"]
 price_df_2024 = price_df_2024[["sector_name", "Average CO₂ price (USD/t)"]]
 
+price_covered_df_2024["Average CO₂ price (USD/t) - covered emissions"] = price_covered_df_2024["ecp_covered_all_sectCO2_usd_k"]
+price_covered_df_2024 = price_covered_df_2024[["sector_name", "Average CO₂ price (USD/t) - covered emissions"]]
+
 # Merge and sort
 combined_df = coverage_df_2024.merge(price_df_2024, on="sector_name", how="outer").dropna()
+combined_df = combined_df.merge(price_covered_df_2024, on="sector_name", how="outer").dropna()
 combined_df.set_index("sector_name", inplace=True)
 combined_df = combined_df.sort_values(by=["ETS", "Carbon tax"], ascending=False)
 
@@ -73,20 +80,34 @@ for bar in bars_tax:
         ax.text(bar.get_x() + width / 2, bar.get_y() + bar.get_height() / 2,
                 f"{width:.0%}", ha="center", va="center", color="white", fontsize=8)
 
-# CO₂ price dots
-ax.scatter([0.95] * len(combined_df), combined_df.index, s=100, c="black", zorder=5, marker='o', label="Global average price")
-
-# CO₂ price labels
-for i, (index, row) in enumerate(combined_df.iterrows()):
-    price = row["Average CO₂ price (USD/t)"]*gdp_def
-    label = "<1 USD/tCO$_2$" if price < 1 else f"{price:.0f} USD/tCO$_2$"
-    ax.text(0.98, i, label,
+# unit
+ax.text(0.86, -0.75, "USD/tCO$_2$",
             va='center', ha='left', fontsize=10, fontweight='bold', color="black")
+
+# CO₂ price dots (unweighted average) - shifted *up*
+ax.scatter([0.86] * len(combined_df), combined_df.index, s=80, c="black", zorder=5, marker='o', label="Global average price (all emissions)")
+
+# CO₂ price labels (unweighted average) - also shifted *up*
+for i, (index, row) in enumerate(combined_df.iterrows()):
+    price = row["Average CO₂ price (USD/t)"] * gdp_def
+    label = "<1 USD/tCO$_2$" if price < 1 else f"{price:.0f}"
+    ax.text(0.89, i, label,
+            va='center', ha='left', fontsize=9, fontweight='bold', color="black")
+
+# CO₂ price stars (weighted average) - shifted *down*
+ax.scatter([0.95] * len(combined_df), combined_df.index, s=80, c="black", zorder=5, marker='d', label="Global average price (covered emissions)")
+
+# CO₂ price labels (weighted average) - also shifted *down*
+for i, (index, row) in enumerate(combined_df.iterrows()):
+    price = row["Average CO₂ price (USD/t) - covered emissions"] * gdp_def
+    label = "<1 USD/tCO$_2$" if price < 1 else f"{price:.0f}"
+    ax.text(0.98, i, label,
+            va='center', ha='left', fontsize=9, fontweight='bold', color="black")
 
 # Axes style
 ax.set_xlim(0, 1)
 ax.set_xlabel("Share of sector CO$_2$ emissions covered")
-ax.set_title("Share of sectors' global CO$_2$ emissions covered by an ETS or Carbon Tax (2024)")
+ax.set_title("Global sectors' carbon pricing coverage and prices (2024)")
 ax.invert_yaxis()
 
 # Dotted grid
@@ -98,7 +119,7 @@ ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 # Legend inside figure, bottom left corner (avoids overlap)
-ax.legend(loc="lower left", bbox_to_anchor=(0.32, 0.02), frameon=False)
+ax.legend(loc="lower left", bbox_to_anchor=(0.33, 0.02), frameon=False)
 
 plt.tight_layout()
 plt.savefig(r"/Users/gd/GitHub/ECP/_figures/plots/world_sectors_ecp.svg")
