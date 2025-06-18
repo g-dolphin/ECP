@@ -1,5 +1,6 @@
 # Load data
-file_path = "/Users/gd/OneDrive - rff/Documents/Research/resources/data/WS_XRU_csv_col.csv"
+# source: https://data.bis.org/topics/XRU/data
+file_path = "/Users/gd/Library/CloudStorage/OneDrive-Personal/Documents/research/resources/data/WS_XRU_csv_col.csv"
 output_path = "/Users/gd/GitHub/ECP/_raw/wb_rates/xRate_bis.csv"
 
 # Read and filter data
