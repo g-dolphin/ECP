@@ -1,12 +1,14 @@
 # Emissions-weighted Carbon Price
 
-The present dataset constitutes an extension of a dataset initially developed while pursuing my PhD within the Energy Policy Research Group at the University of Cambridge. Its existence owes much to its support as well as that of the Cambridge Judge Business School and the UK Economic and Social Research Council. Its most recent update was supported by Resources for the Future.
+The present dataset constitutes an extension of a dataset initially developed while pursuing my PhD within the Energy Policy Research Group at the University of Cambridge. Its existence owes much to its support as well as that of the Cambridge Judge Business School and the UK Economic and Social Research Council. Its most recent updates are supported by Resources for the Future.
 
-The Emissions-weighted Carbon Price (ECP) is an economy-wide average price on CO2 emissions. It is calculated from sector-fuel level data, which is aggregated back to the economy level using the share of each sector-fuel CO2 emissions in total GHG emissions as weights. The full methodology is described in the Resources for the Future Working Paper 22-6 [Emissions-weighted carbon price: Sources and Methods](https://www.rff.org/publications/working-papers/emissions-weighted-carbon-price-sources-and-methods/).
+The Emissions-weighted Carbon Price (ECP) is an economy-wide average price on CO2 emissions. It is calculated from sector-fuel level data, which is aggregated back to the economy level using the share of each sector-fuel CO2 emissions in total GHG emissions as weights. The full methodology is described in [Dolphin and Merkle (2025)](https://www.nature.com/articles/s41597-024-03121-6)
+
+If this dataset has been useful to you or simply think it's cool, feel free to give it a ⭐!
 
 ## Jurisdiction average
 
-It is calculated for 46 national and 31 subnational jurisdictions (13 Canadian provinces and territories, 11 US states, and 7 Chinese provinces) over 1990–2022. The average World CO2 price is also calculated. For national jurisdictions, the emissions-weighted price accounts for the prices arising from carbon pricing instruments introduced in their respective subnational jurisdictions. For instance, the emissions-weighted price for the United States includes the prices arising from state-level carbon pricing mechanisms.
+It is calculated for 198 national and 75 subnational jurisdictions (13 Canadian provinces and territories, 50 US states, and 22 Chinese provinces) over 1990–2024. The average World CO2 price is also calculated. For national jurisdictions, the emissions-weighted price accounts for the prices arising from carbon pricing instruments introduced in their respective subnational jurisdictions. For instance, the emissions-weighted price for the United States includes the prices arising from state-level carbon pricing mechanisms.
 
 Its calculation requires the combination of information about:
  1. Carbon pricing mechanisms' coverage
