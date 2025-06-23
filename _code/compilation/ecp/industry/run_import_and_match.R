@@ -19,8 +19,8 @@ if(gversion=="059"){
   source(file.path(gloriawd,"run_imports_v57.R"))
 }
 
-ecpv<-"250606"
-pl<-"curr_p"
+#ecpv<-"250606"
+pl<-"cons_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
@@ -119,7 +119,7 @@ yqd<-do.call("rbind",yql)
 # we save seperate these files separately due to GitHub restrictions on file size
 if(pl=="curr_p"){
   # current price, industry level, edgar based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
@@ -131,7 +131,7 @@ if(pl=="curr_p"){
                       "currentPrice","FlexXRate",
                       "ecp_gloria_edgar_industry_cpdisagg.csv"),row.names = F)
   # current price, industry level, oecd based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
@@ -143,7 +143,7 @@ if(pl=="curr_p"){
                       "currentPrice","FlexXRate",
                       "ecp_gloria_oecd_industry_cpdisagg.csv"),row.names = F)
   # current price, demand level, edgar based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "currentPrice","FlexXRate",
@@ -155,7 +155,7 @@ if(pl=="curr_p"){
                       "currentPrice","FlexXRate",
                       "ecp_gloria_edgar_finaldem_cpdisagg.csv"),row.names = F)
   # current price, demand level, oecd based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
@@ -168,7 +168,7 @@ if(pl=="curr_p"){
                       "ecp_gloria_oecd_finaldem_cpdisagg.csv"),row.names = F)
 } else if (pl=="cons_p"){
   # constant price, industry level, edgar based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "constantPrice","FixedXRate",
@@ -180,7 +180,7 @@ if(pl=="curr_p"){
                       "constantPrice","FixedXRate",
                       "ecp_gloria_edgar_industry_cpdisagg.csv"),row.names = F)
   # constant price, industry level, oecd based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "constantPrice","FixedXRate",
@@ -192,7 +192,7 @@ if(pl=="curr_p"){
                       "constantPrice","FixedXRate",
                       "ecp_gloria_oecd_industry_cpdisagg.csv"),row.names = F)
   # constant price, demand level, edgar based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "constantPrice","FixedXRate",
@@ -204,7 +204,7 @@ if(pl=="curr_p"){
                       "constantPrice","FixedXRate",
                       "ecp_gloria_edgar_finaldem_cpdisagg.csv"),row.names = F)
   # constant price, demand level, oecd based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "constantPrice","FixedXRate",
