@@ -1,6 +1,6 @@
 ---
 title: "World Carbon Pricing Database Report"
-author: "Your Team"
+author: "Geoffroy Dolphin"
 format:
   html:
     toc: true
@@ -9,12 +9,10 @@ format:
     toc: true
     echo: false
 jupyter: python3
-output-dir: /Users/gd/GitHub/ECP/_output/_reports
+output-dir: ../../_output/_reports
 ---
 
-# World Carbon Pricing Database - Automated Report
-
-## Cross-country Summary
+# World Carbon Pricing Database
 
 ```{python}
 import yaml
@@ -50,7 +48,7 @@ def get_data_point(label, jurisdiction, year, config, dfs):
     elif op == 'sum':
         return df[col].sum()
     elif op == 'list':
-        df = df[(df['ets'] != 0) & (df['tax'] != 0)]
+        df = df[(~df['tax_curr_code'].isna()) | (~df['ets_curr_code'].isna())]
         return df[col].dropna().unique().tolist()
     elif op == 'percent_global':
         total = df[col].sum()
@@ -67,6 +65,8 @@ def get_data_point(label, jurisdiction, year, config, dfs):
         raise ValueError(f"Unknown op {op}")
 ```
 
+\newpage
+
 ## Country Fact Sheets
 
 ```{python}
@@ -75,17 +75,29 @@ from IPython.display import Image, display
 for jurisdiction in config['jurisdictions']:
     latest_year = get_data_point('latest_year', jurisdiction, None, config, dfs)
     avg_price = get_data_point('average_price', jurisdiction, latest_year, config, dfs)
-    print(f"{jurisdiction} ({latest_year}): Average price = {avg_price:.2f} USD/tCO2")
+    max_price = get_data_point('maximum_price', jurisdiction, latest_year, config, dfs)
+    sect_cov = get_data_point('sectoral_coverage', jurisdiction, latest_year, config, dfs)
+    tot_cov = get_data_point('total_co2_covered', jurisdiction, latest_year, config, dfs)
+    print(
+        f"{jurisdiction} ({latest_year}):\n"
+        f"\tAverage price = {avg_price:.2f} USD/tCO2\n"
+        f"\tMaximum price = {max_price:.2f} USD/tCO2\n"
+        f"\tSectoral coverage (IPCC) = {sect_cov}\n"
+        f"\tTotal coverage (CO2) = {tot_cov:.2f}"
+    )
     #display(Image(f"../_output/charts/{jurisdiction.lower().replace(' ', '_')}_price_trend.png"))
 
 ```
 
+\newpage
+
 ## Cross-country summary
-## Insert saved chart
 
 ```{python}
 from IPython.display import Image, display
 
 display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/max_price_ecp_2024.png"))
 
 ```

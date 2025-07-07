@@ -57,7 +57,7 @@ mappings:
 
   maximum_price:
     file: WCPD_CO2
-    column: Price
+    column: ets_price_usd_k
     operation: max
 
   total_co2_covered:
