@@ -79,3 +79,13 @@ for jurisdiction in config['jurisdictions']:
     #display(Image(f"../_output/charts/{jurisdiction.lower().replace(' ', '_')}_price_trend.png"))
 
 ```
+
+## Cross-country summary
+## Insert saved chart
+
+```{python}
+from IPython.display import Image, display
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png"))
+
+```
