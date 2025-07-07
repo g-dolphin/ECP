@@ -1,0 +1,99 @@
+jurisdictions:
+  - United Kingdom
+  - Germany
+  - France
+  - Canada
+  - Japan
+
+jurisdiction_fact_sheet:
+  data_points:
+    - jurisdiction_name
+    - latest_year
+    - pricing_instruments
+    - sectoral_coverage
+    - average_price
+    - maximum_price
+    - total_co2_covered
+
+  charts:
+    - coverage_by_sector_pie
+    - coverage_by_fuel_pie
+    - historical_price_trend
+    - price_vs_global_average_bar
+
+cross_country_summary:
+  data_points:
+    - global_average_price
+    - total_co2_covered
+    - percent_global_coverage
+    - countries_with_ets
+    - countries_with_tax
+    - countries_with_both
+
+  charts:
+    - min_max_prices
+#    - top10_countries_coverage_bar
+#    - regional_price_bar
+#    - instruments_pie
+#    - fuel_mix_stacked_bar
+#    - price_distribution_boxplot
+
+
+
+mappings:
+
+  jurisdiction_name:
+    static: true  # just the name, no lookup
+
+  latest_year:
+    file: WCPD_CO2
+    column: Year
+    operation: max
+
+  average_price:
+    file: WCPD_CO2
+    column: Price
+    operation: weighted_average  # means emissions-weighted
+    weight_column: Emissions
+
+  maximum_price:
+    file: WCPD_CO2
+    column: Price
+    operation: max
+
+  total_co2_covered:
+    file: WCPD_CO2
+    column: Emissions
+    operation: sum
+
+  sectoral_coverage:
+    file: WCPD_CO2
+    column: Sector
+    operation: list  # just return list of unique sectors
+
+  global_average_price:
+    file: ECP_IPCC
+    column: ECP_USD
+    operation: mean
+
+  percent_global_coverage:
+    file: WCPD_CO2
+    column: Emissions
+    operation: percent_global  # custom handled
+
+  countries_with_ets:
+    file: WCPD_CO2
+    column: Instrument
+    operation: count_unique
+    filter_value: ETS
+
+  countries_with_tax:
+    file: WCPD_CO2
+    column: Instrument
+    operation: count_unique
+    filter_value: Tax
+
+  countries_with_both:
+    file: WCPD_CO2
+    column: Instrument
+    operation: count_both
