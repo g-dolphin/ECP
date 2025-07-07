@@ -47,14 +47,13 @@ mappings:
 
   latest_year:
     file: WCPD_CO2
-    column: Year
+    column: year
     operation: max
 
   average_price:
-    file: WCPD_CO2
-    column: Price
-    operation: weighted_average  # means emissions-weighted
-    weight_column: Emissions
+    file: ECP_ECONOMY_CO2
+    column: ecp_all_jurCO2_usd_k
+    operation: passthrough
 
   maximum_price:
     file: WCPD_CO2
@@ -62,17 +61,17 @@ mappings:
     operation: max
 
   total_co2_covered:
-    file: WCPD_CO2
-    column: Emissions
-    operation: sum
+    file: COVERAGE_CO2
+    column: cov_all_CO2_jurCO2
+    operation: passthrough
 
   sectoral_coverage:
     file: WCPD_CO2
-    column: Sector
+    column: ipcc_code
     operation: list  # just return list of unique sectors
 
   global_average_price:
-    file: ECP_IPCC
+    file: ECP_ECONOMY_CO2
     column: ECP_USD
     operation: mean
 
@@ -83,13 +82,13 @@ mappings:
 
   countries_with_ets:
     file: WCPD_CO2
-    column: Instrument
+    column: ets
     operation: count_unique
     filter_value: ETS
 
   countries_with_tax:
     file: WCPD_CO2
-    column: Instrument
+    column: tax
     operation: count_unique
     filter_value: Tax
 
