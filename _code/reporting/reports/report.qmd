@@ -20,6 +20,11 @@ import pandas as pd
 from glob import glob
 from IPython.display import Image, display
 
+# Load helper function
+import sys
+sys.path.append("/Users/gd/GitHub/ECP/_code/reporting/reports")
+from helper_function import get_data_point
+
 with open('/Users/gd/GitHub/ECP/_code/reporting/reports/report_config.yaml') as f:
     config = yaml.safe_load(f)
 
@@ -29,40 +34,21 @@ ecp_df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy
 coverage_df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv")
 dfs = {'WCPD_CO2': wcpd_df, 'ECP_ECONOMY_CO2': ecp_df, 'COVERAGE_CO2':coverage_df}
 
-# Helper
-def get_data_point(label, jurisdiction, year, config, dfs):
-    meta = config['mappings'][label]
-    if meta.get('static', False):
-        return jurisdiction
-    df = dfs[meta['file']]
-    if 'jurisdiction' in df.columns:
-        df = df[df['jurisdiction'] == jurisdiction]
-    if 'year' in df.columns and year is not None:
-        df = df[df['year'] == year]
-    col = meta['column']
-    op = meta['operation']
-    if op == 'mean':
-        return df[col].mean()
-    elif op == 'max':
-        return df[col].max()
-    elif op == 'sum':
-        return df[col].sum()
-    elif op == 'list':
-        df = df[(~df['tax_curr_code'].isna()) | (~df['ets_curr_code'].isna())]
-        return df[col].dropna().unique().tolist()
-    elif op == 'percent_global':
-        total = df[col].sum()
-        grand_total = dfs[meta['file']][col].sum()
-        return 100 * total / grand_total
-    elif op == 'count_unique':
-        return df[df[col] == meta['filter_value']]['jurisdiction'].nunique()
-    elif op == 'count_both':
-        counts = dfs[meta['file']].groupby('jurisdiction')[col].nunique()
-        return counts[counts >= 2].count()
-    elif op == 'passthrough':
-        return df[col].iloc[0] if not df.empty else None
-    else:
-        raise ValueError(f"Unknown op {op}")
+```
+
+\newpage
+
+## Cross-country summary
+
+```{python}
+from IPython.display import Image, display
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_regional.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/max_price_ecp_2024.png"))
+
 ```
 
 \newpage
@@ -96,18 +82,5 @@ for jurisdiction in config['jurisdictions']:
         f"\tTotal coverage (CO2) = {tot_cov:.2f}"
     )
     #display(Image(f"../_output/charts/{jurisdiction.lower().replace(' ', '_')}_price_trend.png"))
-
-```
-
-\newpage
-
-## Cross-country summary
-
-```{python}
-from IPython.display import Image, display
-
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png"))
-
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/max_price_ecp_2024.png"))
 
 ```
