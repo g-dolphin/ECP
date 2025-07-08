@@ -86,7 +86,7 @@ for jurisdiction in config['jurisdictions']:
         ', '.join(sect_cov[i:i+n_per_line])
         for i in range(0, len(sect_cov), n_per_line)
     ]
-    sect_cov_str = '<br>'.join(lines)
+    sect_cov_str = '\n'.join(lines)
 
     print(
         f"{jurisdiction} ({latest_year}):\n"
