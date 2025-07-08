@@ -78,11 +78,21 @@ for jurisdiction in config['jurisdictions']:
     max_price = get_data_point('maximum_price', jurisdiction, latest_year, config, dfs)
     sect_cov = get_data_point('sectoral_coverage', jurisdiction, latest_year, config, dfs)
     tot_cov = get_data_point('total_co2_covered', jurisdiction, latest_year, config, dfs)
+    
+    n_per_line = 9
+    
+    # Group the list
+    lines = [
+        ', '.join(sect_cov[i:i+n_per_line])
+        for i in range(0, len(sect_cov), n_per_line)
+    ]
+    sect_cov_str = '<br>'.join(lines)
+
     print(
         f"{jurisdiction} ({latest_year}):\n"
         f"\tAverage price = {avg_price:.2f} USD/tCO2\n"
         f"\tMaximum price = {max_price:.2f} USD/tCO2\n"
-        f"\tSectoral coverage (IPCC) = {sect_cov}\n"
+        f"\tSectoral coverage (IPCC) = {sect_cov_str}\n"
         f"\tTotal coverage (CO2) = {tot_cov:.2f}"
     )
     #display(Image(f"../_output/charts/{jurisdiction.lower().replace(' ', '_')}_price_trend.png"))
