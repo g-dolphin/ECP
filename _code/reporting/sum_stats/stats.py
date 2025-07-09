@@ -86,19 +86,89 @@ country_groups = {
     "MiddleIncome": middle_income,
 }
 
-# === Simple averages ===
 
-avg_by_group = {
-    name: df_prices_econ.loc[
-        (df_prices_econ.jurisdiction.isin(group)) & (df_prices_econ.year == 2024),
+# === Same summary stats calculation ===
+
+years_to_summarize = range(2020, 2025)  # Adjust if needed
+summary_stats = {}
+
+for year in years_to_summarize:
+    stats_by_group = {}
+    for name, group in country_groups.items():
+        data = df_prices_econ.loc[
+            (df_prices_econ.jurisdiction.isin(group)) & (df_prices_econ.year == year),
+            "ecp_all_jurCO2_usd_k"
+        ]
+        stats = {
+            "mean": data.mean(),
+            "median": data.median(),
+            "std": data.std(),
+            "min": data.min(),
+            "max": data.max(),
+            "count": data.count()
+        }
+        stats_by_group[name] = stats
+
+    # Also calculate for entire sample
+    all_data = df_prices_econ.loc[
+        df_prices_econ.year == year,
         "ecp_all_jurCO2_usd_k"
-    ].mean()
-    for name, group in country_groups.items()
-}
+    ]
+    stats_by_group["All"] = {
+        "mean": all_data.mean(),
+        "median": all_data.median(),
+        "std": all_data.std(),
+        "min": all_data.min(),
+        "max": all_data.max(),
+        "count": all_data.count()
+    }
 
-print("Simple averages (2024):")
-for name, value in avg_by_group.items():
-    print(f"  {name}: {value:.2f}")
+    summary_stats[year] = stats_by_group
+
+# === Convert nested dict to tidy DataFrame ===
+# Collect rows in a list
+rows = []
+for year, groups in summary_stats.items():
+    for group, stats in groups.items():
+        row = {
+            "year": year,
+            "group": group,
+            **stats
+        }
+        rows.append(row)
+
+# Create DataFrame
+df_summary = pd.DataFrame(rows)
+
+# === Save to CSV ===
+df_summary.to_csv("/Users/gd/GitHub/ECP/_output/_tables/summary_statistics.csv", index=False)
+
+print("\nSaved summary statistics to 'summary_statistics.csv'")
+
+# Melt to long
+df_long = df_summary.melt(
+    id_vars=["year", "group"],
+    value_vars=["mean", "median", "std", "min", "max", "count"],
+    var_name="stat_name",
+    value_name="value"
+)
+
+# Pivot to wide with years as columns
+df_pivot = df_long.pivot_table(
+    index=["group", "stat_name"],
+    columns="year",
+    values="value"
+).reset_index()
+
+# Sort rows
+df_pivot = df_pivot.sort_values(by=["group", "stat_name"])
+
+# Round floats
+float_cols = df_pivot.select_dtypes(include="number").columns
+df_pivot[float_cols] = df_pivot[float_cols].round(2)
+
+# Save
+df_pivot.to_csv("/Users/gd/GitHub/ECP/_output/_tables/summary_statistics_pivot.csv", index=False)
 
 # === Emissions-weighted averages ===
 

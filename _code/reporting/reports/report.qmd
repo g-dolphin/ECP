@@ -1,6 +1,13 @@
 ---
 title: "World Carbon Pricing Database Report"
-author: "Geoffroy Dolphin"
+contact: 
+  name: "Geoffroy Dolphin"
+  email: "gdolphin@rff.org"
+  url: "geoffoydolphin.eu"
+month: "July"
+year: 2025
+disclaimer: |
+  This report is based on the latest update of the World Carbon Pricing Database and the associated emissions-weighted carbon price. The data presented in this report is licensed under a Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0). For any commercial use, please contact the author.
 format:
   html:
     toc: true
@@ -12,7 +19,19 @@ jupyter: python3
 output-dir: ../../_output/_reports
 ---
 
-# World Carbon Pricing Database
+## Report Year
+
+This report version: **{{< meta month >}}** **{{< meta year >}}**.
+
+## Contact
+
+**Name:** {{< meta contact.name >}}  
+**Email:** {{< meta contact.email >}}   
+**Website:** [{{< meta contact.url >}}]({{< meta contact.url >}})
+
+## Disclaimer
+
+{{< meta disclaimer >}}
 
 ```{python}
 import yaml
@@ -41,9 +60,25 @@ dfs = {'WCPD_CO2': wcpd_df, 'ECP_ECONOMY_CO2': ecp_df, 'COVERAGE_CO2':coverage_d
 ## Cross-country summary
 
 ```{python}
+import pandas as pd
+
+# Load the CSV
+df_summary = pd.read_csv("/Users/gd/GitHub/ECP/_output/_tables/summary_statistics_pivot.csv")
+
+# Display the table nicely
+df_summary_styled = df_summary.style.format(precision=2)
+
+df_summary_styled.hide(axis="index")
+```
+
+```{python}
 from IPython.display import Image, display
 
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_ts.png"))
+
 display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_regional.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/selected_jurisdictions_ecp.png"))
 
 display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png"))
 

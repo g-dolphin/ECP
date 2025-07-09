@@ -30,7 +30,7 @@ for i, region in enumerate(regions):
         ax.plot(x, y, label=region, linewidth=2.2, color=colors(i))
 
 # Labels and title
-ax.set_title("Emissions-weighted CO$_2$ Price Over Time by Region", fontsize=18, weight='bold')
+ax.set_title("Emissions-weighted CO$_2$ Price, by global region", fontsize=18, weight='bold')
 ax.set_xlabel("Year", fontsize=14)
 ax.set_ylabel("CO$_2$ Price (USD/tCO$_2$)", fontsize=14)
 
