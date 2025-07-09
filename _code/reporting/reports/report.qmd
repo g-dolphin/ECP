@@ -71,6 +71,23 @@ df_summary_styled = df_summary.style.format(precision=2)
 df_summary_styled.hide(axis="index")
 ```
 
+### Coverage
+
+```{python}
+from IPython.display import Image, display
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_national.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_canada.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_us.png"))
+
+display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_china.png"))
+
+```
+
+### Prices
+
 ```{python}
 from IPython.display import Image, display
 
