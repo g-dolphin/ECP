@@ -19,6 +19,7 @@ jupyter: python3
 output-dir: ../../_output/_reports
 ---
 
+
 ## Report Year
 
 This report version: **{{< meta month >}}** **{{< meta year >}}**.
@@ -32,6 +33,13 @@ This report version: **{{< meta month >}}** **{{< meta year >}}**.
 ## Disclaimer
 
 {{< meta disclaimer >}}
+
+\newpage
+
+\listoffigures
+
+\listoftables
+
 
 ```{python}
 import yaml
@@ -55,20 +63,32 @@ dfs = {'WCPD_CO2': wcpd_df, 'ECP_ECONOMY_CO2': ecp_df, 'COVERAGE_CO2':coverage_d
 
 ```
 
-\newpage
 
 ## Cross-country summary
 
 ```{python}
+#| label: tbl-summary
+#| tbl-cap: "Summary statistics for 2020-2024"
+
 import pandas as pd
 
 # Load the CSV
 df_summary = pd.read_csv("/Users/gd/GitHub/ECP/_output/_tables/summary_statistics_pivot.csv")
 
-# Display the table nicely
+# Blank out repeated groups, but keep the column
+df_summary["group"] = df_summary["group"].mask(df_summary["group"].duplicated(), "")
+
+# Rename 'stat_name' column to no header
+df_summary = df_summary.rename(columns={"stat_name": ""})
+
+# Format nicely with 2 decimal places
 df_summary_styled = df_summary.style.format(precision=2)
 
-df_summary_styled.hide(axis="index")
+# Hide index
+df_summary_styled = df_summary_styled.hide(axis="index")
+
+df_summary_styled
+
 ```
 
 ### Coverage
