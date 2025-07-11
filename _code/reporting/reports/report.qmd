@@ -10,36 +10,42 @@ disclaimer: |
   This report is based on the latest update of the World Carbon Pricing Database and the associated emissions-weighted carbon price. The data presented in this report is licensed under a Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0). For any commercial use, please contact the author.
 format:
   html:
-    toc: true
+    toc: false
     echo: false
+    number-sections: true
   pdf:
-    toc: true
+    include-in-header: header.tex
+    toc: false
     echo: false
+    number-sections: true
 jupyter: python3
 output-dir: ../../_output/_reports
 ---
 
 
-## Report Year
+## Report version {.unlisted .unnumbered}
 
 This report version: **{{< meta month >}}** **{{< meta year >}}**.
 
-## Contact
+## Contact {.unlisted .unnumbered}
 
 **Name:** {{< meta contact.name >}}  
 **Email:** {{< meta contact.email >}}   
 **Website:** [{{< meta contact.url >}}]({{< meta contact.url >}})
 
-## Disclaimer
+## Disclaimer {.unlisted .unnumbered}
 
 {{< meta disclaimer >}}
 
 \newpage
 
+\tableofcontents
+
 \listoffigures
 
 \listoftables
 
+\newpage
 
 ```{python}
 import yaml
@@ -64,13 +70,14 @@ dfs = {'WCPD_CO2': wcpd_df, 'ECP_ECONOMY_CO2': ecp_df, 'COVERAGE_CO2':coverage_d
 ```
 
 
-## Cross-country summary
+# Cross-country summary
 
 ```{python}
-#| label: tbl-summary
 #| tbl-cap: "Summary statistics for 2020-2024"
+#| label: tbl-summary
 
 import pandas as pd
+from IPython.display import HTML
 
 # Load the CSV
 df_summary = pd.read_csv("/Users/gd/GitHub/ECP/_output/_tables/summary_statistics_pivot.csv")
@@ -82,50 +89,57 @@ df_summary["group"] = df_summary["group"].mask(df_summary["group"].duplicated(),
 df_summary = df_summary.rename(columns={"stat_name": ""})
 
 # Format nicely with 2 decimal places
-df_summary_styled = df_summary.style.format(precision=2)
-
-# Hide index
-df_summary_styled = df_summary_styled.hide(axis="index")
+df_summary_styled = (
+    df_summary.style
+    .format(precision=2)
+    .hide(axis="index")
+    .set_table_styles([  # example of extra styling
+        {"selector": "th", "props": [("font-weight", "bold")]},
+        {"selector": "td", "props": [("padding", "4px")]}
+    ])
+)
 
 df_summary_styled
 
 ```
 
-### Coverage
+## Coverage
 
-```{python}
-from IPython.display import Image, display
+### CO$_2$
 
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_national.png"))
+![Carbon pricing CO$_2$ coverage — Countries, 1990–2024](../../../_output/_figures/plots/coverage_hm_national.png){#fig-heatmap-coverage-national}
 
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_canada.png"))
+![Carbon pricing CO$_2$ coverage — Canadian provinces, 1990–2024](../../../_output/_figures/plots/coverage_hm_canada.png){#fig-heatmap-coverage-canada}
 
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_us.png"))
+![Carbon pricing CO$_2$ coverage — US States, 1990–2024](../../../_output/_figures/plots/coverage_hm_us.png){#fig-heatmap-coverage-us}
 
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_china.png"))
+![Carbon pricing CO$_2$ coverage — Chinese provinces, 1990–2024](../../../_output/_figures/plots/coverage_hm_china.png){#fig-heatmap-coverage-china}
 
-```
 
-### Prices
+### GDP
 
-```{python}
-from IPython.display import Image, display
+![Carbon pricing GDP coverage - countries, 1990–2024](../../../_output/_figures/plots/gdp_coverage_bar.png){#fig-bar-coverage-gdp}
 
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_ts.png"))
-
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_regional.png"))
-
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/selected_jurisdictions_ecp.png"))
-
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png"))
-
-display(Image("/Users/gd/GitHub/ECP/_output/_figures/plots/max_price_ecp_2024.png"))
-
-```
 
 \newpage
 
-## Country Fact Sheets
+## Prices
+
+![Average carbon price by country, 1990–2024](../../../_output/_figures/plots/ecp_co2_ts.png){#fig-ecp-ts}
+
+![Average carbon price by global region, 1990–2024](../../../_output/_figures/plots/ecp_co2_regional.png){#fig-ecp-region}
+
+![Carbon pricing CO2 coverage and prices, 2024](../../../_output/_figures/plots/selected_jurisdictions_ecp.png){#fig-ecp-ets-tax}
+
+![Average carbon prices and CO2 coverage by world sectors, 2024](../../../_output/_figures/plots/world_sectors_ecp.png){#fig-ecp_coverage-world_sectors}
+
+![Maximum and average carbon prices, 2024](../../../_output/_figures/plots/max_price_ecp_2024.png){#fig-avg-min}
+
+
+
+\newpage
+
+# Country Fact Sheets
 
 ```{python}
 from IPython.display import Image, display
@@ -136,12 +150,12 @@ for jurisdiction in config['jurisdictions']:
     max_price = get_data_point('maximum_price', jurisdiction, latest_year, config, dfs)
     sect_cov = get_data_point('sectoral_coverage', jurisdiction, latest_year, config, dfs)
     tot_cov = get_data_point('total_co2_covered', jurisdiction, latest_year, config, dfs)
-    
+
     n_per_line = 9
-    
-    # Group the list
+
+    # Group and prefix each line with 3 tabs
     lines = [
-        ', '.join(sect_cov[i:i+n_per_line])
+        '\t\t\t' + ', '.join(sect_cov[i:i+n_per_line])
         for i in range(0, len(sect_cov), n_per_line)
     ]
     sect_cov_str = '\n'.join(lines)
@@ -150,9 +164,10 @@ for jurisdiction in config['jurisdictions']:
         f"{jurisdiction} ({latest_year}):\n"
         f"\tAverage price = {avg_price:.2f} USD/tCO2\n"
         f"\tMaximum price = {max_price:.2f} USD/tCO2\n"
-        f"\tSectoral coverage (IPCC) = {sect_cov_str}\n"
-        f"\tTotal coverage (CO2) = {tot_cov:.2f}"
+        f"\tSectoral coverage (IPCC):\n{sect_cov_str}\n"
+        f"\tTotal coverage (CO2) = {tot_cov:.2f}\n"
     )
+
     #display(Image(f"../_output/charts/{jurisdiction.lower().replace(' ', '_')}_price_trend.png"))
 
 ```

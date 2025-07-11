@@ -1,9 +1,12 @@
 jurisdictions:
-  - United Kingdom
-  - Germany
-  - France
   - Canada
+  - China
+  - France
+  - Germany
+  - Italy
   - Japan
+  - United Kingdom
+  - United States
 
 jurisdiction_fact_sheet:
   data_points:
