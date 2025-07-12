@@ -133,9 +133,13 @@ df_summary_styled
 
 ![Average carbon prices and CO2 coverage by world sectors, 2024](../../../_output/_figures/plots/world_sectors_ecp.png){#fig-ecp_coverage-world_sectors}
 
-![Maximum and average carbon prices, 2024](../../../_output/_figures/plots/max_price_ecp_2024.png){#fig-avg-min}
+![Maximum and average carbon prices, 2024](../../../_output/_figures/plots/max_price_ecp_2024_improved.png){#fig-avg-min}
 
+\newpage
 
+## Carbon cost
+
+![Carbon cost, 2021](../../../_output/_figures/plots/carbon_cost.png){#fig-ccost}
 
 \newpage
 
