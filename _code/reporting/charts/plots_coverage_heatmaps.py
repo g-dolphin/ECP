@@ -16,6 +16,7 @@ china_provinces = jurisdictions["subnationals"]["China"]
 
 # Load data
 df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv")
+df_world_sec = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/coverage/tot_coverage_world_sectors_CO2.csv")
 
 # Keep only jurisdictions with any positive coverage
 jurisdictions_positive_any = df[df["cov_all_CO2_jurCO2"] > 0]["jurisdiction"].unique()
@@ -31,7 +32,14 @@ def plot_heatmap(data, title, label):
         print(f"⚠️  No data for: {title}")
         return
     
-    pivot = data.pivot(index="jurisdiction", columns="year", values="cov_all_CO2_jurCO2")
+    if label == "world_sec":
+        pivot = data.pivot(index="ipcc_code", columns="year", values="cov_all_CO2_WldSectCO2")
+        ylabel = "World sector"
+        out_path = f"/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_{label}.png"
+    else:
+        pivot = data.pivot(index="jurisdiction", columns="year", values="cov_all_CO2_jurCO2")
+        ylabel = "Jurisdiction"
+        out_path = f"/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_{label}.png"
 
     plt.figure(figsize=(12, max(5, len(pivot) * 0.4)))
 
@@ -47,7 +55,7 @@ def plot_heatmap(data, title, label):
     # Style: gridlines only white between cells
     ax.set_title(title, fontsize=14, weight='bold', pad=15)
     ax.set_xlabel("Year", fontsize=12)
-    ax.set_ylabel("Jurisdiction", fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
     
     # Rotate x-axis ticks
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right", fontsize=9)
@@ -55,7 +63,6 @@ def plot_heatmap(data, title, label):
 
     plt.tight_layout()
 
-    out_path = f"/Users/gd/GitHub/ECP/_output/_figures/plots/coverage_hm_{label}.png"
     plt.savefig(out_path, dpi=300)
     plt.show()
 
@@ -87,4 +94,34 @@ plot_heatmap(
     df_any[df_any["jurisdiction"].isin(china_provinces)],
     "CO₂ Coverage: China Provinces (1990–2024)",
     "china"
+)
+
+# World sectors
+# Define sector mapping
+sector_map = {
+    "1A1A1": "Electricity Generation",
+    "1A1C": "Other Energy Industries",
+    "1A2A": "Iron and Steel",
+    "1A2B": "Non-Ferrous Metals",
+    "1A2C": "Chemicals",
+    "1A2D": "Pulp, Paper, Print",
+#    "1A2E": "Food Processing",
+    "1A2F": "Non-Metallic Minerals",
+#    "1A2G": "Transport Equipment",
+#    "1A2H": "Machinery",
+    "1A2I": "Mining and Quarrying",
+    "1A2J": "Wood and Wood Products",
+    "1A2L": "Textile and Leather",
+    "1A3A1": "International Aviation",
+    "1A3B": "Road Transport",
+    "1A4A": "Buildings - Commercial and Institutional",
+    "1A4B": "Buildings - Residential",
+    "1A4C": "Agriculture, Forestry, Fishing"
+}
+
+
+plot_heatmap(
+    df_world_sec[df_world_sec.ipcc_code.isin(sector_map.keys())],
+    "CO₂ Coverage: World sectors (1990–2024)",
+    "world_sec"
 )
