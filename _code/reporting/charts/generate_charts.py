@@ -10,6 +10,7 @@ from plots_coverage import coverage_plots
 from plots_world_sectors import plot_world_sectors
 from plots_ets_tax_jur import plot_selected_jurisdictions
 from plots_subnat_stacked import plot_filtered_stacked_bar
+from plots_national_stacked import plot_stacked_national_bar
 
 os.makedirs('/Users/gd/GitHub/ECP/_output/_figures/plots', exist_ok=True)
 
@@ -43,6 +44,7 @@ plot_selected_jurisdictions("/Users/gd/GitHub/ECP/_output/_dataset", jurisdictio
 # Filter data for each country’s subnational jurisdictions
 
 df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
+df_national = pd.read_csv("/Users/gd/Desktop/national_stack_test.csv")
 
 df_canada = df[df['jurisdiction'].isin(canadian_provinces)]
 df_us = df[df['jurisdiction'].isin(us_states)]
@@ -52,5 +54,6 @@ plot_filtered_stacked_bar(df_us, "United States")
 plot_filtered_stacked_bar(df_canada, "Canada")
 plot_filtered_stacked_bar(df_china, "China")
 
+plot_stacked_national_bar(df_national)
 
 print("✅ All charts created in _output/_figures")
