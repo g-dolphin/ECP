@@ -88,10 +88,10 @@ def plot_stacked_national_bar(df_country):
     }
 
     note_text = (
-        "Note: This figure shows the contribution of each country to the global average price of CO₂. Countries are ranked in ascending order, starting from the bottom."
-        "Countries' contribution reflects all carbon pricing mechanisms in place, including subnational ones (except subnational mechanisms in Mexico and Japan). " 
-        "Prices are expressed in 2021 USD. National prices are weighted by their share of global emissions. " 
-        "For readability, the category 'Other' collects countries that contributed < USD 0.1/tCO$_2$ to the global average in any given year."
+        "Note: This chart shows the contribution of each country to the global average price of CO$_2$ (stacked bottom to top by contribution). "
+        "Values reflect national and subnational carbon pricing mechanisms, except subnational mechanisms in Mexico and Japan. "
+        "Prices are expressed in 2021 USD. National prices are weighted by their share of global emissions. "
+        "For readability, the category 'Other' collects countries that contributed < USD 0.1/tCO$_2$ to the global average in any year."
     )
     footer_text = (
         "© Geoffroy Dolphin, 2025. All rights reserved. "
