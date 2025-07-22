@@ -15,6 +15,9 @@ def plot_stacked_national_bar(df_country):
     jurisdictions_to_keep = jurisdictions_to_keep[jurisdictions_to_keep > 0].index.tolist()
     df_country_filtered = df_country_filtered[df_country_filtered['jurisdiction'].isin(jurisdictions_to_keep)]
 
+    # Keep years > 2005
+    df_country_filtered = df_country_filtered[df_country_filtered["year"] >= 2005]
+
     # Pivot for plotting
     df_pivot = df_country_filtered.pivot_table(
         index='year',
@@ -29,6 +32,24 @@ def plot_stacked_national_bar(df_country):
     sorted_jurisdictions = total_contributions.sort_values(ascending=False).index
     df_pivot = df_pivot[sorted_jurisdictions]
 
+    threshold = 0.1  # USD/tCO₂
+    df_major = df_pivot.copy()
+
+    # Identify minor values per year
+    mask_minor = df_major < threshold
+
+    # Compute "Other" series *before* modifying df_major
+    other_series = df_major.where(mask_minor).sum(axis=1)
+
+    # Set minor values to 0 so they don't plot twice
+    df_major = df_major.mask(mask_minor, 0)
+
+    # Add "Other" as a new column (after masking)
+    df_major['Other'] = other_series
+
+    # Drop all-zero columns (those that are only under threshold and not "Other")
+    df_major = df_major.loc[:, (df_major != 0).any(axis=0)]
+
     # Get distinct colors
     def get_distinct_colors(n):
         base_maps = ['tab20', 'tab20b', 'tab20c']
@@ -40,14 +61,19 @@ def plot_stacked_national_bar(df_country):
                 break
         return colors[:n]
 
-    jurisdictions = df_pivot.columns
+    jurisdictions = df_major.columns
     n_jurisdictions = len(jurisdictions)
     colors = get_distinct_colors(n_jurisdictions)
 
+    # Assign a gray color to "Other" if it exists
+    if 'Other' in jurisdictions:
+        other_index = jurisdictions.get_loc('Other')
+        colors[other_index] = '#999999'
+
     # Custom local style
     custom_style = {
-        'figure.figsize': (12, 6),
-        'axes.titlesize': 14,
+        'figure.figsize': (10, 8),
+        'axes.titlesize': 16,
         'axes.labelsize': 12,
         'xtick.labelsize': 10,
         'ytick.labelsize': 10,
@@ -62,10 +88,10 @@ def plot_stacked_national_bar(df_country):
     }
 
     note_text = (
-        "Note: This figure shows the contribution of each country to the global average price of CO₂. "
-        "Countries' contribution relects all carbon pricing mechanisms in place, including subnational ones (except subnational mechanisms in Mexico and Japan). " 
+        "Note: This figure shows the contribution of each country to the global average price of CO₂. Countries are ranked in ascending order, starting from the bottom."
+        "Countries' contribution reflects all carbon pricing mechanisms in place, including subnational ones (except subnational mechanisms in Mexico and Japan). " 
         "Prices are expressed in 2021 USD. National prices are weighted by their share of global emissions. " 
-        "Countries are ranked in ascending order, starting from the bottom."
+        "For readability, the category 'Other' collects countries that contributed < USD 0.1/tCO$_2$ to the global average in any given year."
     )
     footer_text = (
         "© Geoffroy Dolphin, 2025. All rights reserved. "
@@ -75,16 +101,16 @@ def plot_stacked_national_bar(df_country):
 
     with plt.style.context(['seaborn-v0_8-muted', custom_style]):
         fig, ax = plt.subplots()
-        df_pivot.plot(kind='bar', stacked=True, ax=ax, color=colors)
+        df_major.plot(kind='bar', stacked=True, ax=ax, color=colors)
 
-        ax.set_title('Countries contributions to global CO₂ price (1990–2024)')
+        ax.set_title("Country contributions to the global price of CO₂ emissions, 2005-2024")
         ax.set_ylabel('Average CO₂ Price (USD/tCO₂)')
         ax.set_xlabel('')
         ax.grid(True, axis='y')
 
         # Legend placement (slightly higher to make space below)
         ax.legend(
-            bbox_to_anchor=(0.5, -0.18),
+            bbox_to_anchor=(0.5, -0.1),
             loc='upper center',
             ncol=6,
         )
@@ -93,8 +119,8 @@ def plot_stacked_national_bar(df_country):
         fig.subplots_adjust(bottom=0.38)
 
         # Add explanatory note and footer
-        plt.figtext(0.5, 0.01, note_text, wrap=True, ha='center', fontsize=9)
-        plt.figtext(0.5, -0.025, footer_text, wrap=True, ha='center', fontsize=8)
+        plt.figtext(0.5, -0.03, note_text, wrap=True, ha='center', fontsize=9)
+        plt.figtext(0.5, -0.07, footer_text, wrap=True, ha='center', fontsize=8)
 
         plt.tight_layout(rect=[0, 0.06, 1, 1])  # Ensure plot area doesn't squeeze bottom text
 
