@@ -15,9 +15,14 @@ format:
     number-sections: true
   pdf:
     include-in-header: header.tex
-    toc: false
+    toc: true
+    toc-depth: 2
     echo: false
     number-sections: true
+    fig-cap-location: bottom
+    linkcolor: blue
+    geometry: margin=1in
+    mainfont: Garamond
 jupyter: python3
 output-dir: ../../_output/_reports
 ---
