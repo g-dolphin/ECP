@@ -5,6 +5,7 @@ from matplotlib.colors import to_hex
 from matplotlib.cm import get_cmap
 import matplotlib.image as mpimg
 import os
+import os
 
 def plot_stacked_national_bar(df_country):
     # Filter years
@@ -65,12 +66,10 @@ def plot_stacked_national_bar(df_country):
     n_jurisdictions = len(jurisdictions)
     colors = get_distinct_colors(n_jurisdictions)
 
-    # Assign a gray color to "Other" if it exists
     if 'Other' in jurisdictions:
         other_index = jurisdictions.get_loc('Other')
         colors[other_index] = '#999999'
 
-    # Custom local style
     custom_style = {
         'figure.figsize': (10, 8),
         'axes.titlesize': 16,
@@ -95,7 +94,7 @@ def plot_stacked_national_bar(df_country):
     )
     footer_text = (
         "© Geoffroy Dolphin, 2025. All rights reserved. "
-        "Data source: World Carbon Pricing Database. " #| Visualization by Geoffroy Dolphin. "
+        "Data source: World Carbon Pricing Database. "
         "Licensed under CC BY-NC 4.0. Reuse permitted with attribution for non-commercial use."
     )
 
@@ -108,27 +107,27 @@ def plot_stacked_national_bar(df_country):
         ax.set_xlabel('')
         ax.grid(True, axis='y')
 
-        # Legend placement (slightly higher to make space below)
         ax.legend(
             bbox_to_anchor=(0.5, -0.1),
             loc='upper center',
             ncol=6,
         )
 
-        # Adjust layout to make space below the plot
         fig.subplots_adjust(bottom=0.38)
-
-        # Add explanatory note and footer
         plt.figtext(0.5, -0.03, note_text, wrap=True, ha='center', fontsize=9)
         plt.figtext(0.5, -0.07, footer_text, wrap=True, ha='center', fontsize=8)
+        plt.tight_layout(rect=[0, 0.06, 1, 1])
 
-        plt.tight_layout(rect=[0, 0.06, 1, 1])  # Ensure plot area doesn't squeeze bottom text
-
-        plt.savefig(
-            "/Users/gd/GitHub/ECP/_output/_figures/plots/national_stacked_world.png",
-            bbox_inches='tight'
-        )
+        # Save figure
+        fig_path = "/Users/gd/GitHub/ECP/_output/_figures/plots/national_stacked_world.png"
+        plt.savefig(fig_path, bbox_inches='tight')
         plt.show()
+
+    # Save data to CSV
+    csv_path = "/Users/gd/GitHub/ECP/_output/_figures/dataFig/national_stacked_world.csv"
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    df_major.to_csv(csv_path)
+
 
 
 

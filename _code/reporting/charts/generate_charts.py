@@ -36,8 +36,8 @@ plot_world_sectors("/Users/gd/GitHub/ECP/_output/_dataset")
 jurisdictions = ["Canada", "China", "California", "France", "Germany", "Japan", "Korea", "United Kingdom", "United States"]
 plot_selected_jurisdictions("/Users/gd/GitHub/ECP/_output/_dataset", jurisdictions)
 
-#print("Plotting coverage charts...")
-#coverage_plots(carbon_df, '/Users/gd/GitHub/ECP/_output/_figures')
+print("Plotting coverage charts...")
+coverage_plots(carbon_df, '/Users/gd/GitHub/ECP/_output/_figures')
 
 
 # Apply updated plotting function
