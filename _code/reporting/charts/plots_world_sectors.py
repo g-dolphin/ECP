@@ -65,6 +65,9 @@ def plot_world_sectors(data_dir):
     combined_df.set_index("sector_name", inplace=True)
     combined_df = combined_df.sort_values(by=["ETS", "Carbon tax"], ascending=False)
 
+    # Write plot data to CSV
+    combined_df.to_csv("/Users/gd/GitHub/ECP/_output/_figures/dataFig/world_sectors_plot_ecp_2024.csv")
+
     # Plot
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -129,4 +132,5 @@ def plot_world_sectors(data_dir):
     plt.tight_layout()
     plt.savefig(r"/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.svg")
     plt.savefig(r"/Users/gd/GitHub/ECP/_output/_figures/plots/world_sectors_ecp.png")
+
     plt.show()
