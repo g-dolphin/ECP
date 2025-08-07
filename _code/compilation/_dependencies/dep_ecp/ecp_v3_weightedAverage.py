@@ -102,6 +102,7 @@ def ecp(coverage_df, prices, jur_level, gas, flow_excl, weight_type, weight_year
 
 def ecp_aggregation(ecp_df, gas, intro=None):
     # Step 1: Aggregate by jurisdiction and year
+    ecp_df.drop(["iea_code", "ipcc_code", "Product"], axis=1, inplace=True)
     ecp_agg = ecp_df.groupby(["jurisdiction", "year"], as_index=False).sum()
 
     # Step 2: Add world aggregate if not intro

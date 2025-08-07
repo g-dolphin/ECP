@@ -49,13 +49,14 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
         for nat_jur in ["Canada", "China", "United States"]:
             inv_end_year_jur = inv_end_year[nat_jur]
 
-            temp = inventory[
+            temp = inventory.loc[
                 (inventory.supra_jur == nat_jur) &
-                (inventory.year <= inv_end_year_jur)
+                (inventory.year <= inv_end_year_jur), :
                 ].copy()
 
+            inv_sub = temp.copy()
             for yr in range(inv_end_year_jur + 1, wcpd_end_year + 1):
-                temp_ii = inv_sub[inv_sub.year == inv_end_year_jur].copy()
+                temp_ii = temp[temp.year == inv_end_year_jur].copy()
                 temp_ii["year"] = yr
                 inv_sub = pd.concat([inv_sub, temp_ii])
 

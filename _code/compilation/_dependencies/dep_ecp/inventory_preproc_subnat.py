@@ -14,6 +14,8 @@ sys.path.append("/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp")
 from ipcc_map_subnat import category_names_ipcc_can_map, category_names_ipcc_chn_map, category_names_ipcc_usa_map
 from jur_names_concordances import subnat_names_map_chn
 
+category_names_ipcc_can_map = {int(k): v for k, v in category_names_ipcc_can_map.items()}
+
 # --- Load subnational jurisdictions ---
 subnat_can = jurisdictions["subnationals"]["Canada"] 
 subnat_chn = jurisdictions["subnationals"]["China"] 
@@ -27,12 +29,13 @@ CONVERT_COLUMNS = ["CO2", "CH4", "N2O", "F-GASES", "all_GHG"]
 
 # --- Load and clean Canada inventory ---
 def load_canada_data(path):
-    df = pd.read_csv(f"{path}/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2021.csv")
+    df = pd.read_csv(f"{path}/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2023.csv")
+    df = pd.read_csv("/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2023.csv")
     df = df[~df.Region.str.lower().eq("canada")]
 
-    df.drop(columns=["Rollup", "CategoryID", "CH4", "N2O", "Unit"], errors="ignore", inplace=True)
+    df.drop(columns=["Rollup", "Category", "Source", "Sub-category", "Sub-sub-category", "CH4", "N2O", "Total", "Unit"], errors="ignore", inplace=True)
     df.rename(columns={
-        "Region": "jurisdiction", "Category": "ipcc_code", "Year": "year",
+        "Region": "jurisdiction", "CategoryID": "ipcc_code", "Year": "year",
         "CH4 (CO2eq)": "CH4", "N2O (CO2eq)": "N2O", "CO2eq": "all_GHG"
     }, inplace=True)
 
