@@ -64,12 +64,12 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
     df["jurisdiction"].replace(iea_wb_map, inplace=True)
 
     # Merge flow codes
-    flowCodes_path = '/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv'
+    flowCodes_path = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv'
     flowCodes = pd.read_csv(flowCodes_path, usecols=[0, 1])
     df = df.merge(flowCodes, on="FLOWname", how="left")
 
     # Merge IPCC codes
-    ipcc_path = '/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv'
+    ipcc_path = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv'
     ipccCodes = pd.read_csv(ipcc_path, usecols=[0, 3])
     ipccCodes = ipccCodes[ipccCodes["FLOW"].notna()]
     df = df.merge(ipccCodes, on="FLOW", how="left")

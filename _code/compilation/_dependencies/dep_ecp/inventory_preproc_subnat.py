@@ -245,7 +245,7 @@ def subnat_total():
     return subnat_total
 
 
-def inventory_subnat(wcpd_df, subnat_names, mapping_ipcc_iea, gas):
+def inventory_subnat(wcpd_df, subnat_names, mapping_ipcc_iea, gas, subnat_lists):
 
     # Inventory structure
     inventory_subnat = wcpd_df.loc[wcpd_df.jurisdiction.isin(subnat_names), ["jurisdiction", "year", "ipcc_code", "iea_code"]]
@@ -277,10 +277,10 @@ def inventory_subnat(wcpd_df, subnat_names, mapping_ipcc_iea, gas):
     combined_subnat = pd.merge(combined_subnat, mapping_ipcc_iea, on=["ipcc_code"], how="left")
     combined_subnat[["iea_code"]] = combined_subnat[["iea_code"]].fillna("NA")
 
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_usa), "supra_jur"] = "United States"
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_can), "supra_jur"] = "Canada"
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_chn), "supra_jur"] = "China"
-    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_jpn), "supra_jur"] = "Japan"
+    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_lists["United States"]), "supra_jur"] = "United States"
+    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_lists["Canada"]), "supra_jur"] = "Canada"
+    inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_lists["China"]), "supra_jur"] = "China"
+    #inventory_subnat.loc[inventory_subnat.jurisdiction.isin(subnat_jpn), "supra_jur"] = "Japan"
 
     inventory_subnat = inventory_subnat.merge(combined_subnat, on=["supra_jur", "jurisdiction", "year", "ipcc_code", "iea_code"], how="left")
     inventory_subnat = inventory_subnat[['supra_jur', 'jurisdiction', 'year', 'ipcc_code', "iea_code", gas]]

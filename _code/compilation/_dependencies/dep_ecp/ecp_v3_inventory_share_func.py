@@ -18,13 +18,20 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
     # receive the same 'total GHG' figure
 
     temp_jur = jur_tot_emissions[["jurisdiction", "year", gas, "all_GHG"]]
+    print("temp_jur columns:", temp_jur.columns)
     temp_wld = world_total[["year", gas, "all_GHG"]]
 
     temp_jur = temp_jur.rename(columns={gas:gas+"_nat", "all_GHG":"all_GHG_nat"})
     temp_wld = temp_wld.rename(columns={gas:gas+"_wld", "all_GHG":"all_GHG_wld"})
+    print("temp_wld", temp_wld.columns)
+
+    emissions[gas] = pd.to_numeric(emissions[gas], errors='coerce')
 
     emissions_share = pd.merge(emissions, temp_jur, how='left', on=['jurisdiction','year'])
+    print("emissions_share columns after merge with temp_jur:", emissions_share.columns)
     emissions_share = pd.merge(emissions_share, temp_wld, how='left', on=['year'])
+    print("emissions_share columns after merge with temp_wld:", emissions_share.columns)
+    
     
     share_vars_map = {gas+"_jurGHG":"all_GHG_nat", 
                       gas+"_jur"+gas:gas+"_nat", 
@@ -33,6 +40,7 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
     
     if jur_level == "subnational":
         temp = national_total.copy()
+        temp.drop(["ipcc_code"], axis = 1, inplace=True) 
         temp.rename(columns={"all_GHG":"supra_all_GHG",
                              gas:"supra_"+gas}, 
                     inplace=True)
@@ -48,7 +56,9 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
     ret_df_vars.remove(gas)
     
     for var in share_vars_map.keys():
+        print(var)
         emissions_share[var] = emissions_share[gas]/(emissions_share[share_vars_map[var]])
+        print(f"Completed {var}")
 
     emissions_share = emissions_share[ret_df_vars+list(share_vars_map.keys())]
     
@@ -69,6 +79,10 @@ def emissions_share(emissions, jur_tot_emissions, world_total, gas, national_tot
 # Merge according to two keys, Country and Year, since the total yearly emissions figure for a given country and year is the same across Flows (sectors) and products (fuels). Output file: 'IEA_Em_share.csv'
     
 def emissions_share_wld_sectors(emissions, sectors_wld_total, gas, jur_level=None):
+    
+    emissions[gas] = pd.to_numeric(emissions[gas], errors='coerce')
+    sectors_wld_total[gas] = pd.to_numeric(sectors_wld_total[gas], errors='coerce')
+    
     if jur_level == "national" and gas == "CO2":
         inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", gas]]
     else:
@@ -91,6 +105,9 @@ def emissions_share_wld_sectors(emissions, sectors_wld_total, gas, jur_level=Non
 # sectors_ctry_total contains total emissions at country-sector level; `sectors_ctry_total` created in script ecp_v3.ipynb
 
 def emissions_share_ctry_sectors(emissions, sectors_ctry_total, gas):
+    
+    emissions[gas] = pd.to_numeric(emissions[gas], errors='coerce')
+    sectors_ctry_total[gas] = pd.to_numeric(sectors_ctry_total[gas], errors='coerce')
 
     inventory_temp = emissions[["supra_jur", "jurisdiction", "year", "ipcc_code", "iea_code", gas]]
 
