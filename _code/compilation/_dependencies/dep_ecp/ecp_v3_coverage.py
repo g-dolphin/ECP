@@ -64,9 +64,23 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
         wcpd_cols = wcpd_keys+["ets", "tax"]+overlap_cols+scheme_id_cols+scheme_cf_cols
         wcpd_temp = wcpd_temp[wcpd_cols]
 
-        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+[gas]))) 
+        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+[gas, gas+"_wld_sect_wld"+gas])))
+        
+        drop_col = gas+"_wld_sect_wld"+gas
+        
+        if drop_col in df_keys:
+            df_keys = df_keys.remove(drop_col) 
         #NB: The order of the elements in these lists matters! There must be a one to one correspondence between their respective elements
-
+        
+        if (gas != "CO2") and (int_sectors == False): 
+            add_emissions_cols = ['FLOW_x', 'FLOW_y', 'FLOWname_x', 'FLOWname_y', 'Source_x', 'Source_y', 'ipcc_code2_x', 'ipcc_code2_y', 'ipcc_code3_x', 'ipcc_code3_y']
+            
+            for col in add_emissions_cols:
+                if col in df_keys:
+                    df_keys.remove(col)
+                else:
+                    print(f"Column '{col}' not found in df_keys")
+            
     # subnational jurisdictions
     # Select which fuel-level coverage dummy to use from institutional file
     if jur_level=="subnational": 
@@ -79,7 +93,24 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
 
         wcpd_temp = wcpd_temp[wcpd_cols]
 
-        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["supra_jur", gas]))) 
+        df_keys = sorted(list(set(inventory_temp.columns)-set(emissions_cols+["supra_jur", gas, gas+"_wld_sect_wld"+gas]))) 
+        
+        drop_col = gas+"_wld_sect_wld"+gas
+        
+        if drop_col in df_keys:
+            df_keys = df_keys.drop(drop_col) 
+            
+        if "jurisdiction_y" in df_keys:
+            df_keys.remove("jurisdiction_y")
+            
+        if (gas != "CO2") and (int_sectors == False): 
+            add_emissions_cols = ['FLOW_x', 'FLOW_y', 'FLOWname_x', 'FLOWname_y', 'Source_x', 'Source_y', 'ipcc_code2_x', 'ipcc_code2_y', 'ipcc_code3_x', 'ipcc_code3_y']
+            
+            for col in add_emissions_cols:
+                if col in df_keys:
+                    df_keys.remove(col)
+                else:
+                    print(f"Column '{col}' not found in df_keys")
 
     # Adjust list of merge keys in case we want to calculate fixed scope coverage
     if scope_year != None:
@@ -87,6 +118,11 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
         wcpd_keys.remove('year')
 
         wcpd_temp.drop(["year"], axis=1, inplace=True)
+        
+    print("df_keys:", df_keys)
+    print("wcpd_keys:", wcpd_keys)
+    print("Difference (df_keys - wcpd_keys):", set(df_keys) - set(wcpd_keys))
+    print("Difference (wcpd_keys - df_keys):", set(wcpd_keys) - set(df_keys))
 
     temp = inventory_temp.merge(wcpd_temp, 
                                how='left', 
@@ -113,6 +149,7 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
     # coverage and overlap columns
     for var in emissions_cols:
         for scheme in scheme_id_cols: # schemes_cols contains id's of all schemes
+            print(scheme)
             temp["cov"+"_"+scheme[:-3]+"_"+var] = temp[binary[scheme]]*temp[coverage_factor[scheme]]*temp[var]
 
             temp["cov"+"_overlap_"+var] = temp["cf_min"]*temp["overlap_tax_ets"]*temp[var]
@@ -123,6 +160,5 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
         temp = temp[wcpd_keys+["year"]+scheme_id_cols+coverage_cols]
     else:
         temp = temp[wcpd_keys+scheme_id_cols+coverage_cols]
-
 
     return temp

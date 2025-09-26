@@ -83,16 +83,19 @@ def emissions_share_wld_sectors(emissions, sectors_wld_total, gas, jur_level=Non
     emissions[gas] = pd.to_numeric(emissions[gas], errors='coerce')
     sectors_wld_total[gas] = pd.to_numeric(sectors_wld_total[gas], errors='coerce')
     
-    if jur_level == "national" and gas == "CO2":
+    if jur_level == "national":
         inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", "Product", gas]]
+        emissions_sect_share = pd.merge(inventory_temp, sectors_wld_total, how='left', on=['ipcc_code', 'year'])
+        emissions_sect_share.drop(["jurisdiction_y", "iea_code_y", "Product_y"], axis=1, inplace=True)
+            
     else:
         if jur_level == "subnational":
             inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", gas]]
-        else:
-            inventory_temp = emissions[["jurisdiction", "year", "ipcc_code", "iea_code", gas]]
-
-    emissions_sect_share = pd.merge(inventory_temp, sectors_wld_total, how='left', on=['ipcc_code', 'year'])
-    emissions_sect_share.rename(columns={gas+"_x":gas, gas+"_y":gas+"_wldSect"}, inplace=True)
+            emissions_sect_share = pd.merge(inventory_temp, sectors_wld_total, how='left', on=['ipcc_code', 'year'])
+            emissions_sect_share.drop(["iea_code_y"], axis=1, inplace=True)
+            
+    emissions_sect_share.rename(columns={gas+"_x":gas, gas+"_y":gas+"_wldSect", "jurisdiction_x": "jurisdiction",
+                                         "iea_code_x":"iea_code", "Product_x":"Product"}, inplace=True)
 
     emissions_sect_share[gas+"_wld_sect_wld"+gas] = emissions_sect_share[gas]/emissions_sect_share[gas+"_wldSect"]
     emissions_sect_share.drop([gas+"_wldSect"], axis=1, inplace=True)
@@ -113,10 +116,11 @@ def emissions_share_ctry_sectors(emissions, sectors_ctry_total, gas):
 
     emissions_sect_share = pd.merge(inventory_temp, sectors_ctry_total, how='left', 
                                     left_on=['supra_jur', 'year', 'ipcc_code'], right_on=['jurisdiction', 'year', 'ipcc_code'])
-    emissions_sect_share.rename(columns={gas+"_x":gas, gas+"_y":gas+"_ctrySect", "jurisdiction_x":"jurisdiction"}, 
+    emissions_sect_share.rename(columns={gas+"_x":gas, gas+"_y":gas+"_ctrySect", "jurisdiction_x":"jurisdiction",
+                                         "iea_code_x":"iea_code", "Product_x":"Product"}, 
                                 inplace=True)
 
     emissions_sect_share[gas+"_ctry_sect_ctry"+gas] = emissions_sect_share[gas]/emissions_sect_share[gas+"_ctrySect"]
-    emissions_sect_share.drop([gas+"_ctrySect", "jurisdiction_y"], axis=1, inplace=True)
+    emissions_sect_share.drop([gas+"_ctrySect", "jurisdiction_y", "iea_code_y"], axis=1, inplace=True)
 
     return emissions_sect_share
