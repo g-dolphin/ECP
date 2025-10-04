@@ -7,7 +7,7 @@ def load_ipcc_mapping_from_json(path):
         return json.load(f)
 
 # Set paths to mapping files
-mapping_dir = "/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp"
+mapping_dir = "/Users/geoffroydolphin/GitHub/ECP/_code/compilation/_utils/dep_ecp"
 mappings = {
     "canada": load_ipcc_mapping_from_json(os.path.join(mapping_dir, "ipcc_mapping_canada.json")),
     "china": load_ipcc_mapping_from_json(os.path.join(mapping_dir, "ipcc_mapping_china.json")),

@@ -4,15 +4,16 @@ import sys
 import glob
 import pandas as pd
 import numpy as np
+import dep_ecp
 
-# --- Load dependencies as modules ---
-sys.path.append("/Users/gd/GitHub/WorldCarbonPricingDatabase/_code/_compilation/_dependencies")
-from jurisdictions import jurisdictions
+from wcpd_utils.jurisdictions import jurisdictions
 
-# --- Load remaining dependencies as modules ---
-sys.path.append("/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp")
-from ipcc_map_subnat import category_names_ipcc_can_map, category_names_ipcc_chn_map, category_names_ipcc_usa_map
-from jur_names_concordances import subnat_names_map_chn
+from dep_ecp.ipcc_map_subnat import (
+    category_names_ipcc_can_map,
+    category_names_ipcc_chn_map,
+    category_names_ipcc_usa_map,
+)
+from dep_ecp.jur_names_concordances import subnat_names_map_chn
 
 category_names_ipcc_can_map = {int(k): v for k, v in category_names_ipcc_can_map.items()}
 
@@ -30,7 +31,7 @@ CONVERT_COLUMNS = ["CO2", "CH4", "N2O", "F-GASES", "all_GHG"]
 # --- Load and clean Canada inventory ---
 def load_canada_data(path):
     df = pd.read_csv(f"{path}/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2023.csv")
-    df = pd.read_csv("/Users/gd/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2023.csv")
+    df = pd.read_csv("/Users/geoffroydolphin/Library/CloudStorage/OneDrive-rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw/subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2023.csv")
     df = df[~df.Region.str.lower().eq("canada")]
 
     df.drop(columns=["Rollup", "Category", "Source", "Sub-category", "Sub-sub-category", "CH4", "N2O", "Total", "Unit"], errors="ignore", inplace=True)
