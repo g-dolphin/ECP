@@ -9,21 +9,45 @@ dir.create(file.path(ecpwd, "tmpdir"))
 
 ########### find ipcc-level ecp data
 
+
 ## specify source filepath here
 if(pl=="curr_p"){
-  fpe<-file.path(here::here(),"_dataset","ecp","ipcc","ecp_ipcc","currentPrices","FlexXRate")
+  fpe<-file.path("C:","Users","jomerkle","GitHub","ECP","_dataset","ecp","ipcc",
+                 "ecp_ipcc","currentPrices","FlexXRate")
 } else if(pl=="cons_p"){
-  fpe<-file.path(here::here(),"_dataset","ecp","ipcc","ecp_ipcc","constantPrices","FixedXRate")
+  fpe<-file.path("C:","Users","jomerkle","GitHub","ECP","_dataset","ecp","ipcc",
+                 "ecp_ipcc","constantPrices","FixedXRate")
 }
 
 ## copy data
-file.copy(from = file.path(fpe,"ecp_ipcc_CO2.csv"),
-          to = file.path(ecpwd,"tmpdir"))
+if(pl=="curr_p"){
+  file.copy(from = file.path(fpe,"ecp_ipcc_CO2_cFlxRate.csv"),
+            to = file.path(ecpwd,"tmpdir","ecp_ipcc_CO2.csv"))
+} else if(pl=="cons_p"){
+  file.copy(from = file.path(fpe,"ecp_ipcc_CO2_kFixRate.csv"),
+            to = file.path(ecpwd,"tmpdir","ecp_ipcc_CO2.csv"))
+}
 
-########### add fuel-specific data
+
+########### make correction CO2_shareAggSec (temporarily required measure)
 
 ## read aggregate ecp data
 ecpd<-read.csv(file.path(ecpwd,"tmpdir","ecp_ipcc_CO2.csv"))
+
+
+if(pl=="curr_p"){
+  ecpd$ecp_ets_usd <- ecpd$ecp_ets_usd / ecpd$CO2_shareAggSec
+  ecpd$ecp_tax_usd <- ecpd$ecp_tax_usd / ecpd$CO2_shareAggSec
+  ecpd$ecp_all_usd <- ecpd$ecp_all_usd / ecpd$CO2_shareAggSec
+} else if(pl=="cons_p"){
+  ecpd$ecp_ets_usd_k <- ecpd$ecp_ets_usd_k / ecpd$CO2_shareAggSec
+  ecpd$ecp_tax_usd_k <- ecpd$ecp_tax_usd_k / ecpd$CO2_shareAggSec
+  ecpd$ecp_all_usd_k <- ecpd$ecp_all_usd_k / ecpd$CO2_shareAggSec
+}
+
+
+########### add fuel-specific data
+
 
 ## identify all jurisdictions
 allctrs<-unique(ecpd$jurisdiction)

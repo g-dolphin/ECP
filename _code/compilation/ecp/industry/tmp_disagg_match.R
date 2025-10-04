@@ -223,7 +223,7 @@ unique(fsq)
 ##
 
 # define here
-r<-intersect(which(fcq=="Germany"),which(fsq=="Cement, lime and plaster products"))
+r<-intersect(which(fcq=="Australia"),which(fsq=="Electric power generation, transmission and distribution"))
 
 tmpc<-fcq[r] # the country
 tmps<-fsq[r] # the sector
@@ -237,7 +237,7 @@ indx=r
 ecp_jur = countryconc$c_ecp[countryconc$c_gloria==tmpc]
 sattype = "EDGAR"
 cptype = "ecp"
-etype = "non1a"
+etype = "all"
 ftype = "all"
 ctry = tmpc
 sect = tmps

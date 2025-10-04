@@ -35,12 +35,32 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
         wcpd_temp = wcpd_df.copy()
 
     # Assign emissions from the last inventory year to subsequent years
-    inventory_temp = inventory.loc[inventory.year<=inv_end_year, :].copy()
+    if jur_level == "national":
+        inventory_temp = inventory.loc[inventory.year <= inv_end_year, :].copy()
 
-    for yr in range(inv_end_year+1, wcpd_end_year+1):
-        temp = inventory.loc[inventory.year==inv_end_year, :].copy()
-        temp["year"].replace(to_replace={inv_end_year:yr}, inplace=True)
-        inventory_temp = pd.concat([inventory_temp, temp])
+        for yr in range(inv_end_year + 1, wcpd_end_year + 1):
+            temp = inventory.loc[inventory.year == inv_end_year, :].copy()
+            temp["year"] = yr
+            inventory_temp = pd.concat([inventory_temp, temp])
+
+    if jur_level == "subnational":
+        inventory_temp = pd.DataFrame()
+
+        for nat_jur in ["Canada", "China", "United States"]:
+            inv_end_year_jur = inv_end_year[nat_jur]
+
+            temp = inventory.loc[
+                (inventory.supra_jur == nat_jur) &
+                (inventory.year <= inv_end_year_jur), :
+                ].copy()
+
+            inv_sub = temp.copy()
+            for yr in range(inv_end_year_jur + 1, wcpd_end_year + 1):
+                temp_ii = temp[temp.year == inv_end_year_jur].copy()
+                temp_ii["year"] = yr
+                inv_sub = pd.concat([inv_sub, temp_ii])
+
+            inventory_temp = pd.concat([inventory_temp, inv_sub])
 
     # scheme_id and coverage factor columns - sorting lists is needed to ensure dic keys are matched with correct entries
     scheme_id_cols = [x for x in wcpd_df.columns if x.endswith("_id")==True]

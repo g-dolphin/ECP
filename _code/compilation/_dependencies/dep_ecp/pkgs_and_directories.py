@@ -30,3 +30,4 @@ ecp_coverage = SourceFileLoader('coverage', path_dependencies+'/ecp_v3_coverage.
 ecp_cur_conv = SourceFileLoader('currency_conversion', path_dependencies+'/ecp_v3_currConversion.py').load_module()
 ecp_overlap = SourceFileLoader('overlap', path_dependencies+'/ecp_v3_overlap.py').load_module()
 ecp_wav = SourceFileLoader('average', path_dependencies+'/ecp_v3_weightedAverage.py').load_module()
+ecp_sec_em = SourceFileLoader('average', path_dependencies+'/ecp_v3_aggSec.py').load_module()

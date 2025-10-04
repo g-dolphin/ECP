@@ -124,17 +124,19 @@ def concatenate(indir):
 #        return 'Error'
 
 # Dictionary of product categories
-productCategories = {"Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL', 'SUBCOAL', 
-                                'LIGNITE', 'PATFUEL', 'OVENCOKE', 'GASCOKE', 'COALTAR', 'BKB', 
-                                'GASWKSGS', 'COKEOVGS', 'BLFURGS', 'OGASES', 'PEAT', 'PEATPROD', 'OILSHALE'],
-                     "Natural gas":['NATGA'],
-                     "Oil":['CRNGFEED', 'CRUDEOIL', 'NGL', 'REFFEEDS', 'ADDITIVE', 'ORIMUL', 
-                             'NONCRUDE', 'REFINGAS', 'ETHANE', 'LPG', 'NONBIOGAS', 'AVGAS', 
-                             'JETGAS', 'OTHKE', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
-                             'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJET'],
-                     "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
-                               'BIODIESEL', 'OBIOLIQ', 'RENEWNS', 'CHARCOAL'],
-                     "Total":['TOTAL']}
+productCategories = {
+    "Coal":['HARDCOAL', 'BROWN', 'ANTCOAL', 'COKCOAL', 'BITCOAL', 'SUBCOAL', 
+            'LIGNITE', 'PATFUEL', 'OVENCOKE', 'GASCOKE', 'COALTAR', 'BKB', 
+            'GASWKSGS', 'COKEOVGS', 'BLFURGS', 'OGASES', 'PEAT', 'PEATPROD', 'OILSHALE'],
+    "Natural gas":['NATGAS'],
+    "Oil":['CRNGFEED', 'CRUDEOIL', 'NGL', 'REFFEEDS', 'ADDITIVE', 'ORIMUL', 
+                            'NONCRUDE', 'REFINGAS', 'ETHANE', 'LPG', 'NONBIOGAS', 'AVGAS', 
+                            'JETGAS', 'OTHKERO', 'RESFUEL', 'NAPHTA', 'WHITESP', 'LUBRIC', 
+                            'BITUMEN', 'PARWAX', 'PETCOKE', 'ONONSPEC', 'NONBIOLJETK', 'NONBIODIE'],
+    "Other":['INDWASTE', 'MUNWASTE', 'PRIMSBIO', 'BIOGASES', 'BIOGASOL',
+                            'BIODIESEL', 'OBIOLIQ', 'RENEWNS', 'CHARCOAL'],
+    "Total":['TOTAL']
+    }
 
 # Country names
 iea_wb_map = {'Australi':'Australia', 
@@ -176,43 +178,23 @@ iea_wb_map = {'Australi':'Australia',
             'Venezuela':'Venezuela, RB',
             'Yemen':'Yemen, Rep.'}
 
-
-######Converts missing values to 0######
-def convert_value(value_str):
-    value = 0
-    try:
-        value = float(value_str)
-    except ValueError:
-        value = 0
-    return value
-
-def convert_value_II(na_str):
-    value = np.nan
-    if na_str == 'n.a.':
-        return value
-    else:
-        try:
-            value = float(na_str)
-        except ValueError:
-            value = np.nan
-        return value
-    
-    
 def wb_series(series_name, new_name):
-    wdi_series = pd.read_csv('/Users/ejoiner/OneDrive - rff/RFF Organization/Research Documents/WCPD/ECP/_raw/wb_rates/wb_rates.csv', low_memory=False)
-    
-    series = wdi_series[wdi_series["Series Name"]==series_name]
-    series = series.drop(["Country Code", "Series Code", "Series Name"], axis=1)
-    series = series.melt(id_vars="Country Name")
-    series.columns = ["jurisdiction", "year", new_name]
-    series.replace(to_replace="#N/A", value=np.nan, inplace=True)
+    # Load data
+    path = '/Users/gd/GitHub/ECP/_raw/wb_rates/wb_rates.csv'
+    df = pd.read_csv(path, low_memory=False)
 
-    series["year"] = series.apply(lambda x: x['year'][:4], axis = 1)
-    series["year"] = series.year.astype(int)
-    
-    series["jurisdiction"].replace(to_replace={"Czechia":"Czech Republic"}, inplace=True)
+    # Filter and drop unnecessary columns
+    df = df[df["Series Name"] == series_name].drop(columns=["Country Code", "Series Code", "Series Name"])
 
-    return series
-    
-    
-    
+    # Reshape and clean
+    df = df.melt(id_vars="Country Name", var_name="year", value_name=new_name)
+    df.replace("#N/A", np.nan, inplace=True)
+
+    # Extract year and convert to integer
+    df["year"] = df["year"].str[:4].astype(int)
+
+    # Rename and harmonize jurisdiction names
+    df.rename(columns={"Country Name": "jurisdiction"}, inplace=True)
+    df["jurisdiction"].replace({"Czechia": "Czech Republic"}, inplace=True)
+
+    return df

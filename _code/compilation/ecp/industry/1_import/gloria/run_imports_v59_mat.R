@@ -103,5 +103,12 @@ source(file.path(gloriawd,"import_gloria_script_mat.R"))
 timestep<-"2022"
 source(file.path(gloriawd,"import_gloria_script_mat.R"))
 
+timestep<-"2023"
+source(file.path(gloriawd,"import_gloria_script_mat.R"))
+
+timestep<-"2024"
+source(file.path(gloriawd,"import_gloria_script_mat.R"))
+
+
 rm(list=ls()[! ls() %in% c("wd","gversion")])
 

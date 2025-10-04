@@ -19,7 +19,8 @@ if(gversion=="059"){
   source(file.path(gloriawd,"run_imports_v57.R"))
 }
 
-pl<-"curr_p"
+#ecpv<-"250606"
+pl<-"cons_p"
 ecpwd<-file.path(wd,"1_import","ecp")
 source(file.path(ecpwd,"import_ecp.R"))
 
@@ -35,7 +36,7 @@ for(j in 1:length(cpal)){
 cpinds<-unlist(cpal)
 rm(cpal)
 
-yrs<-seq(1990,2022)
+yrs<-seq(1990,2024)
 zql<-list()
 yql<-list()
 
@@ -92,6 +93,8 @@ for(i in 1:length(yrs)){
   # add emissions columns
   yqdf['co2_edgar_total']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
   yqdf['co2_edgar_1a']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_1a3b']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A3b",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_edgar_1a4']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1A4",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_edgar_1b']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_edgar_2']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_edgar_3']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
@@ -99,6 +102,8 @@ for(i in 1:length(yrs)){
   yqdf['co2_edgar_5']<-yq[which(grepl("EDGAR",satellites_ind$Sat_head_indicator) & grepl("c_5",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_total']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_total",satellites_ind$Sat_indicator)),]
   yqdf['co2_oecd_1a']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_1a3b']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A3b",satellites_ind$Sat_indicator)),] %>% colSums()
+  yqdf['co2_oecd_1a4']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1A4",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_1b']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_1B",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_2']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_2",satellites_ind$Sat_indicator)),] %>% colSums()
   yqdf['co2_oecd_3']<-yq[which(grepl("OECD",satellites_ind$Sat_head_indicator) & grepl("c_3",satellites_ind$Sat_indicator)),] %>% colSums()
@@ -114,7 +119,7 @@ yqd<-do.call("rbind",yql)
 # we save seperate these files separately due to GitHub restrictions on file size
 if(pl=="curr_p"){
   # current price, industry level, edgar based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
@@ -126,7 +131,7 @@ if(pl=="curr_p"){
                       "currentPrice","FlexXRate",
                       "ecp_gloria_edgar_industry_cpdisagg.csv"),row.names = F)
   # current price, industry level, oecd based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
@@ -138,7 +143,7 @@ if(pl=="curr_p"){
                       "currentPrice","FlexXRate",
                       "ecp_gloria_oecd_industry_cpdisagg.csv"),row.names = F)
   # current price, demand level, edgar based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "currentPrice","FlexXRate",
@@ -150,7 +155,7 @@ if(pl=="curr_p"){
                       "currentPrice","FlexXRate",
                       "ecp_gloria_edgar_finaldem_cpdisagg.csv"),row.names = F)
   # current price, demand level, oecd based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "currentPrice","FlexXRate",
@@ -163,7 +168,7 @@ if(pl=="curr_p"){
                       "ecp_gloria_oecd_finaldem_cpdisagg.csv"),row.names = F)
 } else if (pl=="cons_p"){
   # constant price, industry level, edgar based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "constantPrice","FixedXRate",
@@ -175,7 +180,7 @@ if(pl=="curr_p"){
                       "constantPrice","FixedXRate",
                       "ecp_gloria_edgar_industry_cpdisagg.csv"),row.names = F)
   # constant price, industry level, oecd based, aggregate ecp, with carbon info
-  write.csv(zqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(zqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "constantPrice","FixedXRate",
@@ -187,7 +192,7 @@ if(pl=="curr_p"){
                       "constantPrice","FixedXRate",
                       "ecp_gloria_oecd_industry_cpdisagg.csv"),row.names = F)
   # constant price, demand level, edgar based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,EDGAR_ecp_all_all,contains("co2_edgar")) %>% rename(ecp_edgar = EDGAR_ecp_all_all),
             file.path(here::here(),
                           "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                           "constantPrice","FixedXRate",
@@ -199,7 +204,7 @@ if(pl=="curr_p"){
                       "constantPrice","FixedXRate",
                       "ecp_gloria_edgar_finaldem_cpdisagg.csv"),row.names = F)
   # constant price, demand level, oecd based, aggregate ecp, with carbon info
-  write.csv(yqd %>% select(year,country_sector,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
+  write.csv(yqd %>% select(year,country,sector,OECD_ecp_all_all,contains("co2_oecd")) %>% rename(ecp_oecd = OECD_ecp_all_all),
             file.path(here::here(),
                       "_dataset","ecp","industry","ecp_gloria_sectors",gversion,
                       "constantPrice","FixedXRate",

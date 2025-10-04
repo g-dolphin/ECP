@@ -94,6 +94,10 @@ def emissions_share_wld_sectors(emissions, sectors_wld_total, gas, jur_level=Non
             emissions_sect_share = pd.merge(inventory_temp, sectors_wld_total, how='left', on=['ipcc_code', 'year'])
             emissions_sect_share.drop(["iea_code_y"], axis=1, inplace=True)
             
+        else:
+            inventory_temp = emissions[["supra_jur", "jurisdiction", "year", "ipcc_code", "iea_code", gas]]
+
+    emissions_sect_share = pd.merge(inventory_temp, sectors_wld_total, how='left', on=['ipcc_code', 'year'])
     emissions_sect_share.rename(columns={gas+"_x":gas, gas+"_y":gas+"_wldSect", "jurisdiction_x": "jurisdiction",
                                          "iea_code_x":"iea_code", "Product_x":"Product"}, inplace=True)
 
