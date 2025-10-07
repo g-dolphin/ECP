@@ -180,7 +180,7 @@ iea_wb_map = {'Australi':'Australia',
 
 def wb_series(series_name, new_name):
     # Load data
-    path = '/Users/gd/GitHub/ECP/_raw/wb_rates/wb_rates.csv'
+    path = '/Users/geoffroydolphin/GitHub/ECP/_raw/wb_rates/wb_rates.csv'
     df = pd.read_csv(path, low_memory=False)
 
     # Filter and drop unnecessary columns

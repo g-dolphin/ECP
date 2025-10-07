@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import dep_ecp
 
-from wcpd_utils.jurisdictions import jurisdictions
+from wcpd_utils.jurisdictions import jurisdictions as jur_loader
 
 from dep_ecp.ipcc_map_subnat import (
     category_names_ipcc_can_map,
@@ -18,10 +18,10 @@ from dep_ecp.jur_names_concordances import subnat_names_map_chn
 category_names_ipcc_can_map = {int(k): v for k, v in category_names_ipcc_can_map.items()}
 
 # --- Load subnational jurisdictions ---
-subnat_can = jurisdictions["subnationals"]["Canada"] 
-subnat_chn = jurisdictions["subnationals"]["China"] 
-subnat_jpn = jurisdictions["subnationals"]["Japan"] 
-subnat_usa = jurisdictions["subnationals"]["United States"]
+subnat_can = jur_loader["subnationals"]["Canada"] 
+subnat_chn = jur_loader["subnationals"]["China"] 
+subnat_jpn = jur_loader["subnationals"]["Japan"] 
+subnat_usa = jur_loader["subnationals"]["United States"]
 
 # --- Constants ---
 GHG_COLUMNS = ["CO2", "CH4", "N2O", "HFCs", "PFCs", "SF6", "NF3", "all_GHG"]

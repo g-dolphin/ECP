@@ -14,7 +14,7 @@ def coverageFactors(inst_df, gas):
     ets_id_cols = [x for x in inst_df.columns if x.startswith("ets_") and x.endswith("_id")]
     
     ## LOAD COVERAGE FACTORS FILES 
-    coverageFactor = ecp_gen.concatenate("/Users/gd/GitHub/WorldCarbonPricingDatabase/_raw/coverageFactor")
+    coverageFactor = ecp_gen.concatenate("/Users/geoffroydolphin/GitHub/WorldCarbonPricingDatabase/_raw/coverageFactor" + "/" + gas)
     coverageFactor = coverageFactor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas]]
     
 

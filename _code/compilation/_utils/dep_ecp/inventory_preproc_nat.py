@@ -4,7 +4,7 @@ import numpy as np
 import os
 from dep_ecp import ecp_v3_gen_func as ecp_gen
 
-path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
+path_ghg = '/Users/geoffroydolphin/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
 
 # CO2
 
@@ -62,12 +62,12 @@ def inventory_co2(wcpd_df, jur_names, iea_wb_map, edgar_ghg_df, edgar_wb_map):
     df["jurisdiction"].replace(iea_wb_map, inplace=True)
 
     # Merge flow codes
-    flowCodes_path = '/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv'
+    flowCodes_path = '/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv'
     flowCodes = pd.read_csv(flowCodes_path, usecols=[0, 1])
     df = df.merge(flowCodes, on="FLOWname", how="left")
 
     # Merge IPCC codes
-    ipcc_path = '/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv'
+    ipcc_path = '/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv'
     ipccCodes = pd.read_csv(ipcc_path, usecols=[0, 3])
     ipccCodes = ipccCodes[ipccCodes["FLOW"].notna()]
     df = df.merge(ipccCodes, on="FLOW", how="left")
@@ -144,12 +144,12 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
     df["jurisdiction"].replace(to_replace=iea_wb_map, inplace=True)
 
     # Add Flow codes to dataframe
-    flowCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
+    flowCodes = pd.read_csv('/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/iea_ukds_FLOWcodes.csv',
                                     usecols=[0,1])
     df = df.merge(flowCodes, on='FLOWname', how='left')
 
     # Add ipcc codes
-    ipccCodes = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_code_update.csv')
+    ipccCodes = pd.read_csv('/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_code_update.csv')
     ipccCodes.rename(columns={"Product ": "Product"}, inplace=True)
 
     df = df.merge(ipccCodes, on=["Product", "FLOWname"], how='left')
@@ -163,7 +163,7 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
     #EDGAR DATA 
 
     # format ipcc_code and year columns
-    edgar_ghg = pd.read_csv('/Users/gd/GitHub/ECP/_raw/_aux_files/ghg_national_total_ipcc.csv')
+    edgar_ghg = pd.read_csv('/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/ghg_national_total_ipcc.csv')
 
     edgar_ghg = edgar_ghg[["jurisdiction", "year", "ipcc_code", gas]]
     edgar_ghg["jurisdiction"].replace(edgar_wb_map, inplace=True)
