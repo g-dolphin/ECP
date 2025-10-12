@@ -108,6 +108,12 @@ def coverage(inventory, inv_end_year, wcpd_end_year, wcpd_df, gas,
 
         wcpd_temp.drop(["year"], axis=1, inplace=True)
 
+    if 'wld_sect_share_CO2' in df_keys:
+        df_keys.remove('wld_sect_share_CO2')
+
+    print(df_keys)
+    print(wcpd_keys)
+
     temp = inventory_temp.merge(wcpd_temp, 
                                how='left', 
                                left_on=df_keys,
