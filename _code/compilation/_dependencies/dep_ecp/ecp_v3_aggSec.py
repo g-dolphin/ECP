@@ -7,14 +7,16 @@ import math
 from importlib.machinery import SourceFileLoader
 from itertools import chain
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
+## changed file paths for my local machine 
 
-ipccCodes = pd.read_csv("/Users/gd/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv")
+path_dependencies = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_code/compilation/_dependencies/dep_ecp'
+
+ipccCodes = pd.read_csv("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv")
 
 ecp_general = SourceFileLoader('general', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 
 # need to specify which inventory one is drawing from (national or subnational) and specify the corresponding path
-inventoryPath = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/processed/"
+inventoryPath = "/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/processed/"
 invName = {"national":"nat", "subnational":"subnat"}
 
 
@@ -22,7 +24,7 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
                      price_cols, wcpd_all, countries_dic, subnat_dic):
 
     # PRICES
-    prices_usd = ecp_general.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath)
+    prices_usd = ecp_general.concatenate("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath)
 
     # currently including the price of the main tax or ets scheme; should be revised to account for all schemes
     prices_usd = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]]
@@ -52,9 +54,9 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
     prices_usd  = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]+[all_inst_col]].sort_values(by=["jurisdiction", "year"])
 
     for jur in countries_dic.keys():
-        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/gd/GitHub/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+countries_dic[jur]+".csv", index=None)
+        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+countries_dic[jur]+".csv", index=None)
     for jur in subnat_dic.keys():
-        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/gd/GitHub/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+subnat_dic[jur]+".csv", index=None)
+        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+subnat_dic[jur]+".csv", index=None)
 
 
     return prices_usd, all_inst_col

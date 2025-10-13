@@ -1,11 +1,10 @@
-
 import pandas as pd
 import numpy as np
 import os
 from importlib.machinery import SourceFileLoader
 
-path_dependencies = '/Users/gd/GitHub/ECP/_code/compilation/_dependencies/dep_ecp'
-path_ghg = '/Users/gd/OneDrive - rff/documents/research/projects/ecp/ecp_dataset/source_data/ghg_inventory/raw'
+path_dependencies = '/Users/ejoiner/OneDrive - rff/Documents/RFF Organization/Research Documents/WCPD/ECP/_code/compilation/_dependencies/dep_ecp'
+path_ghg = '/Users/ejoiner/OneDrive - rff/ecp/ecp_dataset/source_data/ghg_inventory/raw'
 
 ecp_general = SourceFileLoader('general_func', path_dependencies+'/ecp_v3_gen_func.py').load_module()
 

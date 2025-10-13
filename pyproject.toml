@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ecp-toolkit"
+version = "0.0.0"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["_code/compilation/_utils"]
+include = ["dep_ecp*"]
