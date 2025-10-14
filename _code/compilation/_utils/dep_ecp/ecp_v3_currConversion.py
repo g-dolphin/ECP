@@ -57,7 +57,7 @@ def generate_price_columns(wcpd_usd, price_columns, x_rate_dic, base_year, use_f
 
 def cur_conv(wcpd_all, gas, subnat_can_list, subnat_usa_list, subnat_chn_list, xRateFixed, baseYear=None):
     base_path = Path("/Users/geoffroydolphin/GitHub/ECP/_raw")
-    dep_path = Path("/Users/geoffroydolphin/GitHub/ECP/_code/compilation/_dependencies/dep_ecp")
+    dep_path = Path("/Users/geoffroydolphin/GitHub/ECP/_code/compilation/_utils/dep_ecp")
     ecp_general = SourceFileLoader('general_func', str(dep_path / 'ecp_v3_gen_func.py')).load_module()
 
     x_rate = load_exchange_rates(base_path / "wb_rates/xRate_bis.csv", xRateFixed)
