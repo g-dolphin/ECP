@@ -120,6 +120,12 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
 
     # IEA NON-CO2 DATA, ENERGY USE ONLY 
 
+    # RELATIVE PATH FOR FILE LOCATION IN ECP REPO
+    ratios_combs = pd.read_csv('/_raw/_aux_files/nonco2_assigned_codes_and_ratios.csv')
+
+    wcpd_df = wcpd_df.merge(ratios_combs, on=['ipcc_code'], how='left')
+
+
     df = pd.read_table(path_ghg+'/national/IEA/iea_energy_ghg_emissions/2024_edition/WORLD_GHG.TXT',
                             sep = " ", names=["jurisdiction", "Product", "year", "FLOWname", "gas", "Value", "add_drop"])
     
@@ -160,8 +166,7 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
     df["Source"] = "IEA"
     df = df.replace({"Product": {"TOTAL": "Total", "OIL": "Oil", "COAL": "Coal", "NATGAS": "Natural gas", "BIOPROD": "Bioprod", "OTHER": "Other"},
                     gas: {"..": "", "x": "", "c": ""}})
-    df[gas] = df[gas].astype(str)
-
+    df[gas] = pd.to_numeric(df[gas])
     #EDGAR DATA 
 
     # format ipcc_code and year columns
@@ -174,34 +179,42 @@ def inventory_non_co2(wcpd_df, gas, jur_names, iea_wb_map, edgar_wb_map):
 
     ## remove all energy related values, as those are covered by the IEA data
     edgar_ghg = edgar_ghg[~edgar_ghg['ipcc_code'].astype(str).str.startswith('1')]
-    edgar_ghg[gas] = edgar_ghg[gas].astype(str)
+    edgar_ghg[gas] = edgar_ghg[gas]
 
     # Aggregate
     # df = df.groupby(["jurisdiction", "Product", "year", "FLOWname"], as_index=False).sum()
     inventory_gas_nat = wcpd_df[wcpd_df["jurisdiction"].isin(jur_names)][
-            ["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]].copy()
+            ["jurisdiction", "year", "ipcc_code", "iea_code", "Product", "assigned_ipcc_code", "digits_off",
+            "parent_ratio"]].copy()
 
     inventory_gas_nat[["iea_code", "Product"]] = inventory_gas_nat[["iea_code", "Product"]].fillna("NA")
 
     # MERGE IEA DATA TO WCPD FRAME 
     inventory_gas_nat = inventory_gas_nat.merge(
             df,
-            on=["jurisdiction", "year", "ipcc_code", "Product"],
+            on=["jurisdiction", "year", "assigned_ipcc_code", "Product"],
             how="left"
         )
 
     # MERGE EDGAR DATA TO WCPD FRAME  
     inventory_gas_nat = inventory_gas_nat.merge(
             edgar_ghg,
-            on=["jurisdiction", "year", "ipcc_code", "Product"],
+            on=["jurisdiction", "year", "assigned_ipcc_code", "Product"],
             how="left"
         )
 
     left = gas + "_x"
     right = gas +"_y"
+    
+    
+    inventory_gas_nat["ratio_x"] = inventory_gas_nat[left] * inventory_gas_nat["parent_ratio"]
+    inventory_gas_nat["ratio_y"] = inventory_gas_nat[right] * inventory_gas_nat["parent_ratio"]
 
-    inventory_gas_nat[gas] = inventory_gas_nat[left].fillna("")  + inventory_gas_nat[right].fillna("") 
-    inventory_gas_nat["Source"] = inventory_gas_nat["Source_x"].fillna("") + inventory_gas_nat["Source_y"].fillna("")
-    inventory_gas_nat = inventory_gas_nat.drop(columns = [left, right,"Source_x", "Source_y"])
+    # create sum of the two ratios, ignoring missing values 
+    inventory_gas_nat[gas] = inventory_gas_nat[["ratio_x", "ratio_y"]].sum(axis=1, min_count=0.0000001)
+    inventory_gas_nat["Source"] = inventory_gas_nat["Source_x"].fillna('') + inventory_gas_nat["Source_y"].fillna('')
+    inventory_gas_nat = inventory_gas_nat.drop(columns = [left, right, "ratio_x", "ratio_y", "Source_x", "Source_y"])
 
+    #ipcc_code_x is the wcpd_df original ipcc tree 
+    
     return inventory_gas_nat
