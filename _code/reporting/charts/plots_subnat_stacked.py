@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 # Function to create a filtered stacked bar chart
 # Updated function using style context for local styling
@@ -40,6 +41,17 @@ def plot_filtered_stacked_bar(df_country, country_name):
         'figure.autolayout': True,
     }
 
+    # File name base (used for both chart and data)
+    filename_base = f"subnat_stacked_{country_name}"
+
+    # Paths
+    fig_path = f"/Users/geoffroydolphin/GitHub/ECP/_output/_figures/plots/{filename_base}.png"
+    data_dir = "/Users/geoffroydolphin/GitHub/ECP/_output/_figures/dataFig"
+    data_path = os.path.join(data_dir, f"{filename_base}.csv")
+
+    # Ensure data directory exists
+    os.makedirs(data_dir, exist_ok=True)
+
     # Plot with local style context
     with plt.style.context(['seaborn-v0_8-muted', custom_style]):
         ax = df_pivot.plot(kind='bar', stacked=True)
@@ -50,6 +62,10 @@ def plot_filtered_stacked_bar(df_country, country_name):
         plt.grid(True, axis='y')
         plt.tight_layout()
 
-    plt.savefig("/Users/gd/GitHub/ECP/_output/_figures/plots/subnat_stacked_"+country_name+".png")
+        # Save figure
+        plt.savefig(fig_path)
+
+    # Save chart data with same base name as the chart
+    df_pivot.to_csv(data_path)
 
     plt.show()

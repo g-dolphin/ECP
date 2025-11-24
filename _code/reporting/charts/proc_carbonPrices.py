@@ -74,8 +74,8 @@ def prepare_carbon_price_data(data_dir, year):
     dfs = [pd.read_csv(f) for f in files]
     df = pd.concat(dfs, ignore_index=True)
 
-    pathECP = r"/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv"
-    pathCoverage = r"/Users/gd/GitHub/ECP/_output/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv"
+    pathECP = r"/Users/geoffroydolphin/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv"
+    pathCoverage = r"/Users/geoffroydolphin/GitHub/ECP/_output/_dataset/coverage/tot_coverage_jurisdiction_CO2.csv"
 
     prices_usd = df.copy()
     ecp = pd.read_csv(pathECP)
@@ -138,7 +138,7 @@ def prepare_carbon_price_data(data_dir, year):
     #ecp.to_csv(path_input+r"_ecp.csv", index = False)
     #coverage.to_csv(path_input+r"_coverage.csv", index = False)
 
-    prices_usd_max.to_csv(r"/Users/gd/GitHub/ECP/_output/_figures/dataFig/carbonPrices_usd_max_"+str(year)+".csv", index = False)
+    prices_usd_max.to_csv(r"/Users/geoffroydolphin/GitHub/ECP/_output/_figures/dataFig/carbonPrices_usd_max_"+str(year)+".csv", index = False)
     #prices_economy.to_csv(path_output+r"_economy.csv", index = False)
 
     return df, prices_usd_max

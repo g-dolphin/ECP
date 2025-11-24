@@ -3,7 +3,7 @@ import sys
 import json
 import pandas as pd
 
-sys.path.append("/Users/gd/GitHub/ECP/_code/reporting/charts")
+sys.path.append("/Users/geoffroydolphin/GitHub/ECP/_code/reporting/charts")
 from proc_carbonPrices import prepare_carbon_price_data
 from plots_carbonPrices import plot_minMax
 from plots_coverage import coverage_plots
@@ -12,10 +12,10 @@ from plots_ets_tax_jur import plot_selected_jurisdictions
 from plots_subnat_stacked import plot_filtered_stacked_bar
 from plots_national_stacked import plot_stacked_national_bar
 
-os.makedirs('/Users/gd/GitHub/ECP/_output/_figures/plots', exist_ok=True)
+os.makedirs('/Users/geoffroydolphin/GitHub/ECP/_output/_figures/plots', exist_ok=True)
 
 # Path to JSON config
-json_path = os.path.join("/Users/gd/GitHub/WorldCarbonPricingDatabase/_code/_compilation/_dependencies/", "jurisdictions.json")
+json_path = os.path.join("/Users/geoffroydolphin/GitHub/WorldCarbonPricingDatabase/_code/_compilation/_utils/", "jurisdictions.json")
 
 with open(json_path, 'r', encoding='utf-8') as f:
     jurisdictions = json.load(f)
@@ -26,25 +26,25 @@ china_provinces = jurisdictions["subnationals"]["China"]
 
 
 print("Loading carbon price data...")
-carbon_df, prices_usd_max = prepare_carbon_price_data(r"/Users/gd/GitHub/ECP/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/", 2024)
+carbon_df, prices_usd_max = prepare_carbon_price_data(r"/Users/geoffroydolphin/GitHub/ECP/_raw/wcpd_usd/CO2/constantPrices/FixedXRate/", 2024)
 
 print("Plotting carbon price charts...")
-plot_minMax(prices_usd_max, "/Users/gd/GitHub/ECP/_output/_figures/dataFig")
+plot_minMax(prices_usd_max, "/Users/geoffroydolphin/GitHub/ECP/_output/_figures/dataFig")
 
-plot_world_sectors("/Users/gd/GitHub/ECP/_output/_dataset")
+plot_world_sectors("/Users/geoffroydolphin/GitHub/ECP/_output/_dataset")
 
-jurisdictions = ["Canada", "China", "California", "France", "Germany", "Japan", "Korea", "United Kingdom", "United States"]
-plot_selected_jurisdictions("/Users/gd/GitHub/ECP/_output/_dataset", jurisdictions)
+jurisdictions = ["Canada", "China", "California", "France", "Germany", "Japan", "Korea", "United Kingeoffroydolphinom", "United States"]
+plot_selected_jurisdictions("/Users/geoffroydolphin/GitHub/ECP/_output/_dataset", jurisdictions)
 
 print("Plotting coverage charts...")
-coverage_plots(carbon_df, '/Users/gd/GitHub/ECP/_output/_figures')
+coverage_plots(carbon_df, '/Users/geoffroydolphin/GitHub/ECP/_output/_figures')
 
 
 # Apply updated plotting function
 # Filter data for each country’s subnational jurisdictions
 
-df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
-df_national = pd.read_csv("/Users/gd/Desktop/national_stack_test.csv")
+df = pd.read_csv("/Users/geoffroydolphin/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
+df_national = pd.read_csv("/Users/geoffroydolphin/Desktop/national_stack_test.csv")
 
 df_canada = df[df['jurisdiction'].isin(canadian_provinces)]
 df_us = df[df['jurisdiction'].isin(us_states)]
