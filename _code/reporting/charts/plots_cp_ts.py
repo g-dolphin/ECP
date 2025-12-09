@@ -1,105 +1,167 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Dict, Mapping, Optional, Sequence, Union
+
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.interpolate import make_interp_spline
 import pandas as pd
 
-df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2.csv")
-df_world_sec = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_world_sectors/world_sectoral_ecp_CO2.csv")
+PathLike = Union[str, Path]
 
-# Define sector mapping
-sector_map = {
-    "1A1A1": "Electricity Generation",
-    "1A1C": "Other Energy Industries",
-    "1A2A": "Iron and Steel",
-    "1A2B": "Non-Ferrous Metals",
-    "1A2C": "Chemicals",
-    "1A2D": "Pulp, Paper, Print",
-#    "1A2E": "Food Processing",
-    "1A2F": "Non-Metallic Minerals",
-#    "1A2G": "Transport Equipment",
-#    "1A2H": "Machinery",
-    "1A2I": "Mining and Quarrying",
-    "1A2J": "Wood and Wood Products",
-    "1A2L": "Textile and Leather",
-    "1A3A1": "International Aviation",
-    "1A3B": "Road Transport",
-    "1A4A": "Buildings - Commercial and Institutional",
-    "1A4B": "Buildings - Residential",
-    "1A4C": "Agriculture, Forestry, Fishing"
-}
 
-jurisdictions = ["Canada", "China", "France", "Germany", "Italy", "United Kingdom", "United States", "World"]
+def _save_ts_figure_and_data(
+    df_long: pd.DataFrame,
+    group_col: str,
+    year_col: str,
+    value_col: str,
+    output_plot_path: Optional[PathLike],
+    output_data_path: Optional[PathLike],
+    title: str,
+) -> pd.DataFrame:
+    """Internal helper to plot time series and save figure + data."""
+    fig, ax = plt.subplots(figsize=(11, 6))
 
-def plot_cp_time_series(df, selec_list, label):
-    # Apply a clean, publication-ready style
-    plt.style.use('seaborn-whitegrid')
+    for label, sub in df_long.groupby(group_col):
+        sub = sub.sort_values(year_col)
+        ax.plot(
+            sub[year_col],
+            sub[value_col],
+            label=str(label),
+            linewidth=2,
+        )
 
-    # Set up figure
-    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_xlabel("Year", fontsize=11)
+    ax.set_ylabel("Carbon price (USD/tCO₂)", fontsize=11)
+    ax.set_title(title, fontsize=13, weight="bold")
 
-    # Define a consistent color cycle
-    colors = plt.get_cmap("tab10")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0), borderaxespad=0.0)
+    ax.grid(True, linestyle=":", alpha=0.4)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
-    if label == "jurisdictions":
-        field = "jurisdiction"
-        variable = 'ecp_all_jurCO2_usd_k'
-        legend_title = "Jurisdiction"
-        chart_title = "Emissions-weighted CO$_2$ Price, by jurisdiction"
-    else:
-        field = "ipcc_code"
-        variable = "ecp_all_sectCO2_usd_k"
-        legend_title = "Sector"
-        chart_title = "Emissions-weighted CO$_2$ Price, by world sector"
-
-    for i, value in enumerate(selec_list):
-        df_selec = df[df[field] == value].sort_values("year")
-        x = df_selec['year']
-        y = df_selec[variable]
-
-        if len(x) > 3:
-            x_new = np.linspace(x.min(), x.max(), 300)
-            spline = make_interp_spline(x, y, k=3)
-            y_smooth = spline(x_new)
-            if label == "jurisdictions":
-                ax.plot(x_new, y_smooth, label=value, linewidth=2.2, color=colors(i))
-            else:
-                ax.plot(x_new, y_smooth, label=sector_map[value], linewidth=2.2, color=colors(i))
-        else:
-            if label == "jurisdictions":
-                ax.plot(x, y, label=value, linewidth=2.2, color=colors(i))
-            else:
-                ax.plot(x, y, label=sector_map[value], linewidth=2.2, color=colors(i))
-
-    # Labels and title
-    ax.set_title(chart_title, fontsize=18, weight='bold')
-    ax.set_xlabel("Year", fontsize=14)
-    ax.set_ylabel("CO$_2$ Price (USD/tCO$_2$)", fontsize=14)
-
-    # Ticks
-    ax.tick_params(axis='both', which='major', labelsize=12)
-
-    # Legend
-    ax.legend(title=legend_title, fontsize=12, title_fontsize=13)
-
-    # Grid styling
-    ax.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.8)
-
-    # Remove top and right spines for cleaner look
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    # Tight layout for print
     fig.tight_layout()
 
-    # Save as high-resolution PNG and PDF
-    png_output = "/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_ts_"+label+".png"
-    pdf_output = "/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_ts_"+label+".pdf"
+    if output_plot_path is not None:
+        output_plot_path = Path(output_plot_path)
+        output_plot_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_plot_path, dpi=300, bbox_inches="tight")
 
-    fig.savefig(png_output, dpi=600, bbox_inches='tight')
-    fig.savefig(pdf_output, bbox_inches='tight')
+    plt.close(fig)
 
-    plt.show()
+    if output_data_path is not None:
+        output_data_path = Path(output_data_path)
+        output_data_path.parent.mkdir(parents=True, exist_ok=True)
+        df_long.to_csv(output_data_path, index=False)
+
+    return df_long
 
 
-plot_cp_time_series(df, jurisdictions, "jurisdictions")
-plot_cp_time_series(df_world_sec, sector_map.keys(), "world_sec")
+def plot_cp_ts_jurisdictions(
+    df: pd.DataFrame,
+    jurisdictions: Sequence[str],
+    year_col: str = "year",
+    jurisdiction_col: str = "jurisdiction",
+    value_col: str = "ecp_all_jurCO2_usd_k",
+    output_plot_path: Optional[PathLike] = None,
+    output_data_path: Optional[PathLike] = None,
+    title: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Plot time series of carbon prices for selected jurisdictions.
+
+    Parameters
+    ----------
+    df : DataFrame
+        Input ECP dataset at the jurisdiction level.
+    jurisdictions : sequence of str
+        Jurisdictions to plot.
+    year_col : str
+        Column name for year.
+    jurisdiction_col : str
+        Column for jurisdiction names.
+    value_col : str
+        Column for price (USD/tCO₂).
+    output_plot_path : str or Path, optional
+        PNG/PDF path for the figure.
+    output_data_path : str or Path, optional
+        CSV path for underlying data.
+    title : str, optional
+        Figure title; if None, a default is constructed.
+
+    Returns
+    -------
+    DataFrame
+        Long-format data actually plotted, with columns
+        [year_col, jurisdiction_col, value_col].
+    """
+    df_plot = df[df[jurisdiction_col].isin(jurisdictions)].copy()
+    df_plot = df_plot[[year_col, jurisdiction_col, value_col]].dropna()
+
+    if title is None:
+        title = "Carbon price time series – selected jurisdictions"
+
+    return _save_ts_figure_and_data(
+        df_long=df_plot,
+        group_col=jurisdiction_col,
+        year_col=year_col,
+        value_col=value_col,
+        output_plot_path=output_plot_path,
+        output_data_path=output_data_path,
+        title=title,
+    )
+
+
+def plot_cp_ts_world_sectors(
+    df_world_sec: pd.DataFrame,
+    sector_map: Mapping[str, str],
+    year_col: str = "year",
+    sector_col: str = "ipcc_code",
+    value_col: str = "ecp_world_ipcc_CO2_usd_k",
+    output_plot_path: Optional[PathLike] = None,
+    output_data_path: Optional[PathLike] = None,
+    title: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Plot time series of world average carbon prices by sector.
+
+    Parameters
+    ----------
+    df_world_sec : DataFrame
+        World-sector data with columns [year_col, sector_col, value_col].
+    sector_map : dict
+        Mapping from IPCC code (sector_col) to human-readable sector name.
+    year_col : str
+        Column for year.
+    sector_col : str
+        Column for sector code.
+    value_col : str
+        Column for price (USD/tCO₂).
+    output_plot_path : str or Path, optional
+        PNG/PDF path for the figure.
+    output_data_path : str or Path, optional
+        CSV path for underlying data.
+    title : str, optional
+        Figure title; if None, a default is constructed.
+
+    Returns
+    -------
+    DataFrame
+        Long-format data actually plotted, with columns
+        [year_col, "sector", value_col].
+    """
+    df_plot = df_world_sec[df_world_sec[sector_col].isin(sector_map.keys())].copy()
+    df_plot["sector"] = df_plot[sector_col].map(sector_map)
+    df_plot = df_plot[[year_col, "sector", value_col]].dropna()
+
+    if title is None:
+        title = "Carbon price time series – world sectors"
+
+    return _save_ts_figure_and_data(
+        df_long=df_plot.rename(columns={"sector": sector_col}),
+        group_col=sector_col,
+        year_col=year_col,
+        value_col=value_col,
+        output_plot_path=output_plot_path,
+        output_data_path=output_data_path,
+        title=title,
+    )

@@ -1,61 +1,114 @@
-import pandas as pd
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Optional, Union
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
-# Load data again for safety
-df_gdp = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/coverage/cpriceCoverageGDP.csv")
+PathLike = Union[str, Path]
 
-# Filter for latest year
-latest_year = df_gdp["year"].max()
-df_latest = df_gdp[df_gdp["year"] == latest_year].copy()
 
-# Sort by coverage
-df_latest = df_latest.sort_values("cpCoverage", ascending=True)
+def plot_cp_gdp(
+    df: pd.DataFrame,
+    year: Optional[int] = None,
+    coverage_col: str = "cpCoverage",
+    jurisdiction_col: str = "jurisdiction",
+    year_col: str = "year",
+    output_plot_path: Optional[PathLike] = None,
+    output_data_path: Optional[PathLike] = None,
+    title: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Plot a horizontal bar chart of GDP coverage by carbon pricing for a given year.
 
-# Plot: consistent style
-plt.style.use("default")  # Or 'seaborn-v0_8-whitegrid' for subtle grid
+    Parameters
+    ----------
+    df : DataFrame
+        Input data with at least [jurisdiction_col, year_col, coverage_col].
+        coverage_col is expected to be a share in [0, 1] (will be converted to %).
+    year : int, optional
+        Year to filter to. If None, use the max value of df[year_col].
+    coverage_col : str
+        Column name for GDP coverage share (0–1).
+    jurisdiction_col : str
+        Column name for jurisdiction names.
+    year_col : str
+        Column name for year.
+    output_plot_path : str or Path, optional
+        Where to save the figure (PNG/PDF, etc.). If None, the figure is not saved.
+    output_data_path : str or Path, optional
+        Where to save the underlying plotted data CSV. If None, no CSV is saved.
+    title : str, optional
+        Figure title; if None, a default is constructed.
 
-fig, ax = plt.subplots(figsize=(10, max(5, len(df_latest) * 0.3)))
+    Returns
+    -------
+    DataFrame
+        The filtered and sorted DataFrame actually plotted (with added column
+        `coverage_percent`).
+    """
+    if year is None:
+        if year_col not in df.columns:
+            raise ValueError(
+                "year is None and year_col not in df; either pass a year "
+                "explicitly or ensure the DataFrame has a year column."
+            )
+        year = int(df[year_col].max())
 
-bars = ax.barh(
-    df_latest["regionName"],
-    df_latest["cpCoverage"],
-    color="navy"
-)
+    if year_col in df.columns:
+        df_plot = df[df[year_col] == year].copy()
+    else:
+        df_plot = df.copy()
 
-# Add % labels
-for bar in bars:
-    width = bar.get_width()
-    ax.text(
-        width + 0.01,  # adjust offset
-        bar.get_y() + bar.get_height() / 2,
-        f"{width:.0%}",
-        va="center",
-        ha="left",
-        fontsize=8,
-        color="black"
-    )
+    # Keep non-missing coverage
+    df_plot = df_plot.dropna(subset=[coverage_col]).copy()
 
-# Title and labels
-ax.set_title(f"Share of GDP covered by carbon pricing ({latest_year})",
-             fontsize=14, weight="bold", pad=10)
-ax.set_xlabel("Share of GDP", fontsize=12)
-ax.set_xlim(0, 1)
+    # Convert to percentage
+    df_plot["coverage_percent"] = df_plot[coverage_col] * 100
 
-# Ticks
-ax.tick_params(axis="y", labelsize=9)
-ax.tick_params(axis="x", labelsize=9)
+    # Sort by coverage
+    df_plot.sort_values("coverage_percent", ascending=True, inplace=True)
 
-# Add subtle vertical grid
-ax.xaxis.grid(True, linestyle=":", color="gray", alpha=0.5)
-ax.set_axisbelow(True)
+    # Figure
+    fig, ax = plt.subplots(figsize=(10, 12))
 
-# Remove spines for clean look
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
+    y_pos = range(len(df_plot))
+    labels = df_plot[jurisdiction_col].tolist()
+    values = df_plot["coverage_percent"].to_numpy()
 
-plt.tight_layout()
+    ax.barh(y_pos, values, color="#1f77b4")
 
-# Save if needed
-plt.savefig("/Users/gd/GitHub/ECP/_output/_figures/plots/gdp_coverage_bar.png", dpi=300)
+    ax.set_yticks(list(y_pos))
+    ax.set_yticklabels(labels, fontsize=9)
+    ax.set_xlabel("Share of GDP covered by carbon pricing (%)", fontsize=11)
 
-plt.show()
+    if title is None:
+        title = f"GDP coverage by carbon pricing – {year}"
+    ax.set_title(title, fontsize=13, weight="bold")
+
+    # Grid and spines
+    ax.xaxis.grid(True, linestyle=":", color="gray", alpha=0.5)
+    ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    plt.tight_layout()
+
+    # Save figure
+    if output_plot_path is not None:
+        output_plot_path = Path(output_plot_path)
+        output_plot_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_plot_path, dpi=300, bbox_inches="tight")
+
+    plt.close(fig)
+
+    # Save underlying data
+    if output_data_path is not None:
+        output_data_path = Path(output_data_path)
+        output_data_path.parent.mkdir(parents=True, exist_ok=True)
+        cols_to_save = [jurisdiction_col, coverage_col, "coverage_percent"]
+        cols_to_save = [c for c in cols_to_save if c in df_plot.columns]
+        df_plot[cols_to_save].to_csv(output_data_path, index=False)
+
+    return df_plot

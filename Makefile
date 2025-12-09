@@ -14,8 +14,4 @@ report-pdf:
 
 all: charts report-html
 
-#clean:
-#	rm -rf /Users/gd/GitHub/ECP/_output/_figures/*
-#	rm -rf /Users/gd/GitHub/ECP/_output/_reports/*
-
 .PHONY: charts report-html report-pdf all clean

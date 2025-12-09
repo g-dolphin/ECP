@@ -110,13 +110,45 @@ def prepare_carbon_price_data(data_dir, year):
 
     prices_usd["max_price"] = prices_usd[['tax_rate_incl_ex_usd_k', 'ets_price_usd_k']].max(axis=1)
 
-    prices_usd_max = prices_usd[['jurisdiction', 'year', 'ipcc_code', 'Product', "max_price", "ISO-a3"]]
-    prices_usd_max = prices_usd_max.loc[(prices_usd_max["ISO-a3"].isin(ctrySel)) & (prices_usd_max.year==year)]
+    # keep only relevant cols
+    prices_usd_max = prices_usd[
+        ["jurisdiction", "year", "ipcc_code", "Product", "max_price", "ISO-a3"]
+    ]
 
-    prices_usd_max = prices_usd_max.groupby(["jurisdiction", "year"]).max()
+    # filter to selected countries + chosen year
+    prices_usd_max = prices_usd_max.loc[
+        prices_usd_max["ISO-a3"].isin(ctrySel)
+        & (prices_usd_max["year"] == year)
+    ].copy()
 
+    # make sure the key numeric column is actually numeric
+    prices_usd_max["max_price"] = pd.to_numeric(
+        prices_usd_max["max_price"],
+        errors="coerce",
+    )
+    prices_usd_max["year"] = pd.to_numeric(
+        prices_usd_max["year"],
+        errors="coerce",
+        downcast="integer",
+    )
+
+    # aggregate explicitly by column
+    prices_usd_max = (
+        prices_usd_max
+        .groupby(["jurisdiction", "year"], as_index=False)
+        .agg(
+            {
+                "ipcc_code": "first",
+                "Product": "first",
+                "max_price": "max",
+                "ISO-a3": "first",
+            }
+        )
+    )
+
+    # you don't actually need ipcc_code afterwards, so drop to keep old behaviour
     prices_usd_max.drop(["ipcc_code"], axis=1, inplace=True)
-    prices_usd_max.reset_index(inplace=True)
+
 
     world_row = pd.DataFrame({"jurisdiction":"World", "year":year, "max_price":prices_usd_max.max_price.max()}, index=[0])
     prices_usd_max = pd.concat([prices_usd_max, world_row], ignore_index=True)
@@ -137,8 +169,5 @@ def prepare_carbon_price_data(data_dir, year):
     #prices_usd.to_csv(path_input+r"_usd.csv", index = False)
     #ecp.to_csv(path_input+r"_ecp.csv", index = False)
     #coverage.to_csv(path_input+r"_coverage.csv", index = False)
-
-    prices_usd_max.to_csv(r"/Users/geoffroydolphin/GitHub/ECP/_output/_figures/dataFig/carbonPrices_usd_max_"+str(year)+".csv", index = False)
-    #prices_economy.to_csv(path_output+r"_economy.csv", index = False)
 
     return df, prices_usd_max

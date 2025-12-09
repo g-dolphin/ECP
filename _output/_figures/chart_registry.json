@@ -1,0 +1,197 @@
+[
+  {
+    "id": "carbon_price_minmax_2024",
+    "title": "Emissions-weighted carbon prices \u2013 min/max range (2024)",
+    "module": "proc_carbonPrices/plots_carbonPrices",
+    "function": "prepare_carbon_price_data \u2192 plot_minMax",
+    "plot_file": "plots/max_price_ecp_2024.png",
+    "data_file": "dataFig/carbonPrices_usd_max_2024.csv",
+    "params": {
+      "year": 2024,
+      "data_dir": "/Users/geoffroydolphin/GitHub/ECP/_raw/wcpd_usd/CO2/constantPrices/FixedXRate"
+    }
+  },
+  {
+    "id": "coverage_2024",
+    "title": "Share of CO\u2082 emissions covered by carbon pricing \u2013 2024",
+    "module": "plots_coverage",
+    "function": "coverage_plots",
+    "plot_file": "plots/coverage_2024.png",
+    "data_file": "dataFig/coverage_2024.csv",
+    "params": {
+      "year": 2024
+    }
+  },
+  {
+    "id": "world_sectors_2024",
+    "title": "World carbon prices by sector \u2013 2024",
+    "module": "plots_world_sectors",
+    "function": "plot_world_sectors",
+    "plot_file": "plots/world_sector_prices_2024.png",
+    "data_file": "dataFig/world_sector_prices_2024.csv",
+    "params": {
+      "year": 2024
+    }
+  },
+  {
+    "id": "ets_tax_selected_jurisdictions_2024",
+    "title": "ETS and carbon tax prices by jurisdiction \u2013 2024",
+    "module": "plots_ets_tax_jur",
+    "function": "plot_selected_jurisdictions",
+    "plot_file": "plots/ets_tax_selected_jurisdictions_2024.png",
+    "data_file": "dataFig/ets_tax_selected_jurisdictions_2024.csv",
+    "params": {
+      "year": 2024,
+      "jurisdictions": [
+        "World",
+        "European Union (ETS)",
+        "Germany",
+        "France",
+        "United Kingdom",
+        "Canada",
+        "United States",
+        "China",
+        "Japan",
+        "Korea, Republic of"
+      ]
+    }
+  },
+  {
+    "id": "us_subnational_stack",
+    "title": "Carbon price coverage \u2013 United States subnational jurisdictions",
+    "module": "plots_subnat_stacked",
+    "function": "plot_filtered_stacked_bar",
+    "plot_file": "plots/us_subnational_stack.png",
+    "data_file": "dataFig/us_subnational_stack.csv",
+    "params": {
+      "region": "United States"
+    }
+  },
+  {
+    "id": "canada_subnational_stack",
+    "title": "Carbon price coverage \u2013 Canada subnational jurisdictions",
+    "module": "plots_subnat_stacked",
+    "function": "plot_filtered_stacked_bar",
+    "plot_file": "plots/canada_subnational_stack.png",
+    "data_file": "dataFig/canada_subnational_stack.csv",
+    "params": {
+      "region": "Canada"
+    }
+  },
+  {
+    "id": "china_subnational_stack",
+    "title": "Carbon price coverage \u2013 China subnational jurisdictions",
+    "module": "plots_subnat_stacked",
+    "function": "plot_filtered_stacked_bar",
+    "plot_file": "plots/china_subnational_stack.png",
+    "data_file": "dataFig/china_subnational_stack.csv",
+    "params": {
+      "region": "China"
+    }
+  },
+  {
+    "id": "national_stack",
+    "title": "Carbon price coverage \u2013 national jurisdictions",
+    "module": "plots_national_stacked",
+    "function": "plot_stacked_national_bar",
+    "plot_file": "plots/national_stack.png",
+    "data_file": "dataFig/national_stack.csv",
+    "params": {}
+  },
+  {
+    "id": "cp_ts_jurisdictions",
+    "title": "Emissions-weighted CO\u2082 price \u2013 selected jurisdictions",
+    "module": "plots_cp_ts",
+    "function": "plot_cp_ts_jurisdictions",
+    "plot_file": "plots/cp_ts_jurisdictions.png",
+    "data_file": "dataFig/cp_ts_jurisdictions.csv",
+    "params": {
+      "top_n": 8,
+      "jurisdictions": [
+        "Uruguay",
+        "Norway",
+        "Sweden",
+        "Finland",
+        "Ireland",
+        "France",
+        "Denmark",
+        "Germany"
+      ]
+    }
+  },
+  {
+    "id": "cp_ts_world_sectors",
+    "title": "Emissions-weighted CO\u2082 price \u2013 world sectors",
+    "module": "plots_cp_ts",
+    "function": "plot_cp_ts_world_sectors",
+    "plot_file": "plots/cp_ts_world_sectors.png",
+    "data_file": "dataFig/cp_ts_world_sectors.csv",
+    "params": {}
+  },
+  {
+    "id": "cp_ts_regional",
+    "title": "Emissions-weighted CO\u2082 price \u2013 regional averages",
+    "module": "plots_cp_regional",
+    "function": "plot_cp_regional",
+    "plot_file": "plots/cp_ts_regional.png",
+    "data_file": "dataFig/cp_ts_regional.csv",
+    "params": {}
+  },
+  {
+    "id": "carbon_cost_gdp",
+    "title": "Carbon cost and CO\u2082 emissions per unit of GDP (2021)",
+    "module": "plots_ccost_gdp",
+    "function": "plot_ccost_gdp",
+    "plot_file": "plots/carbon_cost.png",
+    "data_file": "dataFig/carbon_cost.csv",
+    "params": {
+      "year": 2021
+    }
+  },
+  {
+    "id": "coverage_hm_national",
+    "title": "CO\u2082 coverage: national jurisdictions (1990\u2013latest)",
+    "module": "plots_coverage_heatmaps",
+    "function": "plot_coverage_heatmap",
+    "plot_file": "plots/coverage_hm_national.png",
+    "data_file": "dataFig/coverage_hm_national.csv",
+    "params": {
+      "type": "national"
+    }
+  },
+  {
+    "id": "coverage_hm_us_subnational",
+    "title": "CO\u2082 coverage: United States subnational (1990\u2013latest)",
+    "module": "plots_coverage_heatmaps",
+    "function": "plot_coverage_heatmap",
+    "plot_file": "plots/coverage_hm_us_subnational.png",
+    "data_file": "dataFig/coverage_hm_us_subnational.csv",
+    "params": {
+      "type": "subnational",
+      "region": "United States subnational"
+    }
+  },
+  {
+    "id": "coverage_hm_canada_subnational",
+    "title": "CO\u2082 coverage: Canada subnational (1990\u2013latest)",
+    "module": "plots_coverage_heatmaps",
+    "function": "plot_coverage_heatmap",
+    "plot_file": "plots/coverage_hm_canada_subnational.png",
+    "data_file": "dataFig/coverage_hm_canada_subnational.csv",
+    "params": {
+      "type": "subnational",
+      "region": "Canada subnational"
+    }
+  },
+  {
+    "id": "coverage_hm_world_sectors",
+    "title": "CO\u2082 coverage: world sectors (1990\u2013latest)",
+    "module": "plots_coverage_heatmaps",
+    "function": "plot_coverage_heatmap",
+    "plot_file": "plots/coverage_hm_world_sectors.png",
+    "data_file": "dataFig/coverage_hm_world_sectors.csv",
+    "params": {
+      "type": "world_sectors"
+    }
+  }
+]

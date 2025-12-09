@@ -1,61 +1,93 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Optional, Sequence, Union
+
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.interpolate import make_interp_spline
 import pandas as pd
 
-df = pd.read_csv("/Users/gd/GitHub/ECP/_output/_dataset/ecp/ipcc/ecp_economy/ecp_CO2_regional.csv")
+PathLike = Union[str, Path]
 
-# Apply a clean, publication-ready style
-plt.style.use('seaborn-whitegrid')
 
-regions = df['region'].unique()
+def plot_cp_regional(
+    df: pd.DataFrame,
+    region_col: str = "region",
+    year_col: str = "year",
+    value_col: str = "ecp_regional_CO2_usd_k",
+    regions: Optional[Sequence[str]] = None,
+    output_plot_path: Optional[PathLike] = None,
+    output_data_path: Optional[PathLike] = None,
+    title: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Plot time series of regional average carbon prices.
 
-# Set up figure
-fig, ax = plt.subplots(figsize=(12, 6))
+    Parameters
+    ----------
+    df : DataFrame
+        Regional ECP dataset with columns [region_col, year_col, value_col].
+    region_col : str
+        Column for region names.
+    year_col : str
+        Column for year.
+    value_col : str
+        Column for price (USD/tCO₂).
+    regions : sequence of str, optional
+        Regions to include. If None, all unique regions in df are used.
+    output_plot_path : str or Path, optional
+        PNG/PDF path for figure.
+    output_data_path : str or Path, optional
+        CSV path for underlying data.
+    title : str, optional
+        Figure title; if None, a default is constructed.
 
-# Define a consistent color cycle
-colors = plt.get_cmap("tab10")
-
-for i, region in enumerate(regions):
-    df_region = df[df['region'] == region].sort_values("year")
-    x = df_region['year']
-    y = df_region['CO2_price']
-
-    if len(x) > 3:
-        x_new = np.linspace(x.min(), x.max(), 300)
-        spline = make_interp_spline(x, y, k=3)
-        y_smooth = spline(x_new)
-        ax.plot(x_new, y_smooth, label=region, linewidth=2.2, color=colors(i))
+    Returns
+    -------
+    DataFrame
+        Long-format data actually plotted.
+    """
+    if regions is not None:
+        df_plot = df[df[region_col].isin(regions)].copy()
     else:
-        ax.plot(x, y, label=region, linewidth=2.2, color=colors(i))
+        df_plot = df.copy()
 
-# Labels and title
-ax.set_title("Emissions-weighted CO$_2$ Price, by global region", fontsize=18, weight='bold')
-ax.set_xlabel("Year", fontsize=14)
-ax.set_ylabel("CO$_2$ Price (USD/tCO$_2$)", fontsize=14)
+    df_plot = df_plot[[year_col, region_col, value_col]].dropna()
 
-# Ticks
-ax.tick_params(axis='both', which='major', labelsize=12)
+    fig, ax = plt.subplots(figsize=(11, 6))
 
-# Legend
-ax.legend(title="Region", fontsize=12, title_fontsize=13)
+    for region, sub in df_plot.groupby(region_col):
+        sub = sub.sort_values(year_col)
+        ax.plot(
+            sub[year_col],
+            sub[value_col],
+            label=str(region),
+            linewidth=2,
+        )
 
-# Grid styling
-ax.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.8)
+    ax.set_xlabel("Year", fontsize=11)
+    ax.set_ylabel("Carbon price (USD/tCO₂)", fontsize=11)
 
-# Remove top and right spines for cleaner look
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
+    if title is None:
+        title = "Regional average carbon prices over time"
+    ax.set_title(title, fontsize=13, weight="bold")
 
-# Tight layout for print
-fig.tight_layout()
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0), borderaxespad=0.0)
+    ax.grid(True, linestyle=":", alpha=0.4)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
-# Save as high-resolution PNG and PDF
-png_output = "/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_regional.png"
-pdf_output = "/Users/gd/GitHub/ECP/_output/_figures/plots/ecp_co2_regional.pdf"
+    fig.tight_layout()
 
-fig.savefig(png_output, dpi=600, bbox_inches='tight')
-fig.savefig(pdf_output, bbox_inches='tight')
+    if output_plot_path is not None:
+        output_plot_path = Path(output_plot_path)
+        output_plot_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_plot_path, dpi=300, bbox_inches="tight")
 
-plt.show()
+    plt.close(fig)
 
+    if output_data_path is not None:
+        output_data_path = Path(output_data_path)
+        output_data_path.parent.mkdir(parents=True, exist_ok=True)
+        df_plot.to_csv(output_data_path, index=False)
+
+    return df_plot
