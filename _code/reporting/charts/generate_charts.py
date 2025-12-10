@@ -289,9 +289,9 @@ def run_subnational_stacks() -> List[ChartRun]:
     runs: List[ChartRun] = []
 
     for label, subset, file_stub in [
-        ("United States", df[df["jurisdiction"].isin(US_STATES)], "us_subnational_stack"),
-        ("Canada", df[df["jurisdiction"].isin(CANADIAN_PROVINCES)], "canada_subnational_stack"),
-        ("China", df[df["jurisdiction"].isin(CHINA_PROVINCES)], "china_subnational_stack"),
+        ("United States", df[df["jurisdiction"].isin(US_STATES)], "subnat_stacked_United States"),
+        ("Canada", df[df["jurisdiction"].isin(CANADIAN_PROVINCES)], "subnat_stacked_Canada"),
+        ("China", df[df["jurisdiction"].isin(CHINA_PROVINCES)], "subnat_stacked_China"),
     ]:
         plot_path = PLOTS_DIR / f"{file_stub}.png"
         data_path = DATA_DIR / f"{file_stub}.csv"
@@ -319,8 +319,8 @@ def run_subnational_stacks() -> List[ChartRun]:
     national_input_path = Path("/Users/geoffroydolphin/GitHub/ECP/_output/_figures/dataFig") / "national_stacked_world.csv"
     df_national = pd.read_csv(national_input_path)
 
-    plot_path = PLOTS_DIR / "national_stack.png"
-    data_path = DATA_DIR / "national_stack.csv"
+    plot_path = PLOTS_DIR / "national_stacked_world.png"
+    data_path = DATA_DIR / "national_stacked_world.csv"
 
     plot_stacked_national_bar(
         df=df_national,
@@ -607,9 +607,9 @@ def run_coverage_heatmaps() -> List[ChartRun]:
 
     # --- Subnational heatmaps: US, Canada, China ---
     for label, subset_jurs, stub in [
-        ("United States subnational", US_STATES, "us_subnational"),
-        ("Canada subnational", CANADIAN_PROVINCES, "canada_subnational"),
-        ("China subnational", CHINA_PROVINCES, "china_subnational"),
+        ("United States subnational", US_STATES, "us"),
+        ("Canada subnational", CANADIAN_PROVINCES, "canada"),
+        ("China subnational", CHINA_PROVINCES, "china"),
     ]:
         data_sub = cov_jur[cov_jur["jurisdiction"].isin(subset_jurs)].copy()
         if data_sub.empty:
@@ -645,8 +645,8 @@ def run_coverage_heatmaps() -> List[ChartRun]:
         cov_world_sec["ipcc_code"].isin(WORLD_SECTOR_MAP.keys())
     ].copy()
 
-    plot_path = PLOTS_DIR / "coverage_hm_world_sectors.png"
-    data_path = DATA_DIR / "coverage_hm_world_sectors.csv"
+    plot_path = PLOTS_DIR / "coverage_hm_world_sec.png"
+    data_path = DATA_DIR / "coverage_hm_world_sec.csv"
 
     plot_coverage_heatmap(
         df=data_world_sec,
@@ -660,7 +660,7 @@ def run_coverage_heatmaps() -> List[ChartRun]:
 
     runs.append(
         ChartRun(
-            id="coverage_hm_world_sectors",
+            id="coverage_hm_world_sec",
             title="CO₂ coverage: world sectors (1990–latest)",
             module="plots_coverage_heatmaps",
             function="plot_coverage_heatmap",

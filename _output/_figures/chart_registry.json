@@ -57,34 +57,34 @@
     }
   },
   {
-    "id": "us_subnational_stack",
+    "id": "subnat_stacked_United States",
     "title": "Carbon price coverage \u2013 United States subnational jurisdictions",
     "module": "plots_subnat_stacked",
     "function": "plot_filtered_stacked_bar",
-    "plot_file": "plots/us_subnational_stack.png",
-    "data_file": "dataFig/us_subnational_stack.csv",
+    "plot_file": "plots/subnat_stacked_United States.png",
+    "data_file": "dataFig/subnat_stacked_United States.csv",
     "params": {
       "region": "United States"
     }
   },
   {
-    "id": "canada_subnational_stack",
+    "id": "subnat_stacked_Canada",
     "title": "Carbon price coverage \u2013 Canada subnational jurisdictions",
     "module": "plots_subnat_stacked",
     "function": "plot_filtered_stacked_bar",
-    "plot_file": "plots/canada_subnational_stack.png",
-    "data_file": "dataFig/canada_subnational_stack.csv",
+    "plot_file": "plots/subnat_stacked_Canada.png",
+    "data_file": "dataFig/subnat_stacked_Canada.csv",
     "params": {
       "region": "Canada"
     }
   },
   {
-    "id": "china_subnational_stack",
+    "id": "subnat_stacked_China",
     "title": "Carbon price coverage \u2013 China subnational jurisdictions",
     "module": "plots_subnat_stacked",
     "function": "plot_filtered_stacked_bar",
-    "plot_file": "plots/china_subnational_stack.png",
-    "data_file": "dataFig/china_subnational_stack.csv",
+    "plot_file": "plots/subnat_stacked_China.png",
+    "data_file": "dataFig/subnat_stacked_China.csv",
     "params": {
       "region": "China"
     }
@@ -94,8 +94,8 @@
     "title": "Carbon price coverage \u2013 national jurisdictions",
     "module": "plots_national_stacked",
     "function": "plot_stacked_national_bar",
-    "plot_file": "plots/national_stack.png",
-    "data_file": "dataFig/national_stack.csv",
+    "plot_file": "plots/national_stacked_world.png",
+    "data_file": "dataFig/national_stacked_world.csv",
     "params": {}
   },
   {
@@ -172,24 +172,24 @@
     }
   },
   {
-    "id": "coverage_hm_canada_subnational",
+    "id": "coverage_hm_canada",
     "title": "CO\u2082 coverage: Canada subnational (1990\u2013latest)",
     "module": "plots_coverage_heatmaps",
     "function": "plot_coverage_heatmap",
-    "plot_file": "plots/coverage_hm_canada_subnational.png",
-    "data_file": "dataFig/coverage_hm_canada_subnational.csv",
+    "plot_file": "plots/coverage_hm_canada.png",
+    "data_file": "dataFig/coverage_hm_canada.csv",
     "params": {
       "type": "subnational",
       "region": "Canada subnational"
     }
   },
   {
-    "id": "coverage_hm_world_sectors",
+    "id": "coverage_hm_world_sec",
     "title": "CO\u2082 coverage: world sectors (1990\u2013latest)",
     "module": "plots_coverage_heatmaps",
     "function": "plot_coverage_heatmap",
-    "plot_file": "plots/coverage_hm_world_sectors.png",
-    "data_file": "dataFig/coverage_hm_world_sectors.csv",
+    "plot_file": "plots/coverage_hm_world_sec.png",
+    "data_file": "dataFig/coverage_hm_world_sec.csv",
     "params": {
       "type": "world_sectors"
     }
