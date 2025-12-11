@@ -211,8 +211,8 @@ def run_world_sectors_2024() -> ChartRun:
     Relies on:
       - plots_world_sectors.plot_world_sectors(data_dir)
     """
-    plot_path = PLOTS_DIR / "world_sector_prices_2024.png"
-    data_path = DATA_DIR / "world_sector_prices_2024.csv"
+    plot_path = PLOTS_DIR / "world_sectors_prices_2024.png"
+    data_path = DATA_DIR / "world_sectors_prices_2024.csv"
 
     data_dir = REPO_ROOT / "_output" / "_dataset"
 
