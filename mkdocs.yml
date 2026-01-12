@@ -1,0 +1,27 @@
+site_name: Emissions-weighted Carbon Price
+site_description: Documentation for the ECP dataset, data pipeline, and reporting outputs.
+
+nav:
+  - Home: index.md
+  - Pipeline: pipeline.md
+  - Data Sources: data-sources.md
+  - Outputs: outputs.md
+  - Development: development.md
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js
+  - assets/mermaid-init.js
