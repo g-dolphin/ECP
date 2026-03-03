@@ -1,0 +1,19 @@
+countries:
+  MEX:
+    name: Mexico
+    adm1_id_field: GID_1
+    adm1_name_field: NAME_1
+    boundary_source: GADM
+    boundary_path: data/raw/boundaries/gadm41_MEX_1.gpkg
+  JPN:
+    name: Japan
+    adm1_id_field: GID_1
+    adm1_name_field: NAME_1
+    boundary_source: GADM
+    boundary_path: data/raw/boundaries/gadm41_JPN_1.gpkg
+  CHN:
+    name: China
+    adm1_id_field: GID_1
+    adm1_name_field: NAME_1
+    boundary_source: GADM
+    boundary_path: data/raw/boundaries/gadm41_CHN_1.gpkg

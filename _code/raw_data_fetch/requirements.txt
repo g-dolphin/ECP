@@ -1,0 +1,13 @@
+requests
+tqdm
+pandas
+pyyaml
+beautifulsoup4
+lxml
+xarray
+netCDF4
+rioxarray
+geopandas
+pyarrow
+shapely
+exactextract

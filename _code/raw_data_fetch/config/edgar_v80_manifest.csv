@@ -1,0 +1,82 @@
+release,gas,sector_code,sector_label,ipcc_category,nc_long_name,nc_description,nc_title,nc_standard_name,download_kind
+v80ghg,C2F6,NFE,Non-ferrous metals production,2C3-2C5,Non-ferrous metals production,Non-ferrous metals production,,,emi_nc
+v80ghg,CF4,NFE,Non-ferrous metals production,2C3-2C5,Non-ferrous metals production,Non-ferrous metals production,,,emi_nc
+v80ghg,CH4,AGS,Agricultural soils,3C2-3C7,Agricultural soils,Agricultural soils,,,emi_nc
+v80ghg,CH4,AWB,Agricultural waste burning,3C1b,Agricultural waste burning,Agricultural waste burning,,,emi_nc
+v80ghg,CH4,CDS,Aviation climbing_and_descent,1A3a_cds,Aviation climbing_and_descent,Aviation climbing_and_descent,,,emi_nc
+v80ghg,CH4,CHE,Chemical processes,2B,Chemical processes,Chemical processes,,,emi_nc
+v80ghg,CH4,CRS,Aviation cruise,1A3a_crs,Aviation cruise,Aviation cruise,,,emi_nc
+v80ghg,CH4,ENE,Power Industry,1A1A,Power Industry,Power Industry,,,emi_nc
+v80ghg,CH4,ENF,Enteric fermentation,3A1,Enteric fermentation,Enteric fermentation,,,emi_nc
+v80ghg,CH4,FFF,Fuel exploitation,1B1a,Fuel exploitation,Fuel exploitation,,,emi_nc
+v80ghg,CH4,INC,Solid waste incineration,4C,Solid waste incineration,Solid waste incineration,,,emi_nc
+v80ghg,CH4,IND,Combustion for manufacturing,1A2,Combustion for manufacturing,Combustion for manufacturing,,,emi_nc
+v80ghg,CH4,IRO,Iron and steel production,2C1-2C2,Iron and steel production,Iron and steel production,,,emi_nc
+v80ghg,CH4,LDF,Solid waste landfills,4A-4B,Solid waste landfills,Solid waste landfills,,,emi_nc
+v80ghg,CH4,LTO,Aviation landing_and_takeoff,1A3a_lto,Aviation landing_and_takeoff,Aviation landing_and_takeoff,,,emi_nc
+v80ghg,CH4,MNM,Manure management,3A2,Manure management,Manure management,,,emi_nc
+v80ghg,CH4,OTHER,"Railways, pipelines, off-road transport",1A3c-e,"Railways, pipelines, off-road transport","Railways, pipelines, off-road transport",,,emi_nc
+v80ghg,CH4,RCO,Energy for buildings,1A4-1A5,Energy for buildings,Energy for buildings,,,emi_nc
+v80ghg,CH4,SHIP,Shipping,1A3d,Shipping,Shipping,,,emi_nc
+v80ghg,CH4,SPS,Aviation supersonic,1A3a_sps,Aviation supersonic,Aviation supersonic,,,emi_nc
+v80ghg,CH4,TRF,Oil refineries and Transformation industry,1A1b-1B1b,Oil refineries and Transformation industry,Oil refineries and Transformation industry,,,emi_nc
+v80ghg,CH4,TRO,Road transportation,1A3b,Road transportation,Road transportation,,,emi_nc
+v80ghg,CH4,WWT,Waste water handling,4D,Waste water handling,Waste water handling,,,emi_nc
+v80ghg,CO2,AGS,Agricultural soils,3C2-3C7,Agricultural soils,Agricultural soils,,,emi_nc
+v80ghg,CO2,CDS,Aviation climbing_and_descent,1A3a_cds,Aviation climbing_and_descent,Aviation climbing_and_descent,,,emi_nc
+v80ghg,CO2,CHE,Chemical processes,2B,Chemical processes,Chemical processes,,,emi_nc
+v80ghg,CO2,CRS,Aviation cruise,1A3a_crs,Aviation cruise,Aviation cruise,,,emi_nc
+v80ghg,CO2,ENE,Power Industry,1A1A,Power Industry,Power Industry,,,emi_nc
+v80ghg,CO2,FFF,Fuel exploitation,1B1a,Fuel exploitation,Fuel exploitation,,,emi_nc
+v80ghg,CO2,INC,Solid waste incineration,4C,Solid waste incineration,Solid waste incineration,,,emi_nc
+v80ghg,CO2,IND,Combustion for manufacturing,1A2,Combustion for manufacturing,Combustion for manufacturing,,,emi_nc
+v80ghg,CO2,IRO,Iron and steel production,2C1-2C2,Iron and steel production,Iron and steel production,,,emi_nc
+v80ghg,CO2,LTO,Aviation landing_and_takeoff,1A3a_lto,Aviation landing_and_takeoff,Aviation landing_and_takeoff,,,emi_nc
+v80ghg,CO2,NEU,Non energy use of fuels,2D1-2D4,Non energy use of fuels,Non energy use of fuels,,,emi_nc
+v80ghg,CO2,NFE,Non-ferrous metals production,2C3-2C5,Non-ferrous metals production,Non-ferrous metals production,,,emi_nc
+v80ghg,CO2,NMM,Non-metallic minerals production,2A,Non-metallic minerals production,Non-metallic minerals production,,,emi_nc
+v80ghg,CO2,OTHER,"Railways, pipelines, off-road transport",1A3c-e,"Railways, pipelines, off-road transport","Railways, pipelines, off-road transport",,,emi_nc
+v80ghg,CO2,RCO,Energy for buildings,1A4-1A5,Energy for buildings,Energy for buildings,,,emi_nc
+v80ghg,CO2,SHIP,Shipping,1A3d,Shipping,Shipping,,,emi_nc
+v80ghg,CO2,SOL,Solvents and products use,2D3-2G,Solvents and products use,Solvents and products use,,,emi_nc
+v80ghg,CO2,SPS,Aviation supersonic,1A3a_sps,Aviation supersonic,Aviation supersonic,,,emi_nc
+v80ghg,CO2,TRF,Oil refineries and Transformation industry,1A1b-1B1b,Oil refineries and Transformation industry,Oil refineries and Transformation industry,,,emi_nc
+v80ghg,CO2,TRO,Road transportation,1A3b,Road transportation,Road transportation,,,emi_nc
+v80ghg,CO2BIO,AWB,Agricultural waste burning,3C1b,Agricultural waste burning,Agricultural waste burning,,,emi_nc
+v80ghg,CO2BIO,CDS,Aviation climbing_and_descent,1A3a_cds,Aviation climbing_and_descent,Aviation climbing_and_descent,,,emi_nc
+v80ghg,CO2BIO,CRS,Aviation cruise,1A3a_crs,Aviation cruise,Aviation cruise,,,emi_nc
+v80ghg,CO2BIO,ENE,Power Industry,1A1A,Power Industry,Power Industry,,,emi_nc
+v80ghg,CO2BIO,FFF,Fuel exploitation,1B1a,Fuel exploitation,Fuel exploitation,,,emi_nc
+v80ghg,CO2BIO,INC,Solid waste incineration,4C,Solid waste incineration,Solid waste incineration,,,emi_nc
+v80ghg,CO2BIO,IND,Combustion for manufacturing,1A2,Combustion for manufacturing,Combustion for manufacturing,,,emi_nc
+v80ghg,CO2BIO,IRO,Iron and steel production,2C1-2C2,Iron and steel production,Iron and steel production,,,emi_nc
+v80ghg,CO2BIO,LTO,Aviation landing_and_takeoff,1A3a_lto,Aviation landing_and_takeoff,Aviation landing_and_takeoff,,,emi_nc
+v80ghg,CO2BIO,OTHER,"Railways, pipelines, off-road transport",1A3c-e,"Railways, pipelines, off-road transport","Railways, pipelines, off-road transport",,,emi_nc
+v80ghg,CO2BIO,RCO,Energy for buildings,1A4-1A5,Energy for buildings,Energy for buildings,,,emi_nc
+v80ghg,CO2BIO,SHIP,Shipping,1A3d,Shipping,Shipping,,,emi_nc
+v80ghg,CO2BIO,TRF,Oil refineries and Transformation industry,1A1b-1B1b,Oil refineries and Transformation industry,Oil refineries and Transformation industry,,,emi_nc
+v80ghg,CO2BIO,TRO,Road transportation,1A3b,Road transportation,Road transportation,,,emi_nc
+v80ghg,HCFC-141B,SOL,Solvents and products use,2D3-2G,Solvents and products use,Solvents and products use,,,emi_nc
+v80ghg,HCFC-142B,SOL,Solvents and products use,2D3-2G,Solvents and products use,Solvents and products use,,,emi_nc
+v80ghg,N2O,AGS,Agricultural soils,3C2-3C7,Agricultural soils,Agricultural soils,,,emi_nc
+v80ghg,N2O,AWB,Agricultural waste burning,3C1b,Agricultural waste burning,Agricultural waste burning,,,emi_nc
+v80ghg,N2O,CDS,Aviation climbing_and_descent,1A3a_cds,Aviation climbing_and_descent,Aviation climbing_and_descent,,,emi_nc
+v80ghg,N2O,CHE,Chemical processes,2B,Chemical processes,Chemical processes,,,emi_nc
+v80ghg,N2O,CRS,Aviation cruise,1A3a_crs,Aviation cruise,Aviation cruise,,,emi_nc
+v80ghg,N2O,ENE,Power Industry,1A1A,Power Industry,Power Industry,,,emi_nc
+v80ghg,N2O,FFF,Fuel exploitation,1B1a,Fuel exploitation,Fuel exploitation,,,emi_nc
+v80ghg,N2O,IDE,Indirect emissions from NOx and NH3,5A,Indirect emissions from NOx and NH3,Indirect emissions from NOx and NH3,,,emi_nc
+v80ghg,N2O,INC,Solid waste incineration,4C,Solid waste incineration,Solid waste incineration,,,emi_nc
+v80ghg,N2O,IND,Combustion for manufacturing,1A2,Combustion for manufacturing,Combustion for manufacturing,,,emi_nc
+v80ghg,N2O,LDF,Solid waste landfills,4A-4B,Solid waste landfills,Solid waste landfills,,,emi_nc
+v80ghg,N2O,LTO,Aviation landing_and_takeoff,1A3a_lto,Aviation landing_and_takeoff,Aviation landing_and_takeoff,,,emi_nc
+v80ghg,N2O,MNM,Manure management,3A2,Manure management,Manure management,,,emi_nc
+v80ghg,N2O,N2O,Indirect N2O emissions from agriculture,3C5-3C6,Indirect N2O emissions from agriculture,Indirect N2O emissions from agriculture,,,emi_nc
+v80ghg,N2O,OTHER,"Railways, pipelines, off-road transport",1A3c-e,"Railways, pipelines, off-road transport","Railways, pipelines, off-road transport",,,emi_nc
+v80ghg,N2O,RCO,Energy for buildings,1A4-1A5,Energy for buildings,Energy for buildings,,,emi_nc
+v80ghg,N2O,SHIP,Shipping,1A3d,Shipping,Shipping,,,emi_nc
+v80ghg,N2O,SOL,Solvents and products use,2D3-2G,Solvents and products use,Solvents and products use,,,emi_nc
+v80ghg,N2O,SPS,Aviation supersonic,1A3a_sps,Aviation supersonic,Aviation supersonic,,,emi_nc
+v80ghg,N2O,TRF,Oil refineries and Transformation industry,1A1b-1B1b,Oil refineries and Transformation industry,Oil refineries and Transformation industry,,,emi_nc
+v80ghg,N2O,TRO,Road transportation,1A3b,Road transportation,Road transportation,,,emi_nc
+v80ghg,N2O,WWT,Waste water handling,4D,Waste water handling,Waste water handling,,,emi_nc
