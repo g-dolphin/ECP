@@ -9,22 +9,21 @@ This repository builds the ECP dataset from raw pricing, emissions, and macroeco
 
 ## Mermaid overview
 
-```mermaid
-%%{init: {"flowchart": {"htmlLabels": false}}}%%
+<div class="mermaid">
 flowchart LR
   subgraph "Raw Inputs"
-    WCPD["_raw/wcpd_usd\nWorld Carbon Pricing Database"]
-    WCPD_CF["_raw/wcpd_cfWeightedPrices_usd\ncoverage-weighted prices"]
-    WB["_raw/wb_rates\nWorld Bank + BIS rates"]
-    INV["_raw/ghg_inventory\ninventory sources + GWP"]
-    AUX["_raw/_aux_files\nmapping & concordances"]
+    WCPD["_raw/wcpd_usd - World Carbon Pricing Database"]
+    WCPD_CF["_raw/wcpd_cfWeightedPrices_usd - coverage-weighted prices"]
+    WB["_raw/wb_rates - World Bank and BIS rates"]
+    INV["_raw/ghg_inventory - inventory sources and GWP"]
+    AUX["_raw/_aux_files - mapping and concordances"]
   end
 
   subgraph "Compilation"
-    UTIL["_code/compilation/_utils/dep_ecp\nPython utilities"]
-    IPCC["_code/compilation/ecp/ipcc\nnotebooks"]
-    IND["_code/compilation/ecp/industry\nR pipeline"]
-    CCOST["_code/compilation/ccost\ncarbon cost scripts"]
+    UTIL["_code/compilation/_utils/dep_ecp - Python utilities"]
+    IPCC["_code/compilation/ecp/ipcc - notebooks"]
+    IND["_code/compilation/ecp/industry - R pipeline"]
+    CCOST["_code/compilation/ccost - carbon cost scripts"]
   end
 
   subgraph "Outputs"
@@ -35,7 +34,7 @@ flowchart LR
 
   subgraph "Reporting"
     CHARTS[_code/reporting/charts]
-    REPORTS["_code/reporting/reports\nQuarto"]
+    REPORTS["_code/reporting/reports - Quarto"]
     FIGS[_output/_figures]
     TABLES[_output/_tables]
     PDFHTML[_output/_reports]
@@ -64,7 +63,7 @@ flowchart LR
   REPORTS --> PDFHTML
   FIGS --> REPORTS
   TABLES --> REPORTS
-```
+</div>
 
 ## Compilation highlights
 
