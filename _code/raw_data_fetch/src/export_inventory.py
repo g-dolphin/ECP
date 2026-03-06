@@ -44,7 +44,10 @@ def export_pair(pair_dir: Path):
 
 def main():
     data_root = Path(
-        os.environ.get("EDGAR_DATA_ROOT", "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/edgar")
+        os.environ.get(
+            "EDGAR_DATA_ROOT",
+            "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/raw/subnational/jrc_edgar_gridded",
+        )
     )
     base = data_root / "output" / "by_gas_sector"
     if not base.exists():

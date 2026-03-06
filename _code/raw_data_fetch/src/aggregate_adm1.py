@@ -11,6 +11,19 @@ from exactextract import exact_extract
 
 from src.utils import pick_data_var, normalize_lon, years_in_dataset, slice_year
 
+def load_edgar_ipcc_map(map_path: Path) -> dict[str, str]:
+    df = pd.read_csv(map_path)
+    df.columns = [c.lstrip("\ufeff").strip() for c in df.columns]
+    edgar_col = "edgar_id"
+    ipcc_col = "ipcc_code"
+    if edgar_col not in df.columns or ipcc_col not in df.columns:
+        raise ValueError(f"Expected columns {edgar_col} and {ipcc_col} in {map_path}")
+    return {
+        str(k).strip(): str(v).strip()
+        for k, v in zip(df[edgar_col], df[ipcc_col])
+        if pd.notna(k) and pd.notna(v)
+    }
+
 def exact_zonal_sum(da: xr.DataArray, polygons: gpd.GeoDataFrame) -> np.ndarray:
     import rioxarray  # noqa: F401
 
@@ -33,9 +46,20 @@ def infer_year_from_filename(name: str) -> list[int]:
 def main():
     min_year = int(os.environ.get("EDGAR_MIN_YEAR", "2010"))
     data_root = Path(
-        os.environ.get("EDGAR_DATA_ROOT", "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/edgar")
+        os.environ.get(
+            "EDGAR_DATA_ROOT",
+            "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/raw/subnational/jrc_edgar_gridded",
+        )
     )
     manifest = pd.read_csv("config/edgar_v80_manifest.csv")
+    ipcc_map_path = Path(
+        os.environ.get("EDGAR_IPCC_MAP", "/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/edgar_ipcc_map.csv")
+    )
+    if ipcc_map_path.exists():
+        ipcc_map = load_edgar_ipcc_map(ipcc_map_path)
+        manifest["ipcc_category"] = (
+            manifest["sector_code"].map(ipcc_map).fillna(manifest.get("ipcc_category"))
+        )
     cfg = yaml.safe_load(open("config/countries.yml", "r", encoding="utf-8"))
 
     boundaries_dir = data_root / "interim" / "boundaries"

@@ -104,11 +104,14 @@ def process_zip(
     dry_run: bool,
     out_rows: list[dict],
     ipcc_category: str | None,
+    ipcc_map: dict[str, str] | None,
 ):
     nc_names = [n for n in zf.namelist() if n.lower().endswith(".nc")]
     if nc_names:
         gas = infer_gas(nc_names)
         sector = infer_sector(zip_name, nc_names)
+        if ipcc_map and sector in ipcc_map:
+            ipcc_category = ipcc_map[sector]
 
         out_dir = out_base / release / gas / sector / "netcdf"
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -147,13 +150,20 @@ def process_zip(
                     dry_run,
                     out_rows,
                     ipcc_category,
+                    ipcc_map,
                 )
         return
 
     print(f"Warning: no .nc or nested .zip files in {zip_name}")
 
 
-def process_ipcc_dir(ipcc_dir: Path, release: str, out_base: Path, dry_run: bool) -> list[dict]:
+def process_ipcc_dir(
+    ipcc_dir: Path,
+    release: str,
+    out_base: Path,
+    dry_run: bool,
+    ipcc_map: dict[str, str] | None,
+) -> list[dict]:
     out_rows: list[dict] = []
     for zip_path in sorted(ipcc_dir.glob("*.zip")):
         with zipfile.ZipFile(zip_path, "r") as zf:
@@ -165,8 +175,23 @@ def process_ipcc_dir(ipcc_dir: Path, release: str, out_base: Path, dry_run: bool
                 dry_run,
                 out_rows,
                 ipcc_dir.name,
+                ipcc_map,
             )
     return out_rows
+
+
+def load_edgar_ipcc_map(map_path: Path) -> dict[str, str]:
+    df = pd.read_csv(map_path)
+    df.columns = [c.lstrip("\ufeff").strip() for c in df.columns]
+    edgar_col = "edgar_id"
+    ipcc_col = "ipcc_code"
+    if edgar_col not in df.columns or ipcc_col not in df.columns:
+        raise ValueError(f"Expected columns {edgar_col} and {ipcc_col} in {map_path}")
+    return {
+        str(k).strip(): str(v).strip()
+        for k, v in zip(df[edgar_col], df[ipcc_col])
+        if pd.notna(k) and pd.notna(v)
+    }
 
 
 def build_manifest(rows: list[dict], release: str, out_path: Path | None, out_base: Path) -> pd.DataFrame:
@@ -231,7 +256,10 @@ def main():
     args = ap.parse_args()
 
     data_root = Path(
-        os.environ.get("EDGAR_DATA_ROOT", "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/edgar")
+        os.environ.get(
+            "EDGAR_DATA_ROOT",
+            "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/raw/subnational/jrc_edgar_gridded",
+        )
     )
     out_base = Path(args.out_base) if args.out_base else (data_root / "raw" / "edgar")
     if args.root is None and args.ipcc_dir is None:
@@ -240,18 +268,25 @@ def main():
     if bool(args.ipcc_dir) == bool(args.root):
         raise SystemExit("Provide exactly one of --ipcc-dir or --root.")
 
+    ipcc_map_path = Path(
+        os.environ.get("EDGAR_IPCC_MAP", "/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/edgar_ipcc_map.csv")
+    )
+    ipcc_map = None
+    if ipcc_map_path.exists():
+        ipcc_map = load_edgar_ipcc_map(ipcc_map_path)
+
     rows = []
     if args.ipcc_dir:
         ipcc_dir = Path(args.ipcc_dir)
         if not ipcc_dir.exists():
             raise FileNotFoundError(ipcc_dir)
-        rows.extend(process_ipcc_dir(ipcc_dir, args.release, out_base, args.dry_run))
+        rows.extend(process_ipcc_dir(ipcc_dir, args.release, out_base, args.dry_run, ipcc_map))
     else:
         root = Path(args.root)
         if not root.exists():
             raise FileNotFoundError(root)
         for ipcc_dir in iter_ipcc_dirs(root):
-            rows.extend(process_ipcc_dir(ipcc_dir, args.release, out_base, args.dry_run))
+            rows.extend(process_ipcc_dir(ipcc_dir, args.release, out_base, args.dry_run, ipcc_map))
 
     summary = pd.DataFrame(rows)
     if summary.empty:

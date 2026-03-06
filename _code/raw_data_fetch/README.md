@@ -48,10 +48,10 @@ This will:
 ## Data Root
 
 By default, scripts write to:
-`/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/edgar`
+`/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/raw/subnational/jrc_edgar_gridded`
 
 Override with:
-`EDGAR_DATA_ROOT=/path/to/edgar`
+`EDGAR_DATA_ROOT=/path/to/jrc_edgar_gridded`
 
 ## Notes & QA
 

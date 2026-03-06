@@ -10,7 +10,10 @@ from tqdm import tqdm
 
 GALLERY_URL = "https://edgar.jrc.ec.europa.eu/gallery"
 DATA_ROOT = Path(
-    os.environ.get("EDGAR_DATA_ROOT", "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/edgar")
+    os.environ.get(
+        "EDGAR_DATA_ROOT",
+        "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/raw/subnational/jrc_edgar_gridded",
+    )
 )
 
 def find_netcdf_zip_url(release: str, gas: str, sector: str, download_kind: str = "emi_nc") -> str:

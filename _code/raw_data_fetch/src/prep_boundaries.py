@@ -4,7 +4,10 @@ import yaml
 import geopandas as gpd
 
 DATA_ROOT = Path(
-    os.environ.get("EDGAR_DATA_ROOT", "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/edgar")
+    os.environ.get(
+        "EDGAR_DATA_ROOT",
+        "/Users/geoffroydolphin/GitHub/ECP/_raw/ghg_inventory/raw/subnational/jrc_edgar_gridded",
+    )
 )
 
 def main():
