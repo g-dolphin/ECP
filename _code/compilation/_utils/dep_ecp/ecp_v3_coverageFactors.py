@@ -6,15 +6,41 @@ Created on Wed Mar 23 10:05:24 2022
 @author: gd
 """
 
+import os
+from pathlib import Path
+
 from dep_ecp import ecp_v3_gen_func as ecp_gen
 
-def coverageFactors(inst_df, gas):
+def _resolve_wcpd_repo_root():
+    candidates = []
+
+    env_root = os.environ.get("WCPD_REPO_ROOT")
+    if env_root:
+        candidates.append(Path(env_root).expanduser())
+
+    cwd = Path.cwd().resolve()
+    candidates.extend([
+        cwd.parent / "WorldCarbonPricingDatabase",
+        Path.home() / "GitHub" / "WorldCarbonPricingDatabase",
+    ])
+
+    for candidate in candidates:
+        if (candidate / "_raw" / "coverageFactor").exists():
+            return candidate
+
+    raise FileNotFoundError(
+        "Could not find the WorldCarbonPricingDatabase checkout. "
+        "Set WCPD_REPO_ROOT to the repo root."
+    )
+
+def coverageFactors(inst_df, gas, wcpd_repo_root=None):
     
     tax_id_cols = [x for x in inst_df.columns if x.startswith("tax_") and x.endswith("_id")]
     ets_id_cols = [x for x in inst_df.columns if x.startswith("ets_") and x.endswith("_id")]
     
     ## LOAD COVERAGE FACTORS FILES 
-    coverageFactor = ecp_gen.concatenate("/Users/geoffroydolphin/GitHub/WorldCarbonPricingDatabase/_raw/coverageFactor" + "/" + gas)
+    wcpd_repo_root = Path(wcpd_repo_root).expanduser() if wcpd_repo_root else _resolve_wcpd_repo_root()
+    coverageFactor = ecp_gen.concatenate(str(wcpd_repo_root / "_raw" / "coverageFactor" / gas))
     coverageFactor = coverageFactor[["scheme_id", "jurisdiction", "year", "ipcc_code", "cf_"+gas]]
     
 
