@@ -61,7 +61,7 @@ def _resolve_root(path, default):
 def load_canada_data(path=None):
     root = _resolve_root(path, DEFAULT_GHG_RAW_ROOT)
     df = pd.read_csv(
-        root / "subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2023.csv"
+        root / "subnational/Canada/harmonized_data/ECCC/GHG_IPCC_Can_Prov_Terr_2026.csv"
     )
     df = df[~df.Region.str.lower().eq("canada")]
 
