@@ -1,26 +1,38 @@
 # script for calculating price series at the level of aggregate IPCC categories
 
+import math
+import os
+from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import re
-import numpy as np
-import math
 from itertools import chain
 import dep_ecp
 
 from dep_ecp import ecp_v3_gen_func as ecp_gen
 
-ipccCodes = pd.read_csv("/Users/geoffroydolphin/GitHub/ECP/_raw/_aux_files/ipcc2006_iea_category_codes.csv")
+REPO_ROOT = Path(__file__).resolve().parents[4]
+DEFAULT_WCPD_REPO_ROOT = REPO_ROOT.parent / "WorldCarbonPricingDatabase"
+WCPD_REPO_ROOT = Path(
+    os.environ.get("WCPD_REPO_ROOT", str(DEFAULT_WCPD_REPO_ROOT))
+).expanduser()
+WCPD_USD_ROOT = REPO_ROOT / "_raw" / "wcpd_usd"
+CF_WEIGHTED_OUTPUT_ROOT = REPO_ROOT / "_raw" / "wcpd_cfWeightedPrices_usd"
+inventoryPath = REPO_ROOT / "_raw" / "ghg_inventory" / "processed"
+LAST_DB_YEAR = 2025
 
-# need to specify which inventory one is drawing from (national or subnational) and specify the corresponding path
-inventoryPath = "/Users/gd/OneDrive - rff/Documents/Research/projects/ecp/ecp_dataset/source_data/ghg_inventory/processed/"
-invName = {"national":"nat", "subnational":"subnat"}
+ipccCodes = pd.read_csv(REPO_ROOT / "_raw" / "_aux_files" / "ipcc2006_iea_category_codes.csv")
+
+invName = {"national": "nat", "subnational": "subnat"}
 
 
 def cfWeightedPrices(gas, priceSeries, priceSeriesPath, 
                      price_cols, wcpd_all, countries_dic, subnat_dic):
 
     # PRICES
-    prices_usd = ecp_gen.concatenate("/Users/gd/GitHub/ECP/_raw/wcpd_usd/"+gas+priceSeriesPath)
+    prices_root = WCPD_USD_ROOT / gas / str(priceSeriesPath).strip("/")
+    prices_usd = ecp_gen.concatenate(str(prices_root))
 
     # currently including the price of the main tax or ets scheme; should be revised to account for all schemes
     prices_usd = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]]
@@ -49,10 +61,17 @@ def cfWeightedPrices(gas, priceSeries, priceSeriesPath,
 
     prices_usd  = prices_usd[["jurisdiction", "year", "ipcc_code", "iea_code", "Product"]+price_cols[priceSeries]+[all_inst_col]].sort_values(by=["jurisdiction", "year"])
 
+    CF_WEIGHTED_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     for jur in countries_dic.keys():
-        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/gd/GitHub/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+countries_dic[jur]+".csv", index=None)
+        prices_usd.loc[prices_usd.jurisdiction == jur, :].to_csv(
+            CF_WEIGHTED_OUTPUT_ROOT / f"prices_usd_{gas}_{countries_dic[jur]}.csv",
+            index=None,
+        )
     for jur in subnat_dic.keys():
-        prices_usd.loc[prices_usd.jurisdiction==jur, :].to_csv("/Users/gd/GitHub/ECP/_raw/wcpd_cfWeightedPrices_usd/prices_usd_"+gas+"_"+subnat_dic[jur]+".csv", index=None)
+        prices_usd.loc[prices_usd.jurisdiction == jur, :].to_csv(
+            CF_WEIGHTED_OUTPUT_ROOT / f"prices_usd_{gas}_{subnat_dic[jur]}.csv",
+            index=None,
+        )
 
 
     return prices_usd, all_inst_col
@@ -75,17 +94,17 @@ def inventoryShare(category, jurGroup, gas, level):
 
     # 1. Load inventory and filter relevant columns
     inventory = pd.read_csv(
-        f"{inventoryPath}/inventory_{invName[jurGroup]}_{gas}.csv",
+        inventoryPath / f"inventory_{invName[jurGroup]}_{gas}.csv",
         usecols=['jurisdiction', 'year', 'ipcc_code', 'iea_code', 'Product', gas]
     )
-    inventory = inventory[inventory.year <= 2022]
-
-    # 2. Add projections for 2023–2024 by copying 2022
-    for yr in range(2023, 2025):
-        inventory = pd.concat(
-            [inventory, inventory[inventory.year == 2022].assign(year=yr)],
-            ignore_index=True
-        )
+    last_inventory_year = int(inventory["year"].max())
+    if last_inventory_year < LAST_DB_YEAR:
+        latest_inventory = inventory[inventory.year == last_inventory_year].copy()
+        for yr in range(last_inventory_year + 1, LAST_DB_YEAR + 1):
+            inventory = pd.concat(
+                [inventory, latest_inventory.assign(year=yr)],
+                ignore_index=True,
+            )
 
     # 3. Build list of subcategories (children of the given category)
     ipcc_subcats = [
@@ -132,4 +151,3 @@ def inventoryShare(category, jurGroup, gas, level):
     tempAll.drop(columns=[f"{gas}_agg"], inplace=True)
 
     return tempAll
-
