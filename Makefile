@@ -1,12 +1,12 @@
-SCRIPTS_DIR = /Users/gd/GitHub/ECP/_code/reporting
-OUTPUT_DIR = /Users/gd/GitHub/ECP/_output/_reports
+SCRIPTS_DIR := $(CURDIR)/_code/reporting
+OUTPUT_DIR := $(CURDIR)/_output/_reports
 
 charts:
 	python $(SCRIPTS_DIR)/charts/generate_charts.py
 
 report-html:
 	mkdir -p $(OUTPUT_DIR)
-	quarto $(SCRIPTS_DIR)/reports/report.qmd --to html --output wcpd_report.html
+	quarto render $(SCRIPTS_DIR)/reports/report.qmd --to html --output wcpd_report.html
 
 report-pdf:
 	mkdir -p $(OUTPUT_DIR)
