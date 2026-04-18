@@ -37,3 +37,4 @@ mkdocs build
 
 - Dataset paper: Dolphin, G., Merkle, M. (2024). Emissions-weighted Carbon Price: Source and Methods. Scientific Data.
 - Pricing data repository: https://github.com/gd1989/WorldCarbonPricingDatabase
+- Public/private repository boundary: see `Public Scope`.

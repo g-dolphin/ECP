@@ -6,6 +6,7 @@ nav:
   - Pipeline: pipeline.md
   - Data Sources: data-sources.md
   - Outputs: outputs.md
+  - Public Scope: public-scope.md
   - Development: development.md
 
 theme:
