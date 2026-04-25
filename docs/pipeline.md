@@ -22,6 +22,7 @@ flowchart LR
   subgraph "Compilation"
     UTIL["_code/compilation/_utils/dep_ecp - Python utilities"]
     IPCC["_code/compilation/ecp/ipcc - notebooks"]
+    IND["_code/compilation/ecp/industry - R pipeline"]
     CCOST["_code/compilation/ccost - carbon cost scripts"]
   end
 
@@ -46,9 +47,11 @@ flowchart LR
   AUX --> UTIL
 
   UTIL --> IPCC
+  UTIL --> IND
   UTIL --> CCOST
 
   IPCC --> ECP
+  IND --> ECP
   UTIL --> COV
   CCOST --> CC
 
@@ -66,7 +69,7 @@ flowchart LR
 
 - `dep_ecp` in `_code/compilation/_utils` hosts shared Python utilities for coverage factors, currency conversion, inventory processing, and weighted averages.
 - IPCC notebooks in `_code/compilation/ecp/ipcc` generate national and sector ECP calculations from harmonized inputs.
-- Industry-specific processing and other restricted-source workflows are maintained outside this public repository.
+- Industry-level processing in `_code/compilation/ecp/industry` uses R scripts to import, match, and check sectoral concordances.
 
 ## Reporting highlights
 

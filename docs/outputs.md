@@ -5,7 +5,7 @@ The repository writes final datasets and reporting artifacts under `_output`.
 ## Datasets
 
 - `_output/_dataset/ecp`
-  - Core ECP results (national and sectoral).
+  - Core ECP results (national and sectoral), including IPCC and industry aggregates.
 - `_output/_dataset/coverage`
   - Emissions coverage factors used in weighting.
 - `_output/_dataset/carbonCost`

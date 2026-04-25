@@ -1,22 +1,8 @@
-# Site output
-page/__site/
-
-# OS/editor local files
+page/__site
 .DS_Store
-.Rhistory
-.vscode/
-.ipynb_checkpoints/
-.Rproj.user/
+_code/.DS_Store
+_dataset/.DS_Store
+_dataset/price/.DS_Store
+.Rproj.user
 
-# Python cache/build artifacts
-__pycache__/
-*.pyc
-*.pyo
-
-# Local data scratch
 /_raw/ghg_inventory
-
-# Public repo boundary (kept private elsewhere)
-_code/compilation/ecp/industry/
-_code/reporting/reports/report_files/
-_output/_dataset/v2025.0/ecp/industry/
