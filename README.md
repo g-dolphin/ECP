@@ -6,6 +6,8 @@ The Emissions-weighted Carbon Price (ECP) is an economy-wide average price on CO
 
 If this dataset has been useful to you or simply think it's cool, feel free to give it a ⭐!
 
+**Notice:** As of May 30, 2026, all World Carbon Pricing Database data are available at [worldcarbonpricing.org/developers](worldcarbonpricing.org/developers). This repository no longer serves as a data distribution channel and will not be updated with new data releases.
+
 ## Jurisdiction average
 
 It is calculated for 198 national and 75 subnational jurisdictions (13 Canadian provinces and territories, 50 US states, and 22 Chinese provinces) over 1990–2024. The average World CO2 price is also calculated. For national jurisdictions, the emissions-weighted price accounts for the prices arising from carbon pricing instruments introduced in their respective subnational jurisdictions. For instance, the emissions-weighted price for the United States includes the prices arising from state-level carbon pricing mechanisms.
